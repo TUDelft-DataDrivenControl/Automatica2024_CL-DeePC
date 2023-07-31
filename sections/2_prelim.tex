@@ -24,7 +24,7 @@ in which $R>0$, $\delta_{kj}$ is the Kronecker delta function (1 if $k=j$, 0 oth
 \end{align}
 \end{subequations}
 in which $x_k\in\mathbb{R}^{n}$ represents states (different from $\bar{x}_k$), $e_k$ represents so called innovation noise, and $K\in\mathbb{R}^{n\times l}$ is a constant Kalman gain matrix that renders ${\tilde{A}=A-KC}$ asymptotically stable. By substituting \eqnref{eqn:SSi_y} into \eqnref{eqn:SSi_x} one alternatively obtains the equivalent predictor form
-\begin{subequations}\label{eqn:SS_innovation}
+\begin{subequations}\label{eqn:SS_predictor}
 \begin{align}
 	x_{k+1} &= \tilde{A}x_k + \tilde{B}u_k + Ky_k,\label{eqn:SSp_x}\\
 	y_k &= Cx_k + Du_k + e_k \label{eqn:SSp_y},
