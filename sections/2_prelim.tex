@@ -2,40 +2,58 @@
 This section presents the employed system model description and notation that are used throughout this article.
 
 \subsection{System Model}
-A typical generic, non-deterministic discrete \ac{LTI} system considers both process and measurement noise
-\begin{subequations}\label{eqn:SS_wv}
-\begin{align}
-	\bar{x}_{k+1} &= A\bar{x}_k + Bu_k + w_k,\label{eqn:SSwv_x}\\
-	y_k &= C\bar{x}_k + Du_k + v_k \label{eqn:SSwv_y},
-\end{align}
-\end{subequations}
-in which ${\bar{x}_k\in\mathbb{R}^n}$, ${u_k\in\mathbb{R}^r}$, ${y_k\in\mathbb{R}^l}$, ${w_k\in\mathbb{R}^n}$, ${v_k\in\mathbb{R}^l}$, respectively are states, inputs, outputs, process noise, and measurement noise at the time instant denoted by the subscript $k$. In addition, $A$, $B$, $C$, $D$ respectively are the state transition, input, output, and direct-feedthrough matrices of corresponding dimensions.
-
-Let the process and measurement noise be zero-mean random sequences with covariance matrix
-\begin{equation*}
-    \mathbb{E}\left\{\begin{bmatrix}w_k\\v_k\end{bmatrix}\begin{bmatrix}w_j^\top & v_j^\top\end{bmatrix}\right\} =
-\begin{bmatrix}Q & S\\S^\top & R\end{bmatrix}\delta_{kj},
-\end{equation*}
-in which $R>0$, $\delta_{kj}$ is the Kronecker delta function (1 if $k=j$, 0 otherwise). If the covariance matrix above, before $\delta_{kj}$, is positive semi-definite, the pair $(A,\,C)$ is observable, and $(A,\,Q^{1/2})$ is reachable, then there exists an innovation form representation that is equivalent to~\eqnref{eqn:SS_wv} given by~\cite[p.~\todo{Find pages}]{Anderson1979}, \cite[p.~162]{Verhaegen2007a}%
-\begin{subequations}\label{eqn:SS_innovation}
+The system model considered here is of a non-deterministic discrete \ac{LTI} nature and takes a typical innovation form given by
+\begin{subequations}\label{eqn:SS_innovation1}
 \begin{align}
 	x_{k+1} &= Ax_k + Bu_k + Ke_k,\label{eqn:SSi_x}\\
 	y_k &= Cx_k + Du_k + e_k \label{eqn:SSi_y},
 \end{align}
 \end{subequations}
-in which $x_k\in\mathbb{R}^{n}$ represents states (different from $\bar{x}_k$), $e_k$ represents so called innovation noise, and $K\in\mathbb{R}^{n\times l}$ is a constant Kalman gain matrix that renders ${\tilde{A}=A-KC}$ asymptotically stable. By substituting \eqnref{eqn:SSi_y} into \eqnref{eqn:SSi_x} one alternatively obtains the equivalent predictor form
-\begin{subequations}\label{eqn:SS_predictor}
+in which $x_k\in\mathbb{R}^{n}$ represents states, $e_k$ represents so called innovation noise, and $K\in\mathbb{R}^{n\times l}$ is a constant Kalman gain matrix that renders ${\tilde{A}=A-KC}$ asymptotically stable. Provided that this system satisfies often-encountered notions of observability and reachability this system resembles a class of systems that is affected by both process and measurement noise (see~\cite[p.~112-113\todo{Check pages}]{Anderson1979}, or \cite[p.~162]{Verhaegen2007a} for details).
+
+By substituting \eqnref{eqn:SSi_y} into \eqnref{eqn:SSi_x} one alternatively obtains the equivalent predictor form
+\begin{subequations}\label{eqn:SS_predictor1}
 \begin{align}
 	x_{k+1} &= \tilde{A}x_k + \tilde{B}u_k + Ky_k,\label{eqn:SSp_x}\\
 	y_k &= Cx_k + Du_k + e_k \label{eqn:SSp_y},
 \end{align}
 \end{subequations}
 in which $\tilde{B}=B-KD$.
+%=======================================================================================================
+% A typical generic, non-deterministic discrete \ac{LTI} system considers both process and measurement noise
+% \begin{subequations}\label{eqn:SS_wv}
+% \begin{align}
+% 	\bar{x}_{k+1} &= A\bar{x}_k + Bu_k + w_k,\label{eqn:SSwv_x}\\
+% 	y_k &= C\bar{x}_k + Du_k + v_k \label{eqn:SSwv_y},
+% \end{align}
+% \end{subequations}
+% in which ${\bar{x}_k\in\mathbb{R}^n}$, ${u_k\in\mathbb{R}^r}$, ${y_k\in\mathbb{R}^l}$, ${w_k\in\mathbb{R}^n}$, ${v_k\in\mathbb{R}^l}$, respectively are states, inputs, outputs, process noise, and measurement noise at the time instant denoted by the subscript $k$. In addition, $A$, $B$, $C$, $D$ respectively are the state transition, input, output, and direct-feedthrough matrices of corresponding dimensions.
+
+% Let the process and measurement noise be zero-mean random sequences with covariance matrix
+% \begin{equation*}
+%     \mathbb{E}\left\{\begin{bmatrix}w_k\\v_k\end{bmatrix}\begin{bmatrix}w_j^\top & v_j^\top\end{bmatrix}\right\} =
+% \begin{bmatrix}Q & S\\S^\top & R\end{bmatrix}\delta_{kj},
+% \end{equation*}
+% in which $R>0$, $\delta_{kj}$ is the Kronecker delta function (1 if $k=j$, 0 otherwise). If the covariance matrix above, before $\delta_{kj}$, is positive semi-definite, the pair $(A,\,C)$ is observable, and $(A,\,Q^{1/2})$ is reachable, then there exists an innovation form representation that is equivalent to~\eqnref{eqn:SS_wv} given by~\cite[p.~112-113\todo{Check pages}]{Anderson1979}, \cite[p.~162]{Verhaegen2007a}%
+% \begin{subequations}\label{eqn:SS_innovation}
+% \begin{align}
+% 	x_{k+1} &= Ax_k + Bu_k + Ke_k,\label{eqn:SSi_x}\\
+% 	y_k &= Cx_k + Du_k + e_k \label{eqn:SSi_y},
+% \end{align}
+% \end{subequations}
+% in which $x_k\in\mathbb{R}^{n}$ represents states (different from $\bar{x}_k$), $e_k$ represents so called innovation noise, and $K\in\mathbb{R}^{n\times l}$ is a constant Kalman gain matrix that renders ${\tilde{A}=A-KC}$ asymptotically stable. By substituting \eqnref{eqn:SSi_y} into \eqnref{eqn:SSi_x} one alternatively obtains the equivalent predictor form
+% \begin{subequations}\label{eqn:SS_predictor}
+% \begin{align}
+% 	x_{k+1} &= \tilde{A}x_k + \tilde{B}u_k + Ky_k,\label{eqn:SSp_x}\\
+% 	y_k &= Cx_k + Du_k + e_k \label{eqn:SSp_y},
+% \end{align}
+% \end{subequations}
+% in which $\tilde{B}=B-KD$.
 
 \subsection{Notation}
 Having described the different representations of the considered discrete, non-deterministic \ac{LTI} systems, this section introduces the notation used in this work.
 
-To start, a block-Toeplitz matrices are defined by
+To start, block-Toeplitz matrices are defined by
 \begin{align}\label{eqn:blockToeplitz} 
 \mathcal{T}_s(\mathcal{A},\mathcal{B},\mathcal{C},\mathcal{D}) =\scriptsize{
 	\begin{bmatrix}
@@ -67,7 +85,7 @@ Furthermore, data vectors are denoted as examplified by
 \begin{align*}
     \datavec{y}{i,p} = \begin{bmatrix} y_i^\top & y_{i+1}^\top & \cdots & y_{i+p-1}^\top\end{bmatrix}^\top,
 \end{align*}
-which represents a vector of ordered output data starting at the time index given by the first subscript $i$, and containing a number of data samples indicated by the second subscript $p$. Akin to $f$, the subscript $p\in\mathbb{Z}^+$ will be used throughout this work to refer to a strictly-positive integer that represents a certain window length of data.
+which represents a vector of ordered output data starting at the time index given by the first subscript $i$, and containing a number of samples indicated by the second subscript $p$. Akin to $f$, the subscript $p\in\mathbb{Z}^+$ will be used throughout this work to refer to a strictly-positive integer that represents a certain window length of data.
 
 Using such data vectors it is possible to concisely define block-Hankel data matrices. Such a block-Hankel data matrix is examplified by
 \begin{align*}
