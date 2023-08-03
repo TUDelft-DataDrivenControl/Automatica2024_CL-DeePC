@@ -1,0 +1,33 @@
+\section{\acl{CL-DeePC}}
+To explain the newly-developed \acf{CL-DeePC} framework, consider applying regular \ac{DeePC} $f$ times to the same past data to find consecutive step-ahead predictions of the outputs. This is succinctly described by
+
+\begin{align}\label{eq:CL_DeePC_no_IVs}
+\begin{bmatrix}
+    U_{i,p,N}\\U_{i_p,1,N}\\Y_{i,p,N}\\ \hline Y_{i_p,1,N}
+\end{bmatrix}
+\underbrace{
+\begin{bmatrix}
+    g_1 & g_2 & \cdots & g_f
+\end{bmatrix}}_{= G} =
+\begin{bmatrix}
+    U_{\hat{i},p,f}\\
+    U_{\hat{i}_p,1,f}\\
+    \widetilde{Y}_{\hat{i},p,f}\\
+    \hline
+    \widehat{Y}_{\hat{i}_p,1,f}
+\end{bmatrix},
+% \begin{bmatrix}
+%     \datavec{u}{\hat{i},p} & \datavec{u}{\hat{i}+1,p} & \cdots & \datavec{u}{\hat{i}+f-1,p}\\
+%     \datavec{u}{\hat{i}_p,1} & \datavec{u}{\hat{i}_p+1,1} & \cdots & \datavec{u}{\hat{i}_p+f-1,1}\\
+%     \datavec{y}{\hat{i},p} & \datavec{y}{\hat{i}+1,p} & \cdots & \datavec{y}{\hat{i}+f-1,p}\\
+%     \datavec{y}{\hat{i}_p,1} & \datavec{y}{\hat{i}_p+1,1} & \cdots & \datavec{y}{\hat{i}_p+f-1,1}
+% \end{bmatrix}
+\end{align}
+in which $i$, $i_p=i+p$, $\hat{i}$, and $\hat{i}_p=\hat{i}+p$ are discrete time indices (the first three indices lie in the past, and the last index $\hat{i}_p$ resembles the first future time index), and the matrix containing the collection of subsequent vectors $\{g_k\}^f_{k=1}$ is defined by $G$. As with regular \ac{DeePC} the idea is to find optimal vectors and future inputs (contained here in respectively $G$ and $U_{\hat{i}_p,1,f}$) so as to realise predicted future outputs (contained here in $\widehat{Y}_{\hat{i}_p,1,f}$) that minimize a cost function that is possibly subject to constraints.
+
+\begin{figure}[b!]
+\centering
+\input{tikzpictures/CL-DeePC}
+\caption{Visualization of known (black) and unknown (red) variables in the \ac{CL-DeePC} framework given by \ref{eq:CL_DeePC_no_IVs}. Each dot represents a 'block' of inputs $u_k$, outputs $y_k$, or element of the matrix G.}
+\label{fig:CL-DeePC}
+\end{figure}
