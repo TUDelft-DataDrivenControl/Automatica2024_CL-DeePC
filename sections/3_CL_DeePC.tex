@@ -1,5 +1,5 @@
-\section{\acl{CL-DeePC}}
-To explain the newly-developed \acf{CL-DeePC} framework, consider applying regular \ac{DeePC} $f$ times to the same past data to find consecutive step-ahead predictions of the outputs. This is succinctly described by
+\section{Closed-loop Data-enabled Predictive Control}
+To explain the newly-developed \ac{CL-DeePC} framework, consider applying regular \ac{DeePC} $f$ times to the same past data to find consecutive step-ahead predictions of the outputs. This is succinctly described by
 
 \begin{align}\label{eq:CL_DeePC_no_IVs}
 \begin{bmatrix}
@@ -28,6 +28,7 @@ in which $i$, $i_p=i+p$, $\hat{i}$, and $\hat{i}_p=\hat{i}+p$ are discrete time 
 \begin{figure}[b!]
 \centering
 \input{tikzpictures/CL-DeePC}
-\caption{Visualization of known (black) and unknown (red) variables in the \ac{CL-DeePC} framework given by \ref{eq:CL_DeePC_no_IVs}. Each dot represents a 'block' of inputs $u_k$, outputs $y_k$, or element of the matrix G.}
+\caption{Visualization of known (black) and unknown (red) variables in \eqref{eq:CL_DeePC_no_IVs}. %Each dot represents a `block' of inputs $u_k$, outputs $y_k$, or element of the matrix G.
+Note that block-anti-diagonals of inputs or outputs contain the same time sample everywhere, meaning that successive applications of regular \ac{DeePC}}
 \label{fig:CL-DeePC}
 \end{figure}
