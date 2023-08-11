@@ -1,0 +1,127 @@
+\section{Closed-loop \acs{DeePC} solution methods}\label{sec:SolutionMethods}
+Having derived a new \ac{CL-DeePC} framework without and with \ac{IVs}, this section describes several methods to employ the stated equations in a receding horizon optimal control framework. Note that whether applying \eqref{eq:CL_DeePC_no_IVs} or \eqref{eq:CL_DeePC_IV} makes little difference to the solution method as long as the input is sufficiently persistently exciting such that $\mathcal{Z}_{i,1,N}$ is full row rank and the equation reduces to a form given by Fig.~\ref{fig:CL-DeePC} with ${m=(p+1)r+pl}$. Selecting a larger number of columns $N$ in \eqref{eq:CL_DeePC_no_IVs} unnecessarily adds more optimization variables and is therefore not considered here.
+%
+% =====================================================================================================================
+% =====================================================================================================================
+\subsection{Direct application in a solver}
+One obvious way to apply \ac{CL-DeePC} is simply to apply \eqref{eq:CL_DeePC_no_IVs} or \eqref{eq:CL_DeePC_IV} in an optimizer together with possible constraints and a typically quadratic cost function and repeat the procedure for each new time step. This is possible because as Fig.~\ref{fig:CL-DeePC} demonstrates \ac{CL-DeePC} makes use of a system of $f(p+1)(r+l)$ equations that, due to the block-Hankel structure on the right hand side, contain $fm+f(r+l)$ unknowns. Since, as described above, ${m=(p+1)r+pl}$, this leaves $fr$ degrees of freedom, which lends itself well to optimization over future inputs $U_{\hat{i}_p,1,f}$.
+%
+% =====================================================================================================================
+% =====================================================================================================================
+\subsection{Constructing a predictor that is explicit in inputs}
+Imagine explicitly solving for $G$ in terms of $\mathcal{Z}_{\hat{i},1,f}$ and using this as an output predictor. Then with $\mathcal{I}=I_N$ for \eqref{eq:CL_DeePC_no_IVs} and $\mathcal{I}=\mathcal{Z}_{i,1,N}$ for \eqref{eq:CL_DeePC_IV}:
+\begin{align}\label{eq:OutputPred2}
+     \widehat{Y}_{\hat{i}_p,1,f} = Y_{i_p,1,N}{\mathcal{I}}^\top \left(\mathcal{Z}_{i,1,N}{\mathcal{I}}^\top\right)\inv\mathcal{Z}_{\hat{i},1,f}.
+\end{align}
+The relationship between the output predictor and $\mathcal{Z}_{\hat{i},1,f}$ in \eqref{eq:OutputPred2} demonstrates that predicted future outputs are dependent on concurrent and preceding inputs as well as preceding outputs. The dependence of future output predictions on past inputs is contained in part implicitly by the dependence on preceding outputs, as demonstrated by the combination of \eqref{eq:OutputPred2} and Fig.~\ref{fig:CL-DeePC}. This motivates the construction of a multi-step output predictor that contains only an explicit dependence on future inputs over which one can then optimize a (potentially constrained) cost function in a receding horizon framework.
+\subsubsection{One-shot}
+One way to arrive at such an explicit description of the output predictor is to reformulate the \ac{CL-DeePC} formulations from \eqref{eq:CL_DeePC_no_IVs} or \eqref{eq:CL_DeePC_IV} to separate the known and unknown variables as vectors. To this end, consider the vectorization of \eqref{eq:CL_DeePC_IV}, which yields
+\begin{align}\label{eq:Vectorize1}
+    \underbrace{\left(\mkern-3mu I_f \otimes \begin{bmatrix}
+        \mathcal{Z}_{i,1,N}\\
+        Y_{i_p,1,N}
+    \end{bmatrix}{\mathcal{I}_\mathrm{IV}}^\top\mkern-3mu\right)}_{=\mathcal{D}^\mathrm{p}}\text{vec}(G)=\text{vec}\mkern-3mu\left(\mkern-3mu\begin{bmatrix}
+        \mathcal{Z}_{\hat{i},1,f}\\
+        \widehat{Y}_{\hat{i}_p,1,f}
+    \end{bmatrix}\mkern-3mu\right),
+\end{align}%
+in which $\mathcal{D}^\mathrm{p}$ is defined as shown for convenience. With reference to Fig.~\ref{fig:CL-DeePC}, the right hand side of \eqref{eq:Vectorize1} can clearly be decomposed into a vector of known past input-output data $b^\mathrm{p}$, and a vector of unknown future data from which it is straightforward to factorize the unknown future inputs $\datavec{u}{\hat{i}_p,f}$ and predicted outputs $\datavec{\hat{y}}{\hat{i}_p,f}$. The resulting reformulation of \eqref{eq:Vectorize1} is
+\begin{align}
+    \mathcal{D}^\mathrm{p}\text{vec}(G) = b^\mathrm{p}+\mathcal{A}^\mathrm{u}\datavec{u}{\hat{i}_p,f} + \mathcal{A}^\mathrm{y}\datavec{\hat{y}}{\hat{i}_p,f},
+\end{align}
+in which $\mathcal{A}^\mathrm{u}$ and $\mathcal{A}^\mathrm{y}$ are sparse matrices with full column rank that result from the aforementioned factorization of respectively unknown future inputs and outputs. The unknowns $G$ and $\datavec{\hat{y}}{\hat{i}_p,f}$ can then be obtained simultaneously from
+\begin{align}
+    \begin{bmatrix}
+        \text{vec}(G)\\
+        \datavec{\hat{y}}{\hat{i}_p,f}
+    \end{bmatrix} =
+    \begin{bmatrix}
+        \mathcal{D}^\mathrm{p} & -\mathcal{A}^\mathrm{y}
+    \end{bmatrix}\inv \left(b^\mathrm{p} + \mathcal{A}^\mathrm{u}\datavec{u}{\hat{i}_p,f}\right),
+\end{align}
+in which the inverse is assumed to exist.\todo{Existence conditions?}
+%
+% =====================================================================================================================
+% =====================================================================================================================
+\subsubsection{Sequential}
+Alternatively, vectorization of \eqref{eq:OutputPred2} and factorization into contributions by inputs and outputs leads to
+\begin{align}\label{eq:Sequential1}
+    \datavec{\hat{y}}{\hat{i}_p,f} &=
+    \begin{bmatrix}
+        \widetilde{\mathcal{L}}^\mathrm{u} & \widetilde{\mathcal{G}}^\mathrm{u} 
+    \end{bmatrix}    
+    \begin{bmatrix}
+        \datavec{u}{\hat{i},p}\\
+        \datavec{u}{\hat{i}_p,f}
+    \end{bmatrix}+
+    \begin{bmatrix}
+        \widetilde{\mathcal{L}}^\mathrm{y} & \widetilde{\mathcal{G}}^\mathrm{y} 
+    \end{bmatrix}    
+    \begin{bmatrix}
+        \datavec{y}{\hat{i},p}\\
+        \datavec{\hat{y}}{\hat{i}_p,f}
+    \end{bmatrix},
+\end{align}
+in which
+\begin{align*}
+    % -----------------------------------------------------------------------------------------------------------------
+    \begin{bmatrix}
+        \widetilde{\mathcal{L}}^\mathrm{u} & \widetilde{\mathcal{G}}^\mathrm{u} 
+    \end{bmatrix}&= {\scriptsize
+    \begin{bmatrix}
+        \tilde{\beta}_1     & \cdots      & \tilde{\beta}_{p}   & \tilde{\beta}_{p+1} & \mathcal{O} & \mathcal{O} & \cdots      & \mathcal{O}\\
+        \mathcal{O} & \tilde{\beta}_1     & \cdots      & \tilde{\beta}_{p}   & \tilde{\beta}_{p+1} & \mathcal{O} & \cdots      & \mathcal{O}\\
+        \vdots      & \ddots      & \ddots      &             & \ddots      & \ddots      & \ddots      & \vdots     \\
+        \mathcal{O} & \cdots      & \mathcal{O} & \tilde{\beta}_1     & \cdots      & \tilde{\beta}_{p}   & \tilde{\beta}_{p+1} & \mathcal{O}\\
+        \mathcal{O} & \cdots      & \mathcal{O} & \mathcal{O} & \tilde{\beta}_1     & \cdots      & \tilde{\beta}_{p}   & \tilde{\beta}_{p+1}\\
+    \end{bmatrix}},\\
+    % -----------------------------------------------------------------------------------------------------------------
+    \begin{bmatrix}
+        \widetilde{\mathcal{L}}^\mathrm{y} & \widetilde{\mathcal{G}}^\mathrm{y} 
+    \end{bmatrix}&= {\scriptsize
+    \begin{bmatrix}
+        \tilde{\theta}_1    & \cdots      & \tilde{\theta}_{p}  & \mathcal{O}  & \mathcal{O}  & \mathcal{O} & \cdots       & \mathcal{O}\\
+        \mathcal{O} & \tilde{\theta}_1    & \cdots      & \tilde{\theta}_{p}   & \mathcal{O}  & \mathcal{O} & \cdots       & \mathcal{O}\\
+        \vdots      & \ddots      & \ddots      &              & \ddots       & \ddots      & \ddots       & \vdots     \\
+        \mathcal{O} & \cdots      & \mathcal{O} & \tilde{\theta}_1     & \cdots       & \tilde{\theta}_{p}  & \mathcal{O}  & \mathcal{O}\\
+        \mathcal{O} & \cdots      & \mathcal{O} & \mathcal{O}  & \tilde{\theta}_1     & \cdots      & \tilde{\theta}_{p}   & \mathcal{O}\\
+    \end{bmatrix}},
+\end{align*}
+with the matrix blocks $\tilde{\beta}\in\mathbb{R}^{l\times r}$, $\tilde{\theta}\in\mathbb{R}^{l\times l}$, and large matrices defined such that $\widetilde{\mathcal{L}}^\mathrm{u}\in\mathbb{R}^{fl\times pr}$, $\widetilde{\mathcal{G}}^\mathrm{u}\in\mathbb{R}^{fl\times fr}$, $\widetilde{\mathcal{L}}^\mathrm{y}\in\mathbb{R}^{fl\times pl}$, and $\widetilde{\mathcal{G}}^\mathrm{y}\in\mathbb{R}^{fl\times fl}$.
+
+Notice that the predicted future outputs feature on both the left and right hand side of \eqref{eq:Sequential1}. Solving for these predicted outputs yields
+\begin{align}\label{eq:Sequential2}
+    \datavec{\hat{y}}{\hat{i}_p,f} &=
+    \begin{bmatrix}
+        \mathcal{L}^\mathrm{u} & \mathcal{L}^\mathrm{y} 
+    \end{bmatrix}    
+    \begin{bmatrix}
+        \datavec{u}{\hat{i},p}\\
+        \datavec{y}{\hat{i},p}
+    \end{bmatrix}+
+    \mathcal{G}^\mathrm{u}
+    \datavec{u}{\hat{i}_p,f},
+\end{align}
+in which $\mathcal{L}^\mathrm{u}$, $\mathcal{G}^\mathrm{u}$, and $\mathcal{L}^\mathrm{y}$ are uniquely defined by
+\begin{align}\label{eq:Sequential3}
+    \left(I_{fl}-\widetilde{\mathcal{G}}^\mathrm{y}\right)
+    \begin{bmatrix}
+        \mathcal{L}^\mathrm{u} & \mathcal{G}^\mathrm{u} & \mathcal{L}^\mathrm{y}
+    \end{bmatrix}=
+    % \left(I_{fl}-\widetilde{\mathcal{G}}^\mathrm{y}\right)\inv
+    \begin{bmatrix}
+        \widetilde{\mathcal{L}}^\mathrm{u} & \widetilde{\mathcal{G}}^\mathrm{u} & \widetilde{\mathcal{L}}^\mathrm{y}
+    \end{bmatrix}.
+\end{align}
+Since $I_{fl}-\widetilde{\mathcal{G}}^\mathrm{y}$ is invertible, \eqref{eq:Sequential3} can be solved directly for $\big[\mathcal{L}^\mathrm{u} \; \mathcal{G}^\mathrm{u} \; \mathcal{L}^\mathrm{y}\big]$ to construct the input-explicit predictor given by \eqref{eq:Sequential2}. However, an efficient sequential procedure is also possible that exploits the structure of $I_{fl}-\widetilde{\mathcal{G}}^\mathrm{y}$.
+
+For this sequential procedure, define the $f$ block-rows of $\big[\widetilde{\mathcal{L}}^\mathrm{u} \; \widetilde{\mathcal{G}}^\mathrm{u} \; \widetilde{\mathcal{L}}^\mathrm{y}\big]$ and $\big[\mathcal{L}^\mathrm{u} \; \mathcal{G}^\mathrm{u} \; \mathcal{L}^\mathrm{y}\big]$ by respectively $\tilde{\alpha}_j$, ${\alpha_j\in\mathbb{R}^{l\times p(r+l)+fr}}$, with $j$ here representing the index of the block row: $j=0,1,\dots,f-1$. It is then straightforward to show from \eqref{eq:Sequential3} that
+\begin{align}\label{eq:Sequential4}
+    \alpha_j=
+    \left\{\begin{array}{ll}
+    \mathcal{O},     & \text{if } j<0\\
+    \tilde{\alpha}_j,& \text{if } j=0\\
+    \tilde{\alpha}_j + \sum\limits_{r=1}^{p}\tilde{\theta}_r\alpha_{r-p+j-1}, & \text{if } j \geq 1
+    \end{array}\right..
+\end{align}
+This formulation allows the efficient sequential construction of $\big[\mathcal{L}^\mathrm{u} \; \mathcal{G}^\mathrm{u} \; \mathcal{L}^\mathrm{y}\big]$ starting from $j=0$. From the subsequent section, it will become clear that $\mathcal{G}^\mathrm{u}$ is a causal block-Toeplitz matrix, meaning that the matrix is fully parameterized by its leftmost block column. As such one may choose to only solve this portion of $\mathcal{G}^\mathrm{u}$ in \eqref{eq:Sequential3} using \eqref{eq:Sequential4} and to construct the complete matrix from this.

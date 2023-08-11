@@ -9,7 +9,7 @@ The system model considered here is of a non-deterministic discrete \ac{LTI} nat
 	y_k &= Cx_k + Du_k + e_k \label{eqn:SSi_y},
 \end{align}
 \end{subequations}
-in which ${x_k\in\mathbb{R}^n}$, ${u_k\in\mathbb{R}^r}$, ${y_k\in\mathbb{R}^l}$, $e_k$ respectively represent states, inputs, outputs, and innovation noise, and $\{A,B,C,D,K\}$ are system matrices of compatible dimensions, with $K\in\mathbb{R}^{n\times l}$ as a constant Kalman gain matrix that renders ${\tilde{A}=A-KC}$ asymptotically stable. Provided that this system satisfies often-encountered notions of observability and reachability this system resembles a class of systems that is affected by both process and measurement noise (see~\cite[p.~112-113\todo{Check pages}]{Anderson1979}, or \cite[p.~162]{Verhaegen2007a} for details).
+in which ${x_k\in\mathbb{R}^n}$, ${u_k\in\mathbb{R}^r}$, ${y_k\in\mathbb{R}^l}$, $e_k$ respectively represent states, inputs, outputs, and zero-mean, white innovation noise, and $\{A,B,C,D,K\}$ are system matrices of compatible dimensions, with $K\in\mathbb{R}^{n\times l}$ as a constant Kalman gain matrix that renders ${\tilde{A}=A-KC}$ asymptotically stable. Provided that this system satisfies often-encountered notions of observability and reachability this system resembles a class of systems that is affected by both process and measurement noise (see~\cite[p.~112-113\todo{Check pages}]{Anderson1979}, or \cite[p.~162]{Verhaegen2007a} for details).
 
 By substituting \eqnref{eqn:SSi_y} into \eqnref{eqn:SSi_x} one alternatively obtains the equivalent predictor form
 \begin{subequations}\label{eqn:SS_predictor}
@@ -20,26 +20,26 @@ By substituting \eqnref{eqn:SSi_y} into \eqnref{eqn:SSi_x} one alternatively obt
 \end{subequations}
 in which $\tilde{B}=B-KD$.
 
-\subsection{Notation}
+\subsection{Notation}\label{sec:notation}
 Having described the different representations of the considered discrete, non-deterministic \ac{LTI} systems, this section introduces the notation used in this work.
 
 To start, block-Toeplitz matrices are defined by
 \begin{align}\label{eqn:blockToeplitz} 
 \mathcal{T}_s(\mathcal{A},\mathcal{B},\mathcal{C},\mathcal{D}) =\scriptsize{
 	\begin{bmatrix}
-		\mathcal{D}         & 0         & 0      & \cdots  & 0\\
-		\mathcal{C}\mathcal{B}        & \mathcal{D}         & 0      & \cdots  & 0\\
-		\mathcal{C}\mathcal{A}\mathcal{B}       & \mathcal{C}\mathcal{B}        & \mathcal{D}      & \cdots & 0\\
+		\mathcal{D}         & \mathcal{O}         & \mathcal{O}      & \cdots  & \mathcal{O}\\
+		\mathcal{C}\mathcal{B}        & \mathcal{D}         & \mathcal{O}      & \cdots  & \mathcal{O}\\
+		\mathcal{C}\mathcal{A}\mathcal{B}       & \mathcal{C}\mathcal{B}        & \mathcal{D}      & \cdots & \mathcal{O}\\
 		\vdots    &  \vdots & \ddots & \ddots & \vdots\\
 		\mathcal{C}\mathcal{A}^{s-2}\mathcal{B} & \mathcal{C}\mathcal{A}^{s-3}\mathcal{B} & \cdots  & \mathcal{C}\mathcal{B}     & \mathcal{D}
 	\end{bmatrix}},
 \end{align}
-in which the subscript $s$ indicates the number of block-rows, and the matrices $\mathcal{A}$, $\mathcal{B}$, $\mathcal{C}$, and $\mathcal{D}$ are all of compatible dimensions. Let $I_s\in\mathbb{R}^{s\times s}$ represent an identity matrix and $f\in\mathbb{Z}^+$ a strictly-positive integer prediction window length. Equation~\eqnref{eqn:blockToeplitz} thereby defines the block-Toeplitz matrices
+in which the subscript $s$ indicates the number of block-rows, the matrices $\mathcal{A}$, $\mathcal{B}$, $\mathcal{C}$, $\mathcal{D}$, and $\mathcal{O}$ are all of compatible dimensions, with $\mathcal{O}$ representing a null matrix. Let ${I_s\in\mathbb{R}^{s\times s}}$ represent an identity matrix and $f\in\mathbb{Z}^+$ a strictly-positive integer prediction window length. Equation~\eqnref{eqn:blockToeplitz} thereby defines the block-Toeplitz matrices
 \begin{alignat*}{2}
 \Tf{u}&=\mathcal{T}_f(A,B,C,D),\quad  &\Hf&=\mathcal{T}_f(A,K,C,I_l),\\
 \tTf{u}&=\mathcal{T}_f(\tilde{A},\tilde{B},C,D),\quad  &\tHf&=\mathcal{T}_f(\tilde{A},K,-C,I_l).
 \end{alignat*}
-
+%
 In addition, two extended observability matrices are defined by
 \begin{align*}
 \Gf &= \begin{bmatrix}C^\top & (CA)^\top & \cdots & (CA^{f-1})^\top\end{bmatrix}^\top\quad\text{and}\\
@@ -50,7 +50,13 @@ and two extended reversed controllability matrices are defined as
 \tKp{u} &= \begin{bmatrix} \tilde{A}^{p-1}\tilde{B}\:\, & \tilde{A}^{p-2}\tilde{B} & \cdots & \tilde{A}\tilde{B} & \tilde{B}\:\, \end{bmatrix},\text{ and}\\
 \tKp{y} &= \begin{bmatrix} \tilde{A}^{p-1}K & \tilde{A}^{p-2}K & \cdots & \tilde{A}K & K \end{bmatrix}.
 \end{align*}
-
+%
+From the above matrices, two reoccurring so called `dynamic matrices' are defined as
+\begin{align*}
+    L_s &= \begin{bmatrix} \Gamma_s\tKp{u} & \mathcal{T}_s^\mathrm{u} & \Gamma_s\tKp{y} \end{bmatrix}, \text{ and}\\
+    \widetilde{L}_s &= \begin{bmatrix} \widetilde{\Gamma}_s\tKp{u} & \widetilde{\mathcal{T}}_s^\mathrm{u} & \widetilde{\Gamma}_s\tKp{y} \end{bmatrix}.
+\end{align*}
+%
 Furthermore, data vectors are denoted as examplified by
 \begin{align*}
     \datavec{y}{i,p} = \begin{bmatrix} y_i^\top & y_{i+1}^\top & \cdots & y_{i+p-1}^\top\end{bmatrix}^\top,
@@ -64,3 +70,11 @@ Using such data vectors it is possible to concisely define block-Hankel data mat
     \end{bmatrix},
 \end{align*}
 which contains $N\in\mathbb{Z}^+$ successive output data vectors with $p$ data samples each, starting from time index $i$. Data vectors and block-Hankel data matrices that contain only predictions are indicated by $\hat{(\cdot)}$ whilst those that are comprised in part of predictions are indicated by $\tilde{(\cdot)}$.
+
+For convenience, the notation $\mathcal{Z}$ is reserved to denote an often encountered concatenation of input and output block-Hankel matrices that is given by
+\begin{align*}
+    \mathcal{Z}_{i,s,m} = \begin{bmatrix}
+        {U_{i,p,m}}^\top & {U_{i_p,s,m}}^\top & {Y_{i,p,m}}^\top
+    \end{bmatrix}^\top,
+\end{align*}
+in which $i$, and $s,m\in\mathbb{Z}^+$ respectively indicate the starting index and parameterize the dimensions of the concatenated matrix together with $p$. For time indices, the shorthand $i_p=i+p$ is used throughout this article.

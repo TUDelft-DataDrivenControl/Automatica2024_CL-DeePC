@@ -1,6 +1,13 @@
 \section{Closed-loop Data-enabled Predictive Control}
-To explain the newly-developed \ac{CL-DeePC} framework, consider applying regular \ac{DeePC} $f$ times to the same past data to find consecutive step-ahead predictions of the outputs. This is succinctly described by
+This section will first present the new \ac{CL-DeePC} framework, which does not suffer from closed-loop identification bias during operation. Subsequently, data equations that underpin this method are derived upon which a noise mitigation strategy using \ac{IVs} is presented.
 
+% ==============================================================================================================================================================
+% ==============================================================================================================================================================
+\subsection{The basic idea}
+To derive a variant of \ac{DeePC} that does not suffer from the aforementioned closed-loop identification issue lets start by considering regular \ac{DeePC}. As mentioned before, closed-loop identification bias can be avoided by using a step-ahead predictor~\cite{Ljung1996}. However, such a short prediction horizon length is typically not conducive to good performance in a receding horizon control setting. Hence, to obtain another output prediction, lets repeat the previous regular \ac{DeePC} problem with the same past data (but a different vector $g$ to span it) to obtain trajectories of input-output data that are shifted forwards one time step. This procedure can be repeated to obtain a desired prediction horizon length $f$. The entire procedure is succinctly described by\todo{check length conditions DeePC}
+% 
+% To explain the newly-developed \ac{CL-DeePC} framework, consider applying regular \ac{DeePC} $f$ times to the same past data to find consecutive step-ahead predictions of the outputs. This is succinctly described by
+% 
 \begin{align}\label{eq:CL_DeePC_no_IVs}
 \begin{bmatrix}
     U_{i,p,N}\\U_{i_p,1,N}\\Y_{i,p,N}\\ \hline Y_{i_p,1,N}
@@ -23,12 +30,83 @@ To explain the newly-developed \ac{CL-DeePC} framework, consider applying regula
 %     \datavec{y}{\hat{i}_p,1} & \datavec{y}{\hat{i}_p+1,1} & \cdots & \datavec{y}{\hat{i}_p+f-1,1}
 % \end{bmatrix}
 \end{align}
-in which $i$, $i_p=i+p$, $\hat{i}$, and $\hat{i}_p=\hat{i}+p$ are discrete time indices (the first three indices lie in the past, and the last index $\hat{i}_p$ resembles the first future time index), and the matrix containing the collection of subsequent vectors $\{g_k\}^f_{k=1}$ is defined by $G$. As with regular \ac{DeePC} the idea is to find optimal vectors and future inputs (contained here in respectively $G$ and $U_{\hat{i}_p,1,f}$) so as to realise predicted future outputs (contained here in $\widehat{Y}_{\hat{i}_p,1,f}$) that minimize a cost function that is possibly subject to constraints.
+in which $i$, $i_p$, $\hat{i}$, and $\hat{i}_p=\hat{i}+p$ are discrete time indices (the first three indices lie in the past, and the last index $\hat{i}_p$ resembles the first future time index), and $G$ defines a matrix with columns given by the vectors $\{g_k\}^f_{k=1}$. Furthermore, note that $\mathcal{Z}_{i,1,N}$ and $\mathcal{Z}_{\hat{i},1,f}$ are present on respectively the top left and top right hand side.
 
+Treatment of different \ac{CL-DeePC} solution strategies is deferred to Section \ref{sec:SolutionMethods}. Suffice it for now to take note of the structure of \eqref{eq:CL_DeePC_no_IVs} illustrated by Fig.~\ref{fig:CL-DeePC} and to say that if the input is sufficiently persistently exciting such that $\mathcal{Z}_{i,1,N}$ is full row rank~\cite[Chapt.~9.6.1]{Verhaegen2007a} then making $\mathcal{Z}_{i,1,N}$ square and invertible by selecting $N=(p+1)r+pl$ minimizes the number of optimization variables.
+% 
+% As with regular \ac{DeePC} the idea is to find an optimal combination of allowable future inputs and outputs that minimizes a cost function that is possibly subject to constraints. To see how \eqref{eq:CL_DeePC_no_IVs} can be used in a receding horizon optimal control setting, first consider the top three blocks of the past data matrix. If the input is sufficiently persistently exciting then this matrix, $\mathcal{Z}_{i,1,N}$, is full row rank~\cite[Chapt.~9.6.1]{Verhaegen2007a}. If, furthermore, ${N=(p+1)r+pl}$, then $\mathcal{Z}_{i,1,N}$ becomes square and invertible. Hence, a unique solution for $G$ can then be obtained from the top three block equations of \eqref{eq:CL_DeePC_no_IVs} (in terms of future inputs and outputs), which can then be used to obtain output predictions by using the bottom block equation. The structure of \eqref{eq:CL_DeePC_no_IVs} is visualized by Fig.~\ref{fig:CL-DeePC}. This figure demonstrates that successive future output predictions are dependent on preceding input-output data as well as their concurrent input, opening the door to the sequential construction of an output predictor. This is described in \todo{section}, and can be used in a receding horizon optimal control framework.
+% 
 \begin{figure}[b!]
 \centering
 \input{tikzpictures/CL-DeePC}
-\caption{Visualization of known (black) and unknown (red) variables in \eqref{eq:CL_DeePC_no_IVs}. %Each dot represents a `block' of inputs $u_k$, outputs $y_k$, or element of the matrix G.
-Note that block-anti-diagonals of inputs or outputs contain the same time sample everywhere, meaning that successive applications of regular \ac{DeePC}}
+\caption{Visualization of known (black) and unknown (red) variables in \ac{CL-DeePC}. Each dot represents an input $u_k\in\mathbb{R}^r$, output $y_k\in\mathbb{R}^l$, or element of the matrix $G$.
+Note that block-anti-diagonals of inputs or outputs are composed of a single time sample. Without \ac{IVs}, as in \eqref{eq:CL_DeePC_no_IVs}, $m=N$, whilst with \ac{IVs}, as in \eqref{eq:CL_DeePC_IV}, $m=(p+1)r+pl$.}
 \label{fig:CL-DeePC}
 \end{figure}
+
+% ==============================================================================================================================================================
+% ==============================================================================================================================================================
+\subsection{The data equations}
+To motivate a noise mitigation strategy based that is based on \ac{IVs} that is explained hereafter, the data equations that justify this approach are first derived here using a state-space approach.
+
+To this end, it is straightforward to show by iterative application of respectively \eqref{eqn:SS_innovation} and \eqref{eqn:SS_predictor} that%
+\begin{align}
+    Y_{i_p,s,N} &= \Gamma_s X_{i_p,1,N} + \mathcal{T}_s^\mathrm{u} U_{i_p,s,N} + \mathcal{H}_s E_{i_p,s,N}\label{eq:Yf1},\\
+    \begin{split}%
+    Y_{i_p,s,N} &= \widetilde{\Gamma}_s X_{i_p,1,N} + \widetilde{\mathcal{T}}_s^\mathrm{u} U_{i_p,s,N} + E_{i_p,s,N}\\
+    &\phantom{=}+(I_{sl}-\widetilde{\mathcal{H}}_s)Y_{i_p,s,N},
+    \end{split}\label{eq:Yf2}
+\end{align}
+in which $s\in\mathbb{Z}^+$ represents a window length. It is possible to rewrite the initial states in terms of preceding states and input-output data using \eqref{eqn:SS_predictor} as%
+\begin{align}\label{eq:Xip}
+    X_{i_p,1,N} = \tilde{A}^p X_{i,1,N} + \tKp{u} U_{i,p,N} + \tKp{y} Y_{i,p,N}.
+    % \begin{bmatrix}
+    %     Y_{i,p,N}\\
+    %     U_{i,p,N}
+    % \end{bmatrix}.
+\end{align}
+% in which $\tKp{}=\big[\tKp{y}\;\;\tKp{u}\big]$.
+By the existence of \eqref{eqn:SS_innovation} with a stabilizing Kalman gain $K$, $\tilde{A}$ must have all eigenvalues inside the unit circle. Assuming a sufficiently large $p$ such that $\tilde{A}^p\approx 0$ (a common assumption in subspace methods~\cite{Chiuso2007}) substitute \eqref{eq:Xip} into \eqref{eq:Yf1} and \eqref{eq:Yf2} to obtain two so called data equations:
+\begin{align}
+    Y_{i_p,s,N} &= L_s \mathcal{Z}_{i,s,N} + \mathcal{H}_s E_{i_p,s,N}\label{eq:DataEq1}\\
+    Y_{i_p,s,N} &= \widetilde{L}_s \mathcal{Z}_{i,s,N} + (I_{sl}-\widetilde{\mathcal{H}}_s) Y_{i_p,s,N} + E_{i_p,s,N},\label{eq:DataEq2}
+\end{align}
+in which $L_s$, $\widetilde{L}_s$, $\mathcal{Z}_{i,s,N}$ are defined in Section \ref{sec:notation}. Similarly to \eqref{eq:DataEq1} and \eqref{eq:DataEq2}, the future outputs are defined by
+\todo{use noiseless?}%always refer to noiseless version or beter to refer to ideal predictor here?
+\begin{align}
+    Y_{\hat{i}_p,s,f} &= L_s \mathcal{Z}_{\hat{i},s,f} + \mathcal{H}_s E_{\hat{i}_p,s,f},\label{eq:DataEq1.2}\\
+    Y_{\hat{i}_p,s,f} &= \widetilde{L}_s \mathcal{Z}_{\hat{i},s,f} + (I_{sl}-\widetilde{\mathcal{H}}_s) Y_{\hat{i}_p,s,f} + E_{\hat{i}_p,s,f}\label{eq:DataEq2.2}.
+\end{align}
+Although a more generic representation was kept above for later analysis, for \ac{CL-DeePC}, $s=1$. This reduces the complexity of the above equations since ${\widetilde{L}_1=L_1=\big[ C\tKp{u} \; D \; C\tKp{y} \big]}$ and $\widetilde{\mathcal{H}}_1=\mathcal{H}_1=I_l$.
+%
+% ==============================================================================================================================================================
+% ==============================================================================================================================================================
+\subsection{Noise mitigation using \acl{IVs}}
+In obtaining an output predictor, no systematic noise mitigation strategy is yet applied by \eqref{eq:CL_DeePC_no_IVs} as the columns of $G$ simply take linear combinations of the noise in the output demonstrated by \eqref{eq:DataEq1}. An altered formulation of \eqref{eq:CL_DeePC_no_IVs} is therefore considered that allows the use of \ac{IVs} ($\mathcal{I}_\mathrm{IV}$) as in~\cite{vanWingerden2022}
+\begin{align}\label{eq:CL_DeePC_IV}
+    \begin{bmatrix}
+   \mathcal{Z}_{i,1,N}\\
+   \hline
+   Y_{i_p,1,N}
+    \end{bmatrix}
+{\mathcal{I}_\mathrm{IV}}^\top G =
+\begin{bmatrix}
+    \mathcal{Z}_{\hat{i},1,f}\\
+    \hline
+    \widehat{Y}_{\hat{i}_p,1,f}
+\end{bmatrix},
+\end{align}
+in which $G$ may be different from its previous definition depending on the definition of $\mathcal{I}_\mathrm{IV}$, which follows shortly. Note that \eqref{eq:CL_DeePC_no_IVs} is recovered with $\mathcal{I}_\mathrm{IV}=I_N$.
+
+From \eqref{eq:DataEq1} and \eqref{eq:CL_DeePC_IV} the output predictor becomes
+\begin{align}\label{eq:OutputPred}
+    \widehat{Y}_{\hat{i}_p,1,f} = L_1 \mathcal{Z}_{\hat{i},1,f} + \mathcal{H}_1 E_{i_p,1,N}{\mathcal{I}_\mathrm{IV}}^\top G.
+\end{align}
+To obtain an output estimate that best resembles a noiseless version of the actual future outputs given by \eqref{eq:DataEq1.2} it is desirable to reduce the noise contribution on the right hand side above. In addition, from an optimization point of view, it would be favorable to choose an \acs{IV} that uniquely determines $G$ from \eqref{eq:CL_DeePC_IV} given $\mathcal{Z}_{\hat{i},1,f}$ and a sufficiently persistently exciting input that ensures that $\mathcal{Z}_{i,1,N}$ is full row rank.
+
+This motivates choosing $\mathcal{I}_\mathrm{IV}=\mathcal{Z}_{i,1,N}$ as an \acs{IV} since\footnote{Since ${\mathcal{I}_\mathrm{IV}}^\top G$ is fixed by \eqref{eq:CL_DeePC_IV} scalar multiples of the chosen \ac{IV} would be equally valid, simply resulting in a different $G$.}%
+\begin{align}
+    &\lim_{N\rightarrow\infty} \frac{1}{N}E_{i_p,1,N}{\mathcal{Z}_{i,1,N}}^\top = \mathcal{O},\label{eq:uncorrelated}\\
+    \text{rank}\biggl(&\lim_{N\rightarrow\infty} \frac{1}{N}\mathcal{Z}_{i,1,N}{\mathcal{Z}_{i,1,N}}^\top\biggl) =  \text{rank}(\mathcal{Z}_{i,1,N}).\label{eq:rankconservation}
+\end{align}
+As demonstrated by \eqref{eq:uncorrelated}, the instrumental variable and the noise are uncorrelated\footnote{Note that the choice $s=1$ is essential here to avoid correlation between inputs and noise during operation with data obtained in closed-loop.}. Hence, \eqref{eq:OutputPred} asymptotically converges to an ideal, noiseless output predictor with increasing $N$. In addition, provided that the input is sufficiently persistently exciting, $\mathcal{Z}_{i,1,N}$ is full row rank such that \eqref{eq:rankconservation} permits only a single, unique solution for $G$ in \eqref{eq:CL_DeePC_IV}.

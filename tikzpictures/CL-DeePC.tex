@@ -89,30 +89,59 @@
     % bottom red trapezoid
     \path ([yshift=-\onelen/2]t3A) coordinate (t4A);
 
+    % top 'staircase' coordinates
+    \path ([yshift=-\plen]M3D) coordinate (stair1A);
+    \path ([xshift=\onelen]stair1A) coordinate (stair1B);
+    \path ([yshift=\onelen]stair1B) coordinate (stair1C);
+    \path ([xshift=\onelen]stair1C) coordinate (stair1D);
+    \path ([yshift=\onelen]stair1D) coordinate (stair1E);
+    \path ([xshift=\onelen]stair1E) coordinate (stair1F);
+    \path ([yshift=\onelen]stair1F) coordinate (stair1G);
+    \path ([xshift=\onelen]stair1G) coordinate (stair1H);
+    \path ([yshift=\onelen]stair1H) coordinate (stair1I);
+
+    % bottom 'staircase' coordinates
+    \path ([yshift=-\onelen]stair1A) coordinate (stair2J);
+    \path ([yshift=-\plen]stair2J) coordinate (stair2A);
+    \path ([xshift=\onelen]stair2A) coordinate (stair2B);
+    \path ([yshift=\onelen]stair2B) coordinate (stair2C);
+    \path ([xshift=\onelen]stair2C) coordinate (stair2D);
+    \path ([yshift=\onelen]stair2D) coordinate (stair2E);
+    \path ([xshift=\onelen]stair2E) coordinate (stair2F);
+    \path ([yshift=\onelen]stair2F) coordinate (stair2G);
+    \path ([xshift=\onelen]stair2G) coordinate (stair2H);
+    \path ([yshift=\onelen]stair2H) coordinate (stair2I);
+    
     % fill figures
-    \fill[black, opacity=0.5]  (t1A) -- (t1B) -- (M3D) -- cycle;% top black
-    \fill[red!50, opacity=0.5] (t2A) -- (t2B) -- (M3C) -- (t1B) -- (t1A) -- cycle;% top red
-    \fill[black, opacity=0.5]  (t3A) -- (t3B) -- (t2A) -- cycle;% bottom black
-    \fill[red!50, opacity=0.5] (t4A) -- (M3B) -- (t2B) -- (t3B) -- (t3A) -- cycle; % bottom red
+    % \fill[black, opacity=0.5]  (t1A) -- (t1B) -- (M3D) -- cycle;% top black
+    % \fill[red!50, opacity=0.5] (t2A) -- (t2B) -- (M3C) -- (t1B) -- (t1A) -- cycle;% top red
+    % \fill[black, opacity=0.5]  (t3A) -- (t3B) -- (t2A) -- cycle;% bottom black
+    % \fill[red!50, opacity=0.5] (t4A) -- (M3B) -- (t2B) -- (t3B) -- (t3A) -- cycle; % bottom red
+    \fill[black,opacity=0.5]  (M3D) -- (stair1A) -- (stair1B) -- (stair1C) -- (stair1D) -- (stair1E) -- (stair1F) -- (stair1G) -- (stair1H) -- (stair1I) -- cycle;
+    \fill[red!50,opacity=0.5] ([xshift=\flen-\onelen]stair1B) -- (stair1B) -- (stair1C) -- (stair1D) -- (stair1E) -- (stair1F) -- (stair1G) -- (stair1H) -- (stair1I) -- (M3C) -- cycle;
+    \fill[black,opacity=0.5]  (stair2J) -- (stair2A) -- (stair2B) -- (stair2C) -- (stair2D) -- (stair2E) -- (stair2F) -- (stair2G) -- (stair2H) -- (stair2I) -- cycle;
+    \fill[red!50,opacity=0.5] ([xshift=\flen-\onelen]stair2B) -- (stair2B) -- (stair2C) -- (stair2D) -- (stair2E) -- (stair2F) -- (stair2G) -- (stair2H) -- (stair2I) -- ([yshift=-\plen-\onelen]M3C) -- cycle;
     
     % draw brackets
     \draw[line width=1.5pt] ([xshift=\BrIn,yshift=-\BrCl]M3A) -- ([xshift=-\BrCl,yshift=-\BrCl]M3A) -- ([xshift=-\BrCl,yshift=\BrCl]M3D) -- ([xshift=\BrIn,yshift=\BrCl]M3D); %left bracket
     \draw[line width=1.5pt] ([xshift=-\BrIn,yshift=-\BrCl]M3B) -- ([xshift=\BrCl,yshift=-\BrCl]M3B) -- ([xshift=\BrCl,yshift=\BrCl]M3C) -- ([xshift=-\BrIn,yshift=\BrCl]M3C); %right bracket
-    \draw[line width=1pt] ([yshift=\onelen]M3A) -- ([yshift=\onelen]M3B);
     
     % U_{i,p,N}
     \path ([xshift=0.5*\onelen,yshift=-\plen+0.5*\onelen]M3D) coordinate (tlbA);
     \foreach \x in {0,...,7}{
     \foreach \y in {0,...,3}{
         \ifthenelse{{\y>\x}\OR{\y=\x}}{%
-        \fill[black] ([xshift={\x*\onelen},yshift={\y*\onelen}]tlbA) circle (1pt);%<do this if true>
+        % \fill[black, opacity=0.5] ([xshift={(\x-0.5)*\onelen},yshift={(\y-0.5)*\onelen}]tlbA) rectangle ([xshift={(\x+0.5)*\onelen},yshift={(\y+0.5)*\onelen}]tlbA);
+        \fill[black] ([xshift={\x*\onelen},yshift={\y*\onelen}]tlbA) circle (1pt);
         }{%
-        \fill[red] ([xshift={\x*\onelen},yshift={(\y*\onelen}]tlbA) circle (1pt);%<do this if false>
+        % \fill[red!50,opacity=0.5] ([xshift={(\x-0.5)*\onelen},yshift={(\y-0.5)*\onelen}]tlbA) rectangle ([xshift={(\x+0.5)*\onelen},yshift={(\y+0.5)*\onelen}]tlbA);%<do this if false>
+        \fill[red] ([xshift={\x*\onelen},yshift={(\y*\onelen}]tlbA) circle (1pt);
         }%
     }}
     
     % U_{i_p,1,N}
     \path ([yshift=-\onelen]tlbA) coordinate (tlbB);
+    \fill[red!50,opacity=0.5] (stair1A) rectangle ([xshift=\flen,yshift=-\onelen]stair1A);
     \foreach \x in {0,...,7}{\fill[red] ([xshift=\x*\onelen]tlbB) circle (1pt);}
     
     % Y_{i,p,N}
@@ -128,14 +157,16 @@
 
     % Y_{i_p,1,N}
     \path ([yshift=-\onelen]tlbC) coordinate (tlbD);
+    \fill[red!50,opacity=0.5] (stair2A) rectangle ([xshift=\flen,yshift=-\onelen]stair2A);
     \foreach \x in {0,...,7}{\fill[red] ([xshift=\x*\onelen]tlbD) circle (1pt);}
-
+    
     % draw dividers
     \draw[line width=0.1pt] ([yshift=-\plen-\onelen]M3D) -- ([yshift=-\plen-\onelen]M3C);
     \draw[line width=0.1pt] ([yshift=-\plen]M3D) -- ([yshift=-\plen]M3C);
+    \draw[line width=1pt] ([yshift=\onelen]M3A) -- ([yshift=\onelen]M3B);
 
     % ======================= length indicators ======================= 
-    \draw[|-|] ([yshift=\onelen]M1D) -- node[above] {\scriptsize$N$} ([yshift=\onelen]M1C);
+    \draw[|-|] ([yshift=\onelen]M1D) -- node[above] {\scriptsize$m$} ([yshift=\onelen]M1C);
     \draw[|-|] ([yshift=\onelen]M2D) -- node[above] {\scriptsize$f$} ([yshift=\onelen]M2C);
     \draw[|-|] ([yshift=\onelen]M3D) -- node[above] {\scriptsize$f$} ([yshift=\onelen]M3C);
     \draw[|-|] ([xshift=\onelen]M3C) -- node[right] {\scriptsize$pr$} ([xshift=\onelen,yshift=\onelen]t2B);

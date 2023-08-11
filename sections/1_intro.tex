@@ -7,13 +7,12 @@ For non-deterministic systems, the parameterization described by Willems' Fundam
 
 Recently it has been shown that \ac{DeePC} is actually equivalent to another direct data-driven predictive control technique called \ac{SPC}, which as the name alludes to, finds its origin in the domain of subspace identification. This equivalence has been shown both in noiseless settings and those with noise that employ using regularizations~\cite{Fiedler2021} and \ac{IVs}~\cite{vanWingerden2022} as noise mitigation strategies. The aforementioned equivalence is important because it means that results from the domain of subspace identification that underpin \ac{SPC} also apply to \ac{DeePC}.
 
-One well-known result from system identification is that in closed-loop inputs become correlated with noise, resulting in closed-loop identification bias~\cite{Soderstrom1989}. It is demonstrated in~\cite{Dinkla2023} that this problem can arise with adaptive applications of \ac{SPC} (which inherently use closed-loop data), potentially degrading the controller performance. In addition, since \ac{SPC} and \ac{DeePC} are equivalent it is argued that these results also hold for similar adaptive \ac{DeePC} applications. To circumvent this issue it is possible to consider only step-ahead predictions~\cite{Ljung1996}
+One well-known result from system identification is that in closed-loop inputs become correlated with noise, resulting in closed-loop identification bias~\cite{Soderstrom1989a}. It is demonstrated in~\cite{Dinkla2023} that this problem can arise with adaptive applications of \ac{SPC} (which inherently use closed-loop data), potentially degrading the controller performance. In addition, since \ac{SPC} and \ac{DeePC} are equivalent it is argued that these results also hold for similar adaptive \ac{DeePC} applications. To avoid correlation between inputs and noise and resulting biased subspace system identification it is possible to consider only step-ahead predictors~\cite{Ljung1996}. This idea is employed in~\cite{Dong2008} to develop \ac{CL-SPC}, which does not suffer from this closed-loop identification issue.
 
-
-Contributions
+To the best knowledge of the authors, to date all treatment of the closed-loop identification issue that is encountered in direct data-driven predictive control applications is presented in terms of a subspace framework, perhaps because an analysis in terms of behavioural system theory is found to be less intuitive. Moreover, whilst solutions to the closed-loop identification issue in direct data-driven predictive control exist using subspace-inspired methods (like \ac{CL-SPC}), this issue has not yet been addressed by \ac{DeePC} practitioners. To this end, the main contributions of this article are:
 \begin{enumerate}
-\item Demonstration of a closed-loop identification issue in the presence of noise that arises with regular \ac{DeePC}.
-\item The development of two equivalent \ac{CL-DeePC} algorithms (using \ac{IVs}) that do not suffer from this closed-loop issue and are also more sample efficient.
-\item Demonstrate an equivalence between the developed \ac{CL-DeePC} algorithm and \ac{CL-SPC}.
-\item A comparison of the attained performance of the regular and closed-loop \ac{DeePC} algorithms is demonstrated by means of simulations.
+\item to demonstrate a closed-loop identification issue in the presence of noise that arises with regular \ac{DeePC} (using \ac{DeePC} instead of \ac{SPC} and an equivalence argument as in~\cite{Dinkla2023}),
+\item the development of two equivalent \ac{CL-DeePC} algorithms (using \ac{IVs}) that do not suffer from this closed-loop issue and are also more sample efficient,
+\item to demonstrate an equivalence between the developed \ac{CL-DeePC} algorithm and \ac{CL-SPC},
+\item to provide a simulation-based comparison of the attained performance of the regular and \ac{CL-DeePC} algorithms.
 \end{enumerate}
