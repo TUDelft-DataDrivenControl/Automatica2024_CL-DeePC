@@ -48,14 +48,14 @@ Alternatively, vectorization of \eqref{eq:OutputPred2} and factorization into co
 \begin{align}\label{eq:Sequential1}
     \datavec{\hat{y}}{\hat{i}_p,f} &=
     \begin{bmatrix}
-        \widetilde{\mathcal{L}}^\mathrm{u} & \widetilde{\mathcal{G}}^\mathrm{u} 
+        \widetilde{\mathcal{L}}^\mathrm{u}_f & \widetilde{\mathcal{G}}^\mathrm{u}_f 
     \end{bmatrix}    
     \begin{bmatrix}
         \datavec{u}{\hat{i},p}\\
         \datavec{u}{\hat{i}_p,f}
     \end{bmatrix}+
     \begin{bmatrix}
-        \widetilde{\mathcal{L}}^\mathrm{y} & \widetilde{\mathcal{G}}^\mathrm{y} 
+        \widetilde{\mathcal{L}}^\mathrm{y}_f & \widetilde{\mathcal{G}}^\mathrm{y}_f 
     \end{bmatrix}    
     \begin{bmatrix}
         \datavec{y}{\hat{i},p}\\
@@ -66,7 +66,7 @@ in which
 \begin{align*}
     % -----------------------------------------------------------------------------------------------------------------
     \begin{bmatrix}
-        \widetilde{\mathcal{L}}^\mathrm{u} & \widetilde{\mathcal{G}}^\mathrm{u} 
+        \widetilde{\mathcal{L}}^\mathrm{u}_f & \widetilde{\mathcal{G}}^\mathrm{u}_f 
     \end{bmatrix}&= {\scriptsize
     \begin{bmatrix}
         \tilde{\beta}_1     & \cdots      & \tilde{\beta}_{p}   & \tilde{\beta}_{p+1} & \mathcal{O} & \mathcal{O} & \cdots      & \mathcal{O}\\
@@ -77,7 +77,7 @@ in which
     \end{bmatrix}},\\
     % -----------------------------------------------------------------------------------------------------------------
     \begin{bmatrix}
-        \widetilde{\mathcal{L}}^\mathrm{y} & \widetilde{\mathcal{G}}^\mathrm{y} 
+        \widetilde{\mathcal{L}}^\mathrm{y}_f & \widetilde{\mathcal{G}}^\mathrm{y}_f 
     \end{bmatrix}&= {\scriptsize
     \begin{bmatrix}
         \tilde{\theta}_1    & \cdots      & \tilde{\theta}_{p}  & \mathcal{O}  & \mathcal{O}  & \mathcal{O} & \cdots       & \mathcal{O}\\
@@ -87,41 +87,41 @@ in which
         \mathcal{O} & \cdots      & \mathcal{O} & \mathcal{O}  & \tilde{\theta}_1     & \cdots      & \tilde{\theta}_{p}   & \mathcal{O}\\
     \end{bmatrix}},
 \end{align*}
-with the matrix blocks $\tilde{\beta}\in\mathbb{R}^{l\times r}$, $\tilde{\theta}\in\mathbb{R}^{l\times l}$, and large matrices defined such that $\widetilde{\mathcal{L}}^\mathrm{u}\in\mathbb{R}^{fl\times pr}$, $\widetilde{\mathcal{G}}^\mathrm{u}\in\mathbb{R}^{fl\times fr}$, $\widetilde{\mathcal{L}}^\mathrm{y}\in\mathbb{R}^{fl\times pl}$, and $\widetilde{\mathcal{G}}^\mathrm{y}\in\mathbb{R}^{fl\times fl}$.
+with the matrix blocks $\tilde{\beta}_k\in\mathbb{R}^{l\times r}$, $\tilde{\theta}_k\in\mathbb{R}^{l\times l}$, and large matrices defined such that $\widetilde{\mathcal{L}}^\mathrm{u}_f\in\mathbb{R}^{fl\times pr}$, $\widetilde{\mathcal{G}}^\mathrm{u}_f\in\mathbb{R}^{fl\times fr}$, $\widetilde{\mathcal{L}}^\mathrm{y}_f\in\mathbb{R}^{fl\times pl}$, and $\widetilde{\mathcal{G}}^\mathrm{y}_f\in\mathbb{R}^{fl\times fl}$. The subscript of the large matrices indicates the number of block rows.
 
-Notice that the predicted future outputs feature on both the left and right hand side of \eqref{eq:Sequential1}. Solving for these predicted outputs yields
+Notice that the predicted future outputs feature on both the left and right hand side of \eqref{eq:Sequential1}. Solving for these predicted outputs yields a predictor that is completely explicit in terms of its input dependency for use in a receding horizon framework:
 \begin{align}\label{eq:Sequential2}
     \datavec{\hat{y}}{\hat{i}_p,f} &=
     \begin{bmatrix}
-        \mathcal{L}^\mathrm{u} & \mathcal{L}^\mathrm{y} 
+        \mathcal{L}^\mathrm{u}_f & \mathcal{L}^\mathrm{y}_f 
     \end{bmatrix}    
     \begin{bmatrix}
         \datavec{u}{\hat{i},p}\\
         \datavec{y}{\hat{i},p}
     \end{bmatrix}+
-    \mathcal{G}^\mathrm{u}
+    \mathcal{G}^\mathrm{u}_f
     \datavec{u}{\hat{i}_p,f},
 \end{align}
-in which $\mathcal{L}^\mathrm{u}$, $\mathcal{G}^\mathrm{u}$, and $\mathcal{L}^\mathrm{y}$ are uniquely defined by
+in which $\mathcal{L}^\mathrm{u}_f$, $\mathcal{G}^\mathrm{u}_f$, and $\mathcal{L}^\mathrm{y}_f$ are uniquely defined by
 \begin{align}\label{eq:Sequential3}
-    \left(I_{fl}-\widetilde{\mathcal{G}}^\mathrm{y}\right)
+    \left(I_{fl}-\widetilde{\mathcal{G}}^\mathrm{y}_f\right)
     \begin{bmatrix}
-        \mathcal{L}^\mathrm{u} & \mathcal{G}^\mathrm{u} & \mathcal{L}^\mathrm{y}
+        \mathcal{L}^\mathrm{u}_f & \mathcal{G}^\mathrm{u}_f & \mathcal{L}^\mathrm{y}_f
     \end{bmatrix}=
-    % \left(I_{fl}-\widetilde{\mathcal{G}}^\mathrm{y}\right)\inv
+    % \left(I_{fl}-\widetilde{\mathcal{G}}^\mathrm{y}_f\right)\inv
     \begin{bmatrix}
-        \widetilde{\mathcal{L}}^\mathrm{u} & \widetilde{\mathcal{G}}^\mathrm{u} & \widetilde{\mathcal{L}}^\mathrm{y}
+        \widetilde{\mathcal{L}}^\mathrm{u}_f & \widetilde{\mathcal{G}}^\mathrm{u}_f & \widetilde{\mathcal{L}}^\mathrm{y}_f
     \end{bmatrix}.
 \end{align}
-Since $I_{fl}-\widetilde{\mathcal{G}}^\mathrm{y}$ is invertible, \eqref{eq:Sequential3} can be solved directly for $\big[\mathcal{L}^\mathrm{u} \; \mathcal{G}^\mathrm{u} \; \mathcal{L}^\mathrm{y}\big]$ to construct the input-explicit predictor given by \eqref{eq:Sequential2}. However, an efficient sequential procedure is also possible that exploits the structure of $I_{fl}-\widetilde{\mathcal{G}}^\mathrm{y}$.
+Since $I_{fl}-\widetilde{\mathcal{G}}^\mathrm{y}_f$ is invertible, \eqref{eq:Sequential3} can be solved directly for $\big[\mathcal{L}^\mathrm{u}_f \; \mathcal{G}^\mathrm{u}_f \; \mathcal{L}^\mathrm{y}_f\big]$ to construct the input-explicit predictor given by \eqref{eq:Sequential2}. However, an efficient sequential procedure is also possible that exploits the structure of $I_{fl}-\widetilde{\mathcal{G}}^\mathrm{y}_f$.
 
-For this sequential procedure, define the $f$ block-rows of $\big[\widetilde{\mathcal{L}}^\mathrm{u} \; \widetilde{\mathcal{G}}^\mathrm{u} \; \widetilde{\mathcal{L}}^\mathrm{y}\big]$ and $\big[\mathcal{L}^\mathrm{u} \; \mathcal{G}^\mathrm{u} \; \mathcal{L}^\mathrm{y}\big]$ by respectively $\tilde{\alpha}_j$, ${\alpha_j\in\mathbb{R}^{l\times p(r+l)+fr}}$, with $j$ here representing the index of the block row: $j=0,1,\dots,f-1$. It is then straightforward to show from \eqref{eq:Sequential3} that
+For this sequential procedure, define the $f$ block-rows of $\big[\widetilde{\mathcal{L}}^\mathrm{u}_f \; \widetilde{\mathcal{G}}^\mathrm{u}_f \; \widetilde{\mathcal{L}}^\mathrm{y}_f\big]$ and $\big[\mathcal{L}^\mathrm{u}_f \; \mathcal{G}^\mathrm{u}_f \; \mathcal{L}^\mathrm{y}_f\big]$ by respectively $\tilde{\alpha}_j$, ${\alpha_j\in\mathbb{R}^{l\times p(r+l)+fr}}$, with $j$ here representing the index of the block row: $j=0,1,\dots,f-1$. It is then straightforward to show from \eqref{eq:Sequential3} that the formulation
 \begin{align}\label{eq:Sequential4}
     \alpha_j=
     \left\{\begin{array}{ll}
     \mathcal{O},     & \text{if } j<0\\
     \tilde{\alpha}_j,& \text{if } j=0\\
     \tilde{\alpha}_j + \sum\limits_{r=1}^{p}\tilde{\theta}_r\alpha_{r-p+j-1}, & \text{if } j \geq 1
-    \end{array}\right..
+    \end{array}\right.
 \end{align}
-This formulation allows the efficient sequential construction of $\big[\mathcal{L}^\mathrm{u} \; \mathcal{G}^\mathrm{u} \; \mathcal{L}^\mathrm{y}\big]$ starting from $j=0$. From the subsequent section, it will become clear that $\mathcal{G}^\mathrm{u}$ is a causal block-Toeplitz matrix, meaning that the matrix is fully parameterized by its leftmost block column. As such one may choose to only solve this portion of $\mathcal{G}^\mathrm{u}$ in \eqref{eq:Sequential3} using \eqref{eq:Sequential4} and to construct the complete matrix from this.
+ allows efficient sequential construction of $\big[\mathcal{L}^\mathrm{u}_f \; \mathcal{G}^\mathrm{u}_f \; \mathcal{L}^\mathrm{y}_f\big]$ starting from $j=0$. From the subsequent section, it will become clear that $\mathcal{G}^\mathrm{u}_f$ is a causal block-Toeplitz matrix, meaning that the matrix is fully parameterized by its leftmost block column. As such one may choose to only solve this portion of $\mathcal{G}^\mathrm{u}_f$ in \eqref{eq:Sequential3} using \eqref{eq:Sequential4} and to complete the matrix $\mathcal{G}^\mathrm{u}_f$ thereafter.
