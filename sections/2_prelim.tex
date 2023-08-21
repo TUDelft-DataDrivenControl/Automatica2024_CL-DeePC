@@ -9,7 +9,7 @@ The system model considered here is of a non-deterministic discrete \ac{LTI} nat
 	y_k &= Cx_k + Du_k + e_k \label{eqn:SSi_y},
 \end{align}
 \end{subequations}
-in which ${x_k\in\mathbb{R}^n}$, ${u_k\in\mathbb{R}^r}$, ${y_k\in\mathbb{R}^l}$, $e_k$ respectively represent states, inputs, outputs, and zero-mean, white innovation noise, and $\{A,B,C,D,K\}$ are system matrices of compatible dimensions, with $K\in\mathbb{R}^{n\times l}$ as a constant Kalman gain matrix that renders ${\tilde{A}=A-KC}$ asymptotically stable. Provided that this system satisfies often-encountered notions of observability and reachability this system resembles a class of systems that is affected by both process and measurement noise (see~\cite[p.~112-113\todo{Check pages}]{Anderson1979}, or \cite[p.~162]{Verhaegen2007a} for details).
+in which ${x_k\in\mathbb{R}^n}$, ${u_k\in\mathbb{R}^r}$, ${y_k,\;e_k\in\mathbb{R}^l}$, respectively represent states, inputs, outputs, and zero-mean, white innovation noise, and $\{A,B,C,D,K\}$ are system matrices of compatible dimensions, with $K\in\mathbb{R}^{n\times l}$ as a constant Kalman gain matrix that renders ${\tilde{A}=A-KC}$ asymptotically stable. Provided that this system satisfies often-encountered notions of observability and reachability this system resembles a class of systems that is affected by both process and measurement noise (see~\cite[p.~112-113\todo{Check pages}]{Anderson1979}, or \cite[p.~162]{Verhaegen2007a} for details).
 
 By substituting \eqnref{eqn:SSi_y} into \eqnref{eqn:SSi_x} one alternatively obtains the equivalent predictor form
 \begin{subequations}\label{eqn:SS_predictor}
