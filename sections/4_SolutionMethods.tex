@@ -5,10 +5,6 @@ This section presents several methods to implement \ac{CL-DeePC}. Several prereq
     \item The past data matrix $\mathcal{Z}_{i,1,N}\mathcal{I}^\top$ must be square and invertible. This ensures that \eqref{eq:NoisyWFL3} uniquely defines $G$ and requires a sufficiently persistently exciting input such that $\mathcal{Z}_{i,1,N}$ is full row rank. Without \ac{IVs} ($\mathcal{I}=I_N$), this implies that $N=(p+1)r+pl$. This choice of $N$ is assumed henceforth without \ac{IVs} and has the added benefit of limiting increased noise sampling with larger $N$, as discussed following \eqref{eq:NoisyWFL3}.
     \item The number of columns $N$ is assumed to be sufficiently large to realize \eqref{eq:uncorrelated}. In practice $N$ is finite and as a result the \ac{DeePC} equations \eqref{eq:CL_DeePC_no_IVs}, \eqref{eq:regular_DeePC}, and \eqref{eq:CL_DeePC_with_IV} may be inconsistent in the presence of noise, necessitating slack variables as in~\cite{Coulson2019}.\todo{See below}
 \end{enumerate}
-- Iff input sufficiently PE $\rightarrow$ $\mathcal{Z}_{i,1,N}$ full row rank (CDC paper)\\
-- Iff $\mathcal{Z}_{i,1,N}$ full row rank $\rightarrow$ G uniquely defined (with IV, also N s.t. $\mathcal{Z}_{i,1,N}$ square)\\
-- Thus iff input sufficiently PE $\rightarrow$ DeePC consistent with noise\\
-So is input insufficiently PE if DeePC inconsistent with noise?
 % 
 % for successful implementation is that the input is sufficiently persistently exciting such that $\mathcal{Z}_{i,1,N}$ is full row rank. To obtain a unique solution for $G$ and prevent unnecessary noise sampling as discussed following \eqref{eq:NoisyWFL3}, henceforth only $N=(p+1)r+pl$ is considered without \ac{IVs}. This leaves the top data matrix with past data in Fig.~\ref{fig:CL-DeePC} $\mathcal{Z}_{i,1,N}\mathcal{I}^\top$ square and invertible, as is the case with \ac{IVs} when $\mathcal{I}=\mathcal{Z}_{i,1,N}$ (although the block-anti-diagonal structure on the left is then lost).
 %
