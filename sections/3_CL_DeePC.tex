@@ -99,7 +99,7 @@ Equation~\eqref{eq:DataEq1} can be reformulated with $k=i$, $q=N$ or for an idea
         \widehat{Y}^*_{\hat{i}_p,s,q}
     \end{bmatrix} = \mathcal{O}, \label{eq:NoisyWFL2}
 \end{alignat}
-in which the asterisk indicates that the output prediction is ideal. Multiplying \eqref{eq:NoisyWFL1} by $\mathcal{I}G\in\mathbb{R}^{N\times q}$, and subtracting \eqref{eq:NoisyWFL2} obtains
+in which the asterisk indicates that the output prediction is ideal in the sense of being asymptotically unbiased. Multiplying \eqref{eq:NoisyWFL1} by $\mathcal{I}G\in\mathbb{R}^{N\times q}$, and subtracting \eqref{eq:NoisyWFL2} obtains
 \begin{align}\label{eq:NoisyWFL3}
     \mkern-14mu\begin{bmatrix}
         \shortminus L_s & I_{sl}
@@ -118,7 +118,7 @@ in which the asterisk indicates that the output prediction is ideal. Multiplying
 \end{align}
 in which $\mathcal{I}$ represents a yet unspecified matrix and $G$ represents a matrix that is akin to the likewise defined matrix from \eqref{eq:CL_DeePC_no_IVs} that contains all of the vectors $g_k$.
 
-For now, consider the case that $\mathcal{I}=I_N$ in the absence of noise. Then one possible solution (since the matrix $\left[\shortminus L_s\;I_{sl}\right]$ is not full column rank) to \eqref{eq:NoisyWFL3} with $s=f$ and $q=1$ is given by the regular deterministic \ac{DeePC} equation~\cite{Coulson2019}:
+If the columns of the matrix with data on the left hand side of \eqref{eq:NoisyWFL1} spans the entire nullspace of $\left[\shortminus L_s\;I_{sl}\right]$ and $\mathcal{I}$ is full rank then all solutions to \eqref{eq:NoisyWFL3} are described by equating the term inside the parenthesis to zero. For now, consider the case that $\mathcal{I}=I_N$, $s=f$, and $q=1$ in the absence of noise to recover the regular deterministic \ac{DeePC} equation~\citep{Coulson2019}. %Then one possible solution (since the matrix $\left[\shortminus L_s\;I_{sl}\right]$ is not full column rank) to \eqref{eq:NoisyWFL3} with $s=f$ and $q=1$ is given by the regular deterministic \ac{DeePC} equation~\cite{Coulson2019}:
 \begin{align}\label{eq:regular_DeePC}
     \begin{bmatrix}
         \mathcal{Z}_{i,f,N}\\
@@ -129,7 +129,7 @@ For now, consider the case that $\mathcal{I}=I_N$ in the absence of noise. Then 
         \widehat{Y}_{\hat{i}_p,f,1}
     \end{bmatrix}.
 \end{align}
-This clearly reflects Willems' Fundamental Lemma, which states that for a deterministic \ac{LTI} system, any sufficiently persistently exciting past input-output trajectory parameterizes all possible future input-output trajectories~\cite{Willems2005}.\todo{WFL: what about nullspace in (12)}
+Willems' Fundamental Lemma makes use of Assumptions~\ref{assum:PE} and~\ref{assum:controllability} to ensure that the entire nullspace of $\left[\shortminus L_f\;I_{fl}\right]$ is spanned by the data matrix on the left hand side of \eqref{eq:regular_DeePC}~\citep{Willems2005}. Assumption~\ref{assum:unique_initial} is furthermore necessary to guarantee the existence of a unique initial state and therefore output predictor~\cite{}. %This clearly reflects Willems' Fundamental Lemma, which states that for a deterministic \ac{LTI} system, any sufficiently persistently exciting past input-output trajectory parameterizes all possible future input-output trajectories~\cite{Willems2005}.\todo{WFL: what about nullspace in (12)}
 
 However, in the presence of (unknown) noise, the term $Y_{i_p,s,N}-\mathcal{H}_s E_{i_p,s,N}$ from \eqref{eq:NoisyWFL3} cannot be determined to obtain an ideal output predictor. Instead, linear combinations of a noise-corrupted output $Y_{i_p,s,N}$ as in \eqref{eq:regular_DeePC} are taken, resulting in an error of the obtained output predictor due to implicit sampling of $\mathcal{H}_s E_{i_p,s,N}$. Moreover, the regular \ac{DeePC} formulation provided by \eqref{eq:regular_DeePC} may become inconsistent in the presence of noise, prompting the use of, e.g., slack variables and regularization~\cite{Coulson2019}.
 %

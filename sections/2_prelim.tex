@@ -42,14 +42,14 @@ To start, several strictly-positive integers are denoted by $s,q,p,f\in\mathbb{Z
 \begin{align}\label{eqn:blockToeplitz} 
 \mathcal{T}_s(\mathcal{A},\mathcal{B},\mathcal{C},\mathcal{D}) =\scriptsize{
 	\begin{bmatrix}
-		\mathcal{D}         & 0         & 0      & \cdots  & 0\\
-		\mathcal{C}\mathcal{B}        & \mathcal{D}         & 0      & \cdots  & 0\\
-		\mathcal{C}\mathcal{A}\mathcal{B}       & \mathcal{C}\mathcal{B}        & \mathcal{D}      & \cdots & 0\\
+		\mathcal{D}         & $\mathcal{O}$         & $\mathcal{O}$      & \cdots  & $\mathcal{O}$\\
+		\mathcal{C}\mathcal{B}        & \mathcal{D}         & $\mathcal{O}$      & \cdots  & $\mathcal{O}$\\
+		\mathcal{C}\mathcal{A}\mathcal{B}       & \mathcal{C}\mathcal{B}        & \mathcal{D}      & \cdots & $\mathcal{O}$\\
 		\vdots    &  \vdots & \ddots & \ddots & \vdots\\
 		\mathcal{C}\mathcal{A}^{s-2}\mathcal{B} & \mathcal{C}\mathcal{A}^{s-3}\mathcal{B} & \cdots  & \mathcal{C}\mathcal{B}     & \mathcal{D}
 	\end{bmatrix}},
 \end{align}
-in which the subscript $s$ indicates the number of block-rows, the matrices $\mathcal{A}$, $\mathcal{B}$, $\mathcal{C}$, $\mathcal{D}$, and $0$ are all of compatible dimensions. Let ${I_s\in\mathbb{R}^{s\times s}}$ represent an identity matrix. Equation~\eqnref{eqn:blockToeplitz} thereby defines the block-Toeplitz matrices
+in which the subscript $s$ indicates the number of block-rows, the matrices $\mathcal{A}$, $\mathcal{B}$, $\mathcal{C}$, $\mathcal{D}$, and the null matrix $\mathcal{O}$ are all of compatible dimensions. Let ${I_s\in\mathbb{R}^{s\times s}}$ represent an identity matrix. Equation~\eqnref{eqn:blockToeplitz} thereby defines the block-Toeplitz matrices
 \begin{alignat*}{2}
 \mathcal{T}_s^\mathrm{u}&=\mathcal{T}_s(A,B,C,D),\quad  &\mathcal{H}_s&=\mathcal{T}_s(A,K,C,I_l),\\
 \widetilde{\mathcal{T}}_s^\mathrm{u}&=\mathcal{T}_s(\tilde{A},\tilde{B},C,D),\quad  &\widetilde{\mathcal{H}}_s&=\mathcal{T}_s(\tilde{A},K,-C,I_l).
@@ -99,20 +99,20 @@ Furthermore, the minimum number of states obtained from of a minimal realization
 \subsection{Assumptions}
 This section presents assumptions that are used throughout this article.
 \begin{assum}\label{assum:well_posed}
-    The closed-loop system is well-posed. $I_l+DD_\mathrm{c}$ is invertible, (with $D_c$ as the controller feedthrough matrix) such that the .
+    The closed-loop system is well-posed.
 \end{assum}
-This assumption is satisfied if $I_l+DD_\mathrm{c}$ is invertible such that the states of the system and controller uniquely define the output~\cite{VanOverschee1997}. This assumption is clearly satisfied if either the system or controller lacks direct feedthrough.
+This assumption is satisfied if $I_l+DD_\mathrm{c}$ is invertible such that the states of the system and controller together with noise and reference uniquely define the output~\citep{VanOverschee1997}. This assumption is clearly satisfied if either the system or controller lacks direct feedthrough.
 \begin{assum}\label{assum:initial_contribution}
     The window length $p$ is sufficiently large to ensure that $\tilde{A}^p\approx0$.
 \end{assum}
-This assumption is often encountered in subspace methods to ensure a vanished initial state contribution~\citep{Chiuso2007}.
+This assumption is often encountered in subspace methods to neglect the contribution of an initial state~\citep{Chiuso2007}.
 \begin{assum}\label{assum:unique_initial}
     The window length $p$ is greater than or equal to the system's lag: $p\geq\ell$.
 \end{assum}
 \begin{assum}\label{assum:PE}
     The input sequence is persistently exciting of order $(p+1)+\mathfrak{n},$
 \end{assum}
-in which persistency of excitation of the inputs of order $s$ is defined such that there exists a block-Hankel matrix of inputs $U_{k,s,q},$ that is full rank $sm$.
+in which persistency of excitation of the inputs of order $s$ is defined such that there exists a block-Hankel matrix of inputs $U_{k,s,q},$ with $q\geq sm$ that is full rank.
 \begin{assum}\label{assum:controllability}
     The matrix pair $(A,B)$ is controllable.
 \end{assum}
