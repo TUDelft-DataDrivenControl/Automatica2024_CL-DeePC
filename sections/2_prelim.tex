@@ -102,7 +102,7 @@ This section presents assumptions that are used throughout this article.
     The closed-loop system is well-posed.
 \end{assum}
 This assumption is satisfied if $I_l+DD_\mathrm{c}$ is invertible such that the states of the system and controller together with noise and reference uniquely define the output~\citep{VanOverschee1997}. This assumption is clearly satisfied if either the system or controller lacks direct feedthrough.
-\begin{assum}\label{assum:initial_contribution}
+\begin{assum}[\cite[Lemma 1]{Markovsky2005}]\label{assum:initial_contribution}
     The window length $p$ is sufficiently large to ensure that $\tilde{A}^p\approx0$.
 \end{assum}
 This assumption is often encountered in subspace methods to neglect the contribution of an initial state~\citep{Chiuso2007}.
