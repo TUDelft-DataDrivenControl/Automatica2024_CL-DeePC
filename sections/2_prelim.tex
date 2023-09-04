@@ -1,49 +1,64 @@
-\section{Preliminaries and notation}
-This section presents the employed system model description and notation that are used throughout this article.
+\section{Preliminaries, notation and assumptions}
+This section presents the employed system model description, the notation, and the assumptions that are used in this article.
 
 \subsection{System Model}
-The system model considered here is of a non-deterministic discrete \ac{LTI} nature and takes a typical innovation form given by
-\begin{subequations}\label{eqn:SS_innovation}
-\begin{align}
-	x_{k+1} &= Ax_k + Bu_k + Ke_k,\label{eqn:SSi_x}\\
-	y_k &= Cx_k + Du_k + e_k \label{eqn:SSi_y},
-\end{align}
+The dynamics of the system to be controlled $\mathcal{S}$ are described by a non-deterministic discrete \ac{LTI} system that is affected by both process and measurement noise as
+\begin{subequations}\label{eq:SS_original}
+\begin{empheq}[left=\mathcal{S}\empheqlbrace]{align}
+    \bar{x}_{k+1} &= A\bar{x}_k + Bu_k + w_k,\label{eqn:SSo_x}\\
+	y_k &= C\bar{x}_k + Du_k + v_k \label{eqn:SSo_y},
+\end{empheq}
 \end{subequations}
-in which ${x_k\in\mathbb{R}^n}$, ${u_k\in\mathbb{R}^r}$, ${y_k,\;e_k\in\mathbb{R}^l}$, respectively represent states, inputs, outputs, and zero-mean, white innovation noise, and $\{A,B,C,D,K\}$ are system matrices of compatible dimensions, with $K\in\mathbb{R}^{n\times l}$ as a constant Kalman gain matrix that renders ${\tilde{A}=A-KC}$ asymptotically stable. Provided that this system satisfies often-encountered notions of observability and reachability this system resembles a class of systems that is affected by both process and measurement noise (see~\cite[p.~112-113\todo{Check pages}]{Anderson1979}, or \cite[p.~162]{Verhaegen2007a} for details).
+in which ${\bar{x}_k\in\mathbb{R}^n}$, ${u_k\in\mathbb{R}^r}$, ${y_k\in\mathbb{R}^l}$, ${w_k\in\mathbb{R}^n}$, ${v_k\in\mathbb{R}^l}$ respectively represent states, inputs, outputs, process noise, and measurement noise, and $\{A,B,C,D\}$ are system matrices of compatible dimensions. If the process and measurement noise are either zero-mean white or colored Gaussian sequences such that the system $\mathcal{S}$ satisfies notions of detectability and reachability there exists an equivalent innovation form $\mathcal{F}_\mathcal{I}$ that is based on Kalman filtering (see~\citet[p.~112-113\todo{Check pages}]{Anderson1979}, or \citet[p.~162]{Verhaegen2007a} for details) and is given by
+\begin{subequations}\label{eqn:SS_innovation}
+\begin{empheq}[left=\mathcal{F}_\mathcal{I}\empheqlbrace]{align}
+    x_{k+1} &= Ax_k + Bu_k + Ke_k,\label{eqn:SSi_x}\\
+	y_k &= Cx_k + Du_k + e_k \label{eqn:SSi_y},
+  \end{empheq}
+% \begin{align}
+% 	x_{k+1} &= Ax_k + Bu_k + Ke_k,\label{eqn:SSi_x}\\
+% 	y_k &= Cx_k + Du_k + e_k \label{eqn:SSi_y},
+% \end{align}
+\end{subequations}
+in which ${x_k\in\mathbb{R}^n}$, ${e_k\in\mathbb{R}^l}$, and $K\in\mathbb{R}^{n\times l}$ respectively represent states (different from $\bar{x}_k$), zero-mean white innovation noise, and a unique Kalman gain matrix that renders ${\tilde{A}=A-KC}$ asymptotically stable.
 
 By substituting \eqnref{eqn:SSi_y} into \eqnref{eqn:SSi_x} one alternatively obtains the equivalent predictor form
 \begin{subequations}\label{eqn:SS_predictor}
-\begin{align}
+\begin{empheq}[left=\mathcal{F}_\mathcal{P}\empheqlbrace]{align}
 	x_{k+1} &= \tilde{A}x_k + \tilde{B}u_k + Ky_k,\label{eqn:SSp_x}\\
 	y_k &= Cx_k + Du_k + e_k \label{eqn:SSp_y},
-\end{align}
+  \end{empheq}
+% \begin{align}
+	% x_{k+1} &= \tilde{A}x_k + \tilde{B}u_k + Ky_k,\label{eqn:SSp_x}\\
+	% y_k &= Cx_k + Du_k + e_k \label{eqn:SSp_y},
+% \end{align}
 \end{subequations}
 in which $\tilde{B}=B-KD$.
 
 \subsection{Notation}\label{sec:notation}
 Having described the different representations of the considered discrete, non-deterministic \ac{LTI} systems, this section introduces the notation used in this work.
 
-To start, block-Toeplitz matrices are defined by
+To start, several strictly-positive integers are denoted by $s,q,p,f\in\mathbb{Z}_{>0}$ and are frequently used to indicate window lengths. Block-Toeplitz matrices are defined by
 \begin{align}\label{eqn:blockToeplitz} 
 \mathcal{T}_s(\mathcal{A},\mathcal{B},\mathcal{C},\mathcal{D}) =\scriptsize{
 	\begin{bmatrix}
-		\mathcal{D}         & \mathcal{O}         & \mathcal{O}      & \cdots  & \mathcal{O}\\
-		\mathcal{C}\mathcal{B}        & \mathcal{D}         & \mathcal{O}      & \cdots  & \mathcal{O}\\
-		\mathcal{C}\mathcal{A}\mathcal{B}       & \mathcal{C}\mathcal{B}        & \mathcal{D}      & \cdots & \mathcal{O}\\
+		\mathcal{D}         & 0         & 0      & \cdots  & 0\\
+		\mathcal{C}\mathcal{B}        & \mathcal{D}         & 0      & \cdots  & 0\\
+		\mathcal{C}\mathcal{A}\mathcal{B}       & \mathcal{C}\mathcal{B}        & \mathcal{D}      & \cdots & 0\\
 		\vdots    &  \vdots & \ddots & \ddots & \vdots\\
 		\mathcal{C}\mathcal{A}^{s-2}\mathcal{B} & \mathcal{C}\mathcal{A}^{s-3}\mathcal{B} & \cdots  & \mathcal{C}\mathcal{B}     & \mathcal{D}
 	\end{bmatrix}},
 \end{align}
-in which the subscript $s$ indicates the number of block-rows, the matrices $\mathcal{A}$, $\mathcal{B}$, $\mathcal{C}$, $\mathcal{D}$, and $\mathcal{O}$ are all of compatible dimensions, with $\mathcal{O}$ representing a null matrix. Let ${I_s\in\mathbb{R}^{s\times s}}$ represent an identity matrix and $f\in\mathbb{Z}^+$ a strictly-positive integer prediction window length. Equation~\eqnref{eqn:blockToeplitz} thereby defines the block-Toeplitz matrices
+in which the subscript $s$ indicates the number of block-rows, the matrices $\mathcal{A}$, $\mathcal{B}$, $\mathcal{C}$, $\mathcal{D}$, and $0$ are all of compatible dimensions. Let ${I_s\in\mathbb{R}^{s\times s}}$ represent an identity matrix. Equation~\eqnref{eqn:blockToeplitz} thereby defines the block-Toeplitz matrices
 \begin{alignat*}{2}
-\Tf{u}&=\mathcal{T}_f(A,B,C,D),\quad  &\Hf&=\mathcal{T}_f(A,K,C,I_l),\\
-\tTf{u}&=\mathcal{T}_f(\tilde{A},\tilde{B},C,D),\quad  &\tHf&=\mathcal{T}_f(\tilde{A},K,-C,I_l).
+\mathcal{T}_s^\mathrm{u}&=\mathcal{T}_s(A,B,C,D),\quad  &\mathcal{H}_s&=\mathcal{T}_s(A,K,C,I_l),\\
+\widetilde{\mathcal{T}}_s^\mathrm{u}&=\mathcal{T}_s(\tilde{A},\tilde{B},C,D),\quad  &\widetilde{\mathcal{H}}_s&=\mathcal{T}_s(\tilde{A},K,-C,I_l).
 \end{alignat*}
 %
 In addition, two extended observability matrices are defined by
 \begin{align*}
-\Gf &= \begin{bmatrix}C^\top & (CA)^\top & \cdots & (CA^{f-1})^\top\end{bmatrix}^\top\quad\text{and}\\
-\tGf &= \begin{bmatrix}C^\top & (C\tilde{A})^\top & \cdots & (C\tilde{A}^{f-1})^\top\end{bmatrix}^\top,
+\Gamma_s &= \begin{bmatrix}C^\top & (CA)^\top & \cdots & (CA^{s-1})^\top\end{bmatrix}^\top\quad\text{and}\\
+\widetilde{\Gamma}_s &= \begin{bmatrix}C^\top & (C\tilde{A})^\top & \cdots & (C\tilde{A}^{s-1})^\top\end{bmatrix}^\top,
 \end{align*}
 and two extended reversed controllability matrices are defined as 
 \begin{align*}
@@ -59,22 +74,46 @@ From the above matrices, two reoccurring so called `dynamic matrices' are define
 %
 Furthermore, data vectors are denoted as examplified by
 \begin{align*}
-    \datavec{y}{i,p} = \begin{bmatrix} y_i^\top & y_{i+1}^\top & \cdots & y_{i+p-1}^\top\end{bmatrix}^\top,
+    \datavec{y}{k,s} = \begin{bmatrix} y_k^\top & y_{k+1}^\top & \cdots & y_{k+s-1}^\top\end{bmatrix}^\top,
 \end{align*}
-which represents a vector of ordered output data starting at the time index given by the first subscript $i$, and containing a number of samples indicated by the second subscript $p$. Akin to $f$, the subscript $p\in\mathbb{Z}^+$ will be used throughout this work to refer to a strictly-positive integer that represents a certain window length of data.
+which represents a vector of ordered output data starting at time index $k$, and containing a number of samples $s$.
 
 Using such data vectors it is possible to concisely define block-Hankel data matrices. Such a block-Hankel data matrix is examplified by
 \begin{align*}
-    Y_{i,p,N} = \begin{bmatrix}
-        \datavec{y}{i,p} & \datavec{y}{i+1,p} & \cdots & \datavec{y}{i+N-1,p}
+    Y_{k,s,q} = \begin{bmatrix}
+        \datavec{y}{k,s} & \datavec{y}{k+1,s} & \cdots & \datavec{y}{k+q-1,s}
     \end{bmatrix},
 \end{align*}
-which contains $N\in\mathbb{Z}^+$ successive output data vectors with $p$ data samples each, starting from time index $i$. Data vectors and block-Hankel data matrices that contain only predictions are indicated by $\hat{(\cdot)}$ whilst those that are comprised in part of predictions are indicated by $\tilde{(\cdot)}$.
+which contains $q$ successive output data vectors with $p$ data samples each, starting from time index $k$. Data vectors and block-Hankel data matrices that contain only predictions are indicated by $\hat{(\cdot)}$ whilst those that are comprised in part of predictions are indicated by $\tilde{(\cdot)}$.
 
 For convenience, the notation $\mathcal{Z}$ is reserved to denote an often encountered concatenation of input and output block-Hankel matrices that is given by
 \begin{align*}
-    \mathcal{Z}_{i,s,m} = \begin{bmatrix}
-        {U_{i,p,m}}^\top & {U_{i_p,s,m}}^\top & {Y_{i,p,m}}^\top
+    \mathcal{Z}_{k,s,q} = \begin{bmatrix}
+        U_{k,p,q}^\top & U_{k_p,s,q}^\top & Y_{k,p,q}^\top
     \end{bmatrix}^\top,
 \end{align*}
-in which $i$, and $s,m\in\mathbb{Z}^+$ respectively indicate the starting index and parameterize the dimensions of the concatenated matrix together with $p$. For time indices, the shorthand $i_p=i+p$ is used throughout this article.
+in which $k$, and $q$ respectively indicate the starting index and parameterize the dimensions of the concatenated matrix together with $p$. Throughout this article, time indices $i$, $\hat{i}$, and $k$, will be used together with the shorthand exemplified by $k_p=k+p$.
+
+Furthermore, the minimum number of states obtained from of a minimal realization of the equivalent filtered systems $\mathcal{F}_\mathcal{I}$ and $\mathcal{F}_\mathcal{P}$ is represented by $\mathfrak{n}$. Likewise, the lag of these systems is defined as the smallest integer $\ell$ that renders an observability matrix $\Gamma_\ell$ of rank $\mathfrak{n}$.
+
+\subsection{Assumptions}
+This section presents assumptions that are used throughout this article.
+\begin{assum}\label{assum:well_posed}
+    The closed-loop system is well-posed. $I_l+DD_\mathrm{c}$ is invertible, (with $D_c$ as the controller feedthrough matrix) such that the .
+\end{assum}
+This assumption is satisfied if $I_l+DD_\mathrm{c}$ is invertible such that the states of the system and controller uniquely define the output~\cite{VanOverschee1997}. This assumption is clearly satisfied if either the system or controller lacks direct feedthrough.
+\begin{assum}\label{assum:initial_contribution}
+    The window length $p$ is sufficiently large to ensure that $\tilde{A}^p\approx0$.
+\end{assum}
+This assumption is often encountered in subspace methods to ensure a vanished initial state contribution~\citep{Chiuso2007}.
+\begin{assum}\label{assum:unique_initial}
+    The window length $p$ is greater than or equal to the system's lag: $p\geq\ell$.
+\end{assum}
+\begin{assum}\label{assum:PE}
+    The input sequence is persistently exciting of order $(p+1)+\mathfrak{n},$
+\end{assum}
+in which persistency of excitation of the inputs of order $s$ is defined such that there exists a block-Hankel matrix of inputs $U_{k,s,q},$ that is full rank $sm$.
+\begin{assum}\label{assum:controllability}
+    The matrix pair $(A,B)$ is controllable.
+\end{assum}
+Assumptions~\ref{assum:PE} and~\ref{assum:controllability} are needed to satisfy Willems' Fundamental Lemma in the developed closed-loop framework.

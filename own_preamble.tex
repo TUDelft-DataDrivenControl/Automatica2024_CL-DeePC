@@ -2,9 +2,14 @@
 \usepackage{amsfonts}
 \usepackage[nolist]{acronym}    % required for \acro
 
+\usepackage{natbib} % for bibliography & references
+
+\usepackage{empheq} % for subequations of systems with bracket for system description
+
 \usepackage[textsize=tiny]{todonotes}
 \usepackage{tikz,ifthen}
-\usetikzlibrary{calc}
+\usetikzlibrary{calc,decorations.pathreplacing,calligraphy}
+
 
 % own definitions:
 \newcommand{\eqnref}[1]{(\ref{#1})}
@@ -22,3 +27,4 @@
 \newcommand{\Gf}{\Gamma_f}
 \newcommand{\tGf}{\widetilde{\Gamma}_f}
 \newcommand{\datavec}[2]{\underline{#1}_{#2}}
+\newcommand{\shortminus}{\scalebox{0.75}[1.0]{\( - \)}}

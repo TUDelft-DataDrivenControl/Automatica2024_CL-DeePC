@@ -22,7 +22,7 @@
     \setlength{\MatClearance}{0.3cm}
     
     % grid lines for guidance
-    % \draw[gray,step=0.5] (-0,-1) grid (9,3);
+    % \draw[gray,step=0.5] (-0,-3) grid (8,3);
 
     % ======================= drawing data matrix =======================
     \path (0,-\onelen) coordinate (M1A);
@@ -39,7 +39,41 @@
     }}
     \draw[line width=0.1pt] ([yshift=-\plen-\onelen]M1D) -- ([yshift=-\plen-\onelen]M1C);
     \draw[line width=0.1pt] ([yshift=-\plen]M1D) -- ([yshift=-\plen]M1C);
+
+    % coordinates for diagonals
+    \path ([yshift=-\plen]M1D) coordinate (M1stair1A);
+    \path ([xshift=\plen]M1D) coordinate (M1stair1I);
+    \foreach \dy in {0,-\plen-\onelen}{%
+    % black diagonals
+    \draw[dash pattern=on 1pt off 2pt, line width=0.1pt] ([xshift= 1/2*\onelen,yshift=\dy+5/2*\onelen]M1stair1A) -- ([xshift=-5/2*\onelen,yshift=\dy-1/2*\onelen]M1stair1I);
+    \draw[dash pattern=on 1pt off 2pt, line width=0.1pt] ([xshift= 1/2*\onelen,yshift=\dy+3/2*\onelen]M1stair1A) -- ([xshift=-3/2*\onelen,yshift=\dy-1/2*\onelen]M1stair1I);
+    \draw[dash pattern=on 1pt off 2pt, line width=0.1pt] ([xshift= 1/2*\onelen,yshift=\dy+1/2*\onelen]M1stair1A) -- ([xshift=-1/2*\onelen,yshift=\dy-1/2*\onelen]M1stair1I);
+    \draw[dash pattern=on 1pt off 2pt, line width=0.1pt] ([xshift= 1/2*\onelen,yshift=\dy-1/2*\onelen]M1stair1A) -- ([xshift= 1/2*\onelen,yshift=\dy-1/2*\onelen]M1stair1I);
+    \draw[dash pattern=on 1pt off 2pt, line width=0.1pt] ([xshift= 3/2*\onelen,yshift=\dy-1/2*\onelen]M1stair1A) -- ([xshift= 3/2*\onelen,yshift=\dy-1/2*\onelen]M1stair1I);
+    \draw[dash pattern=on 1pt off 2pt, line width=0.1pt] ([xshift= 5/2*\onelen,yshift=\dy-1/2*\onelen]M1stair1A) -- ([xshift= 5/2*\onelen,yshift=\dy-1/2*\onelen]M1stair1I);
+    \draw[dash pattern=on 1pt off 2pt, line width=0.1pt] ([xshift= 7/2*\onelen,yshift=\dy-1/2*\onelen]M1stair1A) -- ([xshift= 7/2*\onelen,yshift=\dy-1/2*\onelen]M1stair1I);
+    \draw[dash pattern=on 1pt off 2pt, line width=0.1pt] ([xshift= 9/2*\onelen,yshift=\dy-1/2*\onelen]M1stair1A) -- ([xshift= 9/2*\onelen,yshift=\dy-1/2*\onelen]M1stair1I);
+    \draw[dash pattern=on 1pt off 2pt, line width=0.1pt] ([xshift=11/2*\onelen,yshift=\dy-1/2*\onelen]M1stair1A) -- ([xshift= 9/2*\onelen,yshift=\dy-3/2*\onelen]M1stair1I);
+    \draw[dash pattern=on 1pt off 2pt, line width=0.1pt] ([xshift=13/2*\onelen,yshift=\dy-1/2*\onelen]M1stair1A) -- ([xshift= 9/2*\onelen,yshift=\dy-5/2*\onelen]M1stair1I);
+    \draw[dash pattern=on 1pt off 2pt, line width=0.1pt] ([xshift=15/2*\onelen,yshift=\dy-1/2*\onelen]M1stair1A) -- ([xshift= 9/2*\onelen,yshift=\dy-7/2*\onelen]M1stair1I);
+    }
     
+    % ---------------- drawing left brace and matrix ----------------
+    \path ([xshift=-0.5\BrIn,yshift=-2\BrCl]M1A) coordinate (Brace1L);
+    \path ([xshift=0.5\BrIn,yshift=-2\BrCl]M1B) coordinate (Brace1R);
+    \draw[decorate, decoration={calligraphic brace, amplitude=3pt, mirror, aspect=0.75},line width=1pt] (Brace1L) -- (Brace1R);
+    \node (mat1) at ($(Brace1L)!0.75!(Brace1R) + (0,-3pt)$) {};
+    \node[below] at (mat1.center) {$\begin{bmatrix}
+        U_{i,p,N}\\U_{i_p,1,N}\\Y_{i,p,N}\\ \hline Y_{i_p,1,N}
+    \end{bmatrix}$};
+    % brace to the left
+    \path ([xshift=-0.75cm-0.05cm,yshift=-4pt]mat1.center) coordinate (Brace1T);
+    \path ([yshift=-1.73cm]Brace1T) coordinate (Brace1B);
+    \draw[pen colour=gray!60,decorate, decoration={calligraphic brace, amplitude=3pt, mirror, aspect=0.2},line width=0.75pt] (Brace1T) -- (Brace1B);
+    % Zp
+    \node (Zp) at ($(Brace1T)!0.2!(Brace1B) + (-3pt,-0.8pt)$) {};
+    \node[left,text=gray!60,align=center] at ([xshift=0.5mm,yshift=-0.18cm]Zp.center) {\scriptsize{\shortstack{$=$\\$\mathcal{Z}_{i,p,N}$}}};
+  
     % ======================= drawing G =======================
     % useful coordinates
     \path ([xshift=\MatClearance,yshift=\onelen]M1B) coordinate (M2A);
@@ -62,6 +96,16 @@
 
     % dividers
     \foreach \x in {1,...,7}{\draw[line width=0.1pt] ([xshift=\x*\onelen]M2A) -- ([xshift=\x*\onelen]M2D);}
+
+    % drawing middle brace and matrix
+    \coordinate (Brace2L) at ([xshift=-0.5\BrIn]M2A |- Brace1L);
+    \coordinate (Brace2R) at ([xshift=0.5\BrIn]M2B |- Brace1L);
+    \draw[decorate, decoration={calligraphic brace, amplitude=3pt, mirror, aspect=0.5},line width=1pt] (Brace2L) -- (Brace2R);
+    \node (mat1) at ($(Brace2L)!0.5!(Brace2R) + (0,-3pt)$) {};
+    \node[below] at ([yshift=-0.75cm]mat1.center) {$\underbrace{
+    \begin{bmatrix}
+        g_1 & g_2 & \cdots & g_f
+    \end{bmatrix}}_{= G}$};
     
     % ======================= drawing equal sign ======================= 
     \path ([xshift=\MatClearance*3/4,yshift=\Nlen/2-0.1cm]M2B) coordinate (EqA);
@@ -70,6 +114,9 @@
     \path ([xshift=-0.4cm]EqC) coordinate (EqD);
     \draw[line width = 1.5 pt] (EqA) -- (EqB);
     \draw[line width = 1.5 pt] (EqD) -- (EqC);
+
+    % ---------------- equation sign below ----------------
+    \node[below] at ([xshift=5.65\onelen,yshift=-1.05cm]mat1.center) {$=$};
 
     % ======================= drawing RHS =======================
     % inside of matrix
@@ -159,14 +206,49 @@
     \path ([yshift=-\onelen]tlbC) coordinate (tlbD);
     \fill[red!50,opacity=0.5] (stair2A) rectangle ([xshift=\flen,yshift=-\onelen]stair2A);
     \foreach \x in {0,...,7}{\fill[red] ([xshift=\x*\onelen]tlbD) circle (1pt);}
+
+    \foreach \dy in {0,-\plen-\onelen}{%
+    % black diagonals
+    \draw[dash pattern=on 1pt off 2pt, line width=0.1pt] ([xshift= 1/2*\onelen,yshift=\dy+5/2*\onelen]stair1A) -- ([xshift=-5/2*\onelen,yshift=\dy-1/2*\onelen]stair1I);
+    \draw[dash pattern=on 1pt off 2pt, line width=0.1pt] ([xshift= 1/2*\onelen,yshift=\dy+3/2*\onelen]stair1A) -- ([xshift=-3/2*\onelen,yshift=\dy-1/2*\onelen]stair1I);
+    \draw[dash pattern=on 1pt off 2pt, line width=0.1pt] ([xshift= 1/2*\onelen,yshift=\dy+1/2*\onelen]stair1A) -- ([xshift=-1/2*\onelen,yshift=\dy-1/2*\onelen]stair1I);
+    % red diagonals
+    \draw[red,dash pattern=on 1pt off 2pt, line width=0.1pt] ([xshift= 1/2*\onelen,yshift=\dy-1/2*\onelen]stair1A) -- ([xshift=1/2*\onelen,yshift=\dy-1/2*\onelen]stair1I);
+    \draw[red,dash pattern=on 1pt off 2pt, line width=0.1pt] ([xshift= 3/2*\onelen,yshift=\dy-1/2*\onelen]stair1A) -- ([xshift=3/2*\onelen,yshift=\dy-1/2*\onelen]stair1I);
+    \draw[red,dash pattern=on 1pt off 2pt, line width=0.1pt] ([xshift= 5/2*\onelen,yshift=\dy-1/2*\onelen]stair1A) -- ([xshift=5/2*\onelen,yshift=\dy-1/2*\onelen]stair1I);
+    \draw[red,dash pattern=on 1pt off 2pt, line width=0.1pt] ([xshift= 7/2*\onelen,yshift=\dy-1/2*\onelen]stair1A) -- ([xshift=7/2*\onelen,yshift=\dy-1/2*\onelen]stair1I);
+    \draw[red,dash pattern=on 1pt off 2pt, line width=0.1pt] ([xshift= 9/2*\onelen,yshift=\dy-1/2*\onelen]stair1A) -- ([xshift=7/2*\onelen,yshift=\dy-3/2*\onelen]stair1I);
+    \draw[red,dash pattern=on 1pt off 2pt, line width=0.1pt] ([xshift=11/2*\onelen,yshift=\dy-1/2*\onelen]stair1A) -- ([xshift=7/2*\onelen,yshift=\dy-5/2*\onelen]stair1I);
+    \draw[red,dash pattern=on 1pt off 2pt, line width=0.1pt] ([xshift=13/2*\onelen,yshift=\dy-1/2*\onelen]stair1A) -- ([xshift=7/2*\onelen,yshift=\dy-7/2*\onelen]stair1I);
+    }
     
     % draw dividers
     \draw[line width=0.1pt] ([yshift=-\plen-\onelen]M3D) -- ([yshift=-\plen-\onelen]M3C);
     \draw[line width=0.1pt] ([yshift=-\plen]M3D) -- ([yshift=-\plen]M3C);
     \draw[line width=1pt] ([yshift=\onelen]M3A) -- ([yshift=\onelen]M3B);
 
+    % ---------------- drawing right brace and matrix ----------------
+    % brace below matrix
+    \path ([xshift=-0.5\BrIn,yshift=-2\BrCl]M3A) coordinate (Brace3L);
+    \path ([xshift=0.5\BrIn,yshift=-2\BrCl]M3B) coordinate (Brace3R);
+    \draw[decorate, decoration={calligraphic brace, amplitude=3pt, mirror, aspect=0.25},line width=1pt] (Brace3L) -- (Brace3R);
+    % matrix below brace
+    \node (mat3) at ($(Brace3L)!0.25!(Brace3R) + (0,-3pt)$) {};
+    \node[below] at (mat3.center) {$\begin{bmatrix}
+        U_{\hat{i},p,f}\\U_{\hat{i}_p,1,f}\\Y_{\hat{i},p,f}\\ \hline Y_{\hat{i}_p,1,f}
+    \end{bmatrix}$};
+    % tag & label (on RHS of column)
+    \node[below] at ([xshift=2.13cm,yshift=-0.9cm]mat3.center) {$\refstepcounter{equation}(\theequation)\label{eq:CL_DeePC_no_IVs}$};
+    % brace to the right
+    \path ([xshift=0.7cm+0.05cm]mat3.center |- Brace1T) coordinate (Brace3T);%([xshift=0.7cm,yshift=-4pt]mat3.center) coordinate (Brace3T);
+    \path (Brace3T |- Brace1B) coordinate (Brace3B);
+    \draw[pen colour=gray!60,decorate, decoration={calligraphic brace, amplitude=3pt, aspect=0.2},line width=0.75pt] (Brace3T) -- (Brace3B);
+    % Zf
+    \node (Zf) at ($(Brace3T)!0.2!(Brace3B) + (3pt,-1.5pt)$) {};
+    \node[right,text=gray!60] at ([yshift=-0.18cm]Zf.center) {\scriptsize{\shortstack{$=$\\$\mathcal{Z}_{\hat{i},1,f}$}}};
+    
     % ======================= length indicators ======================= 
-    \draw[|-|] ([yshift=\onelen]M1D) -- node[above] {\scriptsize$m$} ([yshift=\onelen]M1C);
+    \draw[|-|] ([yshift=\onelen]M1D) -- node[above] {\scriptsize$N$} ([yshift=\onelen]M1C);
     \draw[|-|] ([yshift=\onelen]M2D) -- node[above] {\scriptsize$f$} ([yshift=\onelen]M2C);
     \draw[|-|] ([yshift=\onelen]M3D) -- node[above] {\scriptsize$f$} ([yshift=\onelen]M3C);
     \draw[|-|] ([xshift=\onelen]M3C) -- node[right] {\scriptsize$pr$} ([xshift=\onelen,yshift=\onelen]t2B);
