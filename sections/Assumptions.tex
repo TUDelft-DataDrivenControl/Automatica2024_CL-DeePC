@@ -1,0 +1,22 @@
+\subsection{Assumptions}
+This section presents assumptions that are used throughout this article.
+\begin{assum}\label{assum:well_posed}
+    The closed-loop system is well-posed.
+\end{assum}
+This assumption is satisfied if $I_l+DD_\mathrm{c}$ is invertible such that the states of the system and controller together with noise and reference uniquely define the output~\citep{VanOverschee1997}. This assumption is clearly satisfied if either the system or controller lacks direct feedthrough.
+\begin{assum}\label{assum:initial_contribution}
+    The window length $p$ is sufficiently large to ensure that $\tilde{A}^p\approx0$.
+\end{assum}
+This assumption is often encountered in subspace methods to neglect the contribution of an initial state~\citep{Chiuso2007}.
+\begin{assum}[{\cite{Markovsky2008}}]\label{assum:unique_initial}
+    The window length $p$ is greater than or equal to the system's lag: $p\geq\ell$.
+\end{assum}
+This assumption ensures that an initial condition can be determined from from $p$ samples of input and output data.
+\begin{assum}\label{assum:PE}
+    The input sequence is persistently exciting of order $(p+1)+\mathfrak{n},$
+\end{assum}
+in which persistency of excitation of the inputs of order $s$ is defined such that there exists a block-Hankel matrix of inputs $U_{k,s,q},$ with $q\geq sm$ that is full rank.
+\begin{assum}\label{assum:controllability}
+    The matrix pair $(A,B)$ is controllable.
+\end{assum}
+Assumptions~\ref{assum:PE} and~\ref{assum:controllability} are needed to satisfy Willems' Fundamental Lemma in the developed closed-loop framework.

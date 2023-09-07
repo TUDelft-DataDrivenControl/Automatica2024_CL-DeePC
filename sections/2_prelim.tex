@@ -1,8 +1,8 @@
 \section{Preliminaries, notation and assumptions}
-This section presents the employed system model description, the notation, and the assumptions that are used in this article.
+This section presents the employed system model and the notation that is used in this article.
 
 \subsection{System Model}
-The dynamics of the system to be controlled $\mathcal{S}$ are described by a non-deterministic discrete \ac{LTI} system that is affected by both process and measurement noise as
+The dynamics of the system to be controlled  are described by a non-deterministic discrete \ac{LTI} system that is affected by both process and measurement noise as
 \begin{subequations}\label{eq:SS_original}
 \begin{empheq}[left=\mathcal{S}\empheqlbrace]{align}
     \bar{x}_{k+1} &= A\bar{x}_k + Bu_k + w_k,\label{eqn:SSo_x}\\
@@ -86,35 +86,12 @@ Using such data vectors it is possible to concisely define block-Hankel data mat
 \end{align*}
 which contains $q$ successive output data vectors with $p$ data samples each, starting from time index $k$. Data vectors and block-Hankel data matrices that contain only predictions are indicated by $\hat{(\cdot)}$ whilst those that are comprised in part of predictions are indicated by $\tilde{(\cdot)}$.
 
-For convenience, the notation $\mathcal{Z}$ is reserved to denote an often encountered concatenation of input and output block-Hankel matrices that is given by
+For convenience, the notation $\Phi$ is reserved to denote an often encountered concatenation of input and output block-Hankel matrices that is given by
 \begin{align*}
-    \mathcal{Z}_{k,s,q} = \begin{bmatrix}
+    \Phi_{k,s,q} = \begin{bmatrix}
         U_{k,p,q}^\top & U_{k_p,s,q}^\top & Y_{k,p,q}^\top
     \end{bmatrix}^\top,
 \end{align*}
 in which $k$, and $q$ respectively indicate the starting index and parameterize the dimensions of the concatenated matrix together with $p$. Throughout this article, time indices $i$, $\hat{i}$, and $k$, will be used together with the shorthand exemplified by $k_p=k+p$.
 
 Furthermore, the minimum number of states obtained from of a minimal realization of the equivalent filtered systems $\mathcal{F}_\mathcal{I}$ and $\mathcal{F}_\mathcal{P}$ is represented by $\mathfrak{n}$. Likewise, the lag of these systems is defined as the smallest integer $\ell$ that renders an observability matrix $\Gamma_\ell$ of rank $\mathfrak{n}$.
-
-\subsection{Assumptions}
-This section presents assumptions that are used throughout this article.
-\begin{assum}\label{assum:well_posed}
-    The closed-loop system is well-posed.
-\end{assum}
-This assumption is satisfied if $I_l+DD_\mathrm{c}$ is invertible such that the states of the system and controller together with noise and reference uniquely define the output~\citep{VanOverschee1997}. This assumption is clearly satisfied if either the system or controller lacks direct feedthrough.
-\begin{assum}\label{assum:initial_contribution}
-    The window length $p$ is sufficiently large to ensure that $\tilde{A}^p\approx0$.
-\end{assum}
-This assumption is often encountered in subspace methods to neglect the contribution of an initial state~\citep{Chiuso2007}.
-\begin{assum}[{\cite{Markovsky2008}}]\label{assum:unique_initial}
-    The window length $p$ is greater than or equal to the system's lag: $p\geq\ell$.
-\end{assum}
-This assumption ensures that an initial condition can be determined from from $p$ samples of input and output data.
-\begin{assum}\label{assum:PE}
-    The input sequence is persistently exciting of order $(p+1)+\mathfrak{n},$
-\end{assum}
-in which persistency of excitation of the inputs of order $s$ is defined such that there exists a block-Hankel matrix of inputs $U_{k,s,q},$ with $q\geq sm$ that is full rank.
-\begin{assum}\label{assum:controllability}
-    The matrix pair $(A,B)$ is controllable.
-\end{assum}
-Assumptions~\ref{assum:PE} and~\ref{assum:controllability} are needed to satisfy Willems' Fundamental Lemma in the developed closed-loop framework.

@@ -1,14 +1,14 @@
-\section{Closed-loop \acs{DeePC} solution methods}\label{sec:SolutionMethods}
+\section{\acs{CL-DeePC} Implementation Methods}\label{sec:SolutionMethods}
 This section presents several methods to implement \ac{CL-DeePC}. Several prerequisites for successful implementations are listed and discussed below.\todo{Add note on well-defined}
 \begin{enumerate}
-    \item The window length $p$ is sufficiently large to ensure that $\tilde{A}^p\approx 0$. This follows from the derivation of the data equations in Section~\ref{sec:DerivingDataEquations}.
-    \item The past data matrix $\mathcal{Z}_{i,1,N}\mathcal{I}^\top$ must be square and invertible. This ensures that \eqref{eq:NoisyWFL3} uniquely defines $G$ and requires a sufficiently persistently exciting input such that $\mathcal{Z}_{i,1,N}$ is full row rank. Without \ac{IVs} ($\mathcal{I}=I_N$), this implies that $N=(p+1)r+pl$. This choice of $N$ is assumed henceforth without \ac{IVs} and has the added benefit of limiting increased noise sampling with larger $N$, as discussed following \eqref{eq:NoisyWFL3}.
+    % \item The window length $p$ is sufficiently large to ensure that $\tilde{A}^p\approx 0$. This follows from the derivation of the data equations in Section~\ref{sec:DerivingDataEquations}.
+    \item The past data matrix $\Phi_{i,1,N}\mathcal{Z}^\top$ must be square and invertible. This ensures that \eqref{eq:NoisyWFL3} uniquely defines $G$ and requires a sufficiently persistently exciting input such that $\Phi_{i,1,N}$ is full row rank. Without \ac{IVs} ($\mathcal{Z}=I_N$), this implies that $N=(p+1)r+pl$. This choice of $N$ is assumed henceforth without \ac{IVs} and has the added benefit of limiting increased noise sampling with larger $N$, as discussed following \eqref{eq:NoisyWFL3}.
     \item The number of columns $N$ is assumed to be sufficiently large to realize \eqref{eq:uncorrelated}. In practice $N$ is finite and as a result the \ac{DeePC} equations \eqref{eq:CL_DeePC_no_IVs}, \eqref{eq:regular_DeePC}, and \eqref{eq:CL_DeePC_with_IV} may be inconsistent in the presence of noise, necessitating slack variables as in~\cite{Coulson2019}.\todo{See below}
 \end{enumerate}
 % 
-% for successful implementation is that the input is sufficiently persistently exciting such that $\mathcal{Z}_{i,1,N}$ is full row rank. To obtain a unique solution for $G$ and prevent unnecessary noise sampling as discussed following \eqref{eq:NoisyWFL3}, henceforth only $N=(p+1)r+pl$ is considered without \ac{IVs}. This leaves the top data matrix with past data in Fig.~\ref{fig:CL-DeePC} $\mathcal{Z}_{i,1,N}\mathcal{I}^\top$ square and invertible, as is the case with \ac{IVs} when $\mathcal{I}=\mathcal{Z}_{i,1,N}$ (although the block-anti-diagonal structure on the left is then lost).
+% for successful implementation is that the input is sufficiently persistently exciting such that $\Phi_{i,1,N}$ is full row rank. To obtain a unique solution for $G$ and prevent unnecessary noise sampling as discussed following \eqref{eq:NoisyWFL3}, henceforth only $N=(p+1)r+pl$ is considered without \ac{IVs}. This leaves the top data matrix with past data in Fig.~\ref{fig:CL-DeePC} $\Phi_{i,1,N}\mathcal{Z}^\top$ square and invertible, as is the case with \ac{IVs} when $\mathcal{Z}=\Phi_{i,1,N}$ (although the block-anti-diagonal structure on the left is then lost).
 %
-% For implementations without \ac{IVs} as demonstrated by \eqref{eq:CL_DeePC_no_IVs} it makes sense to choose $N=(p+1)r+pl$. Whether one implements \ac{CL-DeePC} without \ac{IVs} \eqref{eq:CL_DeePC_no_IVs} or with \ac{IVs} \eqref{eq:CL_DeePC_with_IV}. Having derived a new \ac{CL-DeePC} framework without and with \ac{IVs}, this section describes several methods to employ the stated equations in a receding horizon optimal control framework. Note that whether applying \eqref{eq:CL_DeePC_no_IVs} or \eqref{eq:CL_DeePC_with_IV} makes little difference to the solution method as long as the input is sufficiently persistently exciting such that $\mathcal{Z}_{i,1,N}$ is full row rank and the equation reduces to a form given by Fig.~\ref{fig:CL-DeePC} with ${m=(p+1)r+pl}$. Selecting a larger number of columns $N$ in \eqref{eq:CL_DeePC_no_IVs} unnecessarily adds more optimization variables and is therefore not considered here.
+% For implementations without \ac{IVs} as demonstrated by \eqref{eq:CL_DeePC_no_IVs} it makes sense to choose $N=(p+1)r+pl$. Whether one implements \ac{CL-DeePC} without \ac{IVs} \eqref{eq:CL_DeePC_no_IVs} or with \ac{IVs} \eqref{eq:CL_DeePC_with_IV}. Having derived a new \ac{CL-DeePC} framework without and with \ac{IVs}, this section describes several methods to employ the stated equations in a receding horizon optimal control framework. Note that whether applying \eqref{eq:CL_DeePC_no_IVs} or \eqref{eq:CL_DeePC_with_IV} makes little difference to the solution method as long as the input is sufficiently persistently exciting such that $\Phi_{i,1,N}$ is full row rank and the equation reduces to a form given by Fig.~\ref{fig:CL-DeePC} with ${m=(p+1)r+pl}$. Selecting a larger number of columns $N$ in \eqref{eq:CL_DeePC_no_IVs} unnecessarily adds more optimization variables and is therefore not considered here.
 %
 % =====================================================================================================================
 % =====================================================================================================================
@@ -19,19 +19,19 @@ This leaves $fr$ degrees of freedom, which lends itself well to optimization ove
 % =====================================================================================================================
 % =====================================================================================================================
 \subsection{Constructing a predictor that is explicit in inputs}
-Imagine explicitly solving for $G$ in terms of $\mathcal{Z}_{\hat{i},1,f}$ and using this as an output predictor. Then with $\mathcal{I}=I_N$ for \eqref{eq:CL_DeePC_no_IVs} and $\mathcal{I}=\mathcal{Z}_{i,1,N}$ for \eqref{eq:CL_DeePC_with_IV}:
+Imagine explicitly solving for $G$ in terms of $\Phi_{\hat{i},1,f}$ and using this as an output predictor. Then with $\mathcal{Z}=I_N$ for \eqref{eq:CL_DeePC_no_IVs} and $\mathcal{Z}=\Phi_{i,1,N}$ for \eqref{eq:CL_DeePC_with_IV}:
 \begin{align}\label{eq:OutputPred2}
-     \widehat{Y}_{\hat{i}_p,1,f} = Y_{i_p,1,N}{\mathcal{I}}^\top \left(\mathcal{Z}_{i,1,N}{\mathcal{I}}^\top\right)\inv\mathcal{Z}_{\hat{i},1,f}.
+     \widehat{Y}_{\hat{i}_p,1,f} = Y_{i_p,1,N}{\mathcal{Z}}^\top \left(\Phi_{i,1,N}{\mathcal{Z}}^\top\right)\inv\Phi_{\hat{i},1,f}.
 \end{align}
-The relationship between the output predictor and $\mathcal{Z}_{\hat{i},1,f}$ in \eqref{eq:OutputPred2} demonstrates that predicted future outputs are dependent on concurrent and preceding inputs as well as preceding outputs. The dependence of future output predictions on past inputs is contained in part implicitly by the dependence on preceding outputs, as demonstrated by the combination of \eqref{eq:OutputPred2} and Fig.~\ref{fig:CL-DeePC}. This motivates the construction of a multi-step output predictor that contains only an explicit dependence on future inputs over which one can then optimize a (potentially constrained) cost function in a receding horizon framework.
+The relationship between the output predictor and $\Phi_{\hat{i},1,f}$ in \eqref{eq:OutputPred2} demonstrates that predicted future outputs are dependent on concurrent and preceding inputs as well as preceding outputs. The dependence of future output predictions on past inputs is contained in part implicitly by the dependence on preceding outputs, as demonstrated by the combination of \eqref{eq:OutputPred2} and Fig.~\ref{fig:CL-DeePC}. This motivates the construction of a multi-step output predictor that contains only an explicit dependence on future inputs over which one can then optimize a (potentially constrained) cost function in a receding horizon framework.
 \subsubsection{One-shot}
 One way to arrive at such an explicit description of the output predictor is to reformulate the \ac{CL-DeePC} formulations from \eqref{eq:CL_DeePC_no_IVs} or \eqref{eq:CL_DeePC_with_IV} to separate the known and unknown variables as vectors. To this end, consider the vectorization of \eqref{eq:CL_DeePC_with_IV}, which yields
 \begin{align}\label{eq:Vectorize1}
     \underbrace{\left(\mkern-3mu I_f \otimes \begin{bmatrix}
-        \mathcal{Z}_{i,1,N}\\
+        \Phi_{i,1,N}\\
         Y_{i_p,1,N}
-    \end{bmatrix}{\mathcal{I}}^\top\mkern-3mu\right)}_{=\mathcal{D}^\mathrm{p}}\text{vec}(G)=\text{vec}\mkern-3mu\left(\mkern-3mu\begin{bmatrix}
-        \mathcal{Z}_{\hat{i},1,f}\\
+    \end{bmatrix}{\mathcal{Z}}^\top\mkern-3mu\right)}_{=\mathcal{D}^\mathrm{p}}\text{vec}(G)=\text{vec}\mkern-3mu\left(\mkern-3mu\begin{bmatrix}
+        \Phi_{\hat{i},1,f}\\
         \widehat{Y}_{\hat{i}_p,1,f}
     \end{bmatrix}\mkern-3mu\right),
 \end{align}%

@@ -43,20 +43,23 @@
     % coordinates for diagonals
     \path ([yshift=-\plen]M1D) coordinate (M1stair1A);
     \path ([xshift=\plen]M1D) coordinate (M1stair1I);
-    \foreach \dy in {0,-\plen-\onelen}{%
     % black diagonals
-    \draw[dash pattern=on 1pt off 2pt, line width=0.1pt] ([xshift= 1/2*\onelen,yshift=\dy+5/2*\onelen]M1stair1A) -- ([xshift=-5/2*\onelen,yshift=\dy-1/2*\onelen]M1stair1I);
-    \draw[dash pattern=on 1pt off 2pt, line width=0.1pt] ([xshift= 1/2*\onelen,yshift=\dy+3/2*\onelen]M1stair1A) -- ([xshift=-3/2*\onelen,yshift=\dy-1/2*\onelen]M1stair1I);
-    \draw[dash pattern=on 1pt off 2pt, line width=0.1pt] ([xshift= 1/2*\onelen,yshift=\dy+1/2*\onelen]M1stair1A) -- ([xshift=-1/2*\onelen,yshift=\dy-1/2*\onelen]M1stair1I);
-    \draw[dash pattern=on 1pt off 2pt, line width=0.1pt] ([xshift= 1/2*\onelen,yshift=\dy-1/2*\onelen]M1stair1A) -- ([xshift= 1/2*\onelen,yshift=\dy-1/2*\onelen]M1stair1I);
-    \draw[dash pattern=on 1pt off 2pt, line width=0.1pt] ([xshift= 3/2*\onelen,yshift=\dy-1/2*\onelen]M1stair1A) -- ([xshift= 3/2*\onelen,yshift=\dy-1/2*\onelen]M1stair1I);
-    \draw[dash pattern=on 1pt off 2pt, line width=0.1pt] ([xshift= 5/2*\onelen,yshift=\dy-1/2*\onelen]M1stair1A) -- ([xshift= 5/2*\onelen,yshift=\dy-1/2*\onelen]M1stair1I);
-    \draw[dash pattern=on 1pt off 2pt, line width=0.1pt] ([xshift= 7/2*\onelen,yshift=\dy-1/2*\onelen]M1stair1A) -- ([xshift= 7/2*\onelen,yshift=\dy-1/2*\onelen]M1stair1I);
-    \draw[dash pattern=on 1pt off 2pt, line width=0.1pt] ([xshift= 9/2*\onelen,yshift=\dy-1/2*\onelen]M1stair1A) -- ([xshift= 9/2*\onelen,yshift=\dy-1/2*\onelen]M1stair1I);
-    \draw[dash pattern=on 1pt off 2pt, line width=0.1pt] ([xshift=11/2*\onelen,yshift=\dy-1/2*\onelen]M1stair1A) -- ([xshift= 9/2*\onelen,yshift=\dy-3/2*\onelen]M1stair1I);
-    \draw[dash pattern=on 1pt off 2pt, line width=0.1pt] ([xshift=13/2*\onelen,yshift=\dy-1/2*\onelen]M1stair1A) -- ([xshift= 9/2*\onelen,yshift=\dy-5/2*\onelen]M1stair1I);
-    \draw[dash pattern=on 1pt off 2pt, line width=0.1pt] ([xshift=15/2*\onelen,yshift=\dy-1/2*\onelen]M1stair1A) -- ([xshift= 9/2*\onelen,yshift=\dy-7/2*\onelen]M1stair1I);
-    }
+    % \foreach \i in {0,-1}{
+    % \foreach \dy in {1,...,11}{
+    % \ifthenelse{\dy<5.5}{
+    % % This code will be executed if \dy<9.5
+    %     \draw[dash pattern=on 1pt off 2pt, line width=0.1pt] ([xshift= 0.5*\onelen,yshift=\i*(\plen+\onelen)-(\dy+0.5)*\onelen]M1D) -- ([xshift= (\dy+0.5)*\onelen,yshift=\i*(\plen+\onelen)-0.5*\onelen]M1D);
+    % }{
+    % % This code will be executed if \dy>=10
+    %     \ifthenelse{\dy<8.5}{
+    %         % This code will be executed if \dy<=12
+    %         \draw[dash pattern=on 1pt off 2pt, line width=0.1pt] ([xshift= (\dy-3.5)*\onelen,yshift=\i*(\plen+\onelen)-\plen-\onelen+0.5*\onelen]M1D) -- ([xshift=(\dy-8.5)*\onelen,yshift=\i*(\plen+\onelen)-0.5\onelen]M1C);
+    %         }{
+    %         % This code will be executed if \dy>=13
+    %         \draw[dash pattern=on 1pt off 2pt, line width=0.1pt] ([xshift= (\dy-3.5)*\onelen,yshift=(\i-1)*(\plen+\onelen)+0.5\onelen]M1D) -- ([xshift= -0.5*\onelen,yshift=\i*(\plen+\onelen)-(\dy-7.5)*\onelen]M1C);
+    %     }
+    % }
+    % }}
     
     % ---------------- drawing left brace and matrix ----------------
     \path ([xshift=-0.5\BrIn,yshift=-2\BrCl]M1A) coordinate (Brace1L);
@@ -72,7 +75,7 @@
     \draw[pen colour=gray!60,decorate, decoration={calligraphic brace, amplitude=3pt, mirror, aspect=0.2},line width=0.75pt] (Brace1T) -- (Brace1B);
     % Zp
     \node (Zp) at ($(Brace1T)!0.2!(Brace1B) + (-3pt,-0.8pt)$) {};
-    \node[left,text=gray!60,align=center] at ([xshift=0.5mm,yshift=-0.18cm]Zp.center) {\scriptsize{\shortstack{$=$\\$\mathcal{Z}_{i,p,N}$}}};
+    \node[left,text=gray!100,align=center] at ([xshift=0.5mm,yshift=-0.18cm]Zp.center) {\scriptsize{\shortstack{$=$\\$\Phi_{i,1,N}$}}};
   
     % ======================= drawing G =======================
     % useful coordinates
@@ -245,7 +248,7 @@
     \draw[pen colour=gray!60,decorate, decoration={calligraphic brace, amplitude=3pt, aspect=0.2},line width=0.75pt] (Brace3T) -- (Brace3B);
     % Zf
     \node (Zf) at ($(Brace3T)!0.2!(Brace3B) + (3pt,-1.5pt)$) {};
-    \node[right,text=gray!60] at ([yshift=-0.18cm]Zf.center) {\scriptsize{\shortstack{$=$\\$\mathcal{Z}_{\hat{i},1,f}$}}};
+    \node[right,text=gray!100] at ([yshift=-0.18cm]Zf.center) {\scriptsize{\shortstack{$=$\\$\Phi_{\hat{i},1,f}$}}};
     
     % ======================= length indicators ======================= 
     \draw[|-|] ([yshift=\onelen]M1D) -- node[above] {\scriptsize$N$} ([yshift=\onelen]M1C);
