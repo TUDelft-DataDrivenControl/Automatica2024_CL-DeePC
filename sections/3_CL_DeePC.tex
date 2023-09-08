@@ -1,7 +1,14 @@
 \section{Closed-loop Data-enabled Predictive Control}
-In this section \ac{CL-DeePC} is first introduced and compared to regular \ac{DeePC}. Moreover, an intuitive explanation is offered for contributions \ref{contribution:solves_CL_issue}-\ref{contribution:sample_efficient}. More rigorous demonstrations follow in subsequent sections.
+In this section \ac{CL-DeePC} is first introduced and compared to regular \ac{DeePC}, thereby offering an intuitive explanation for contributions \ref{contribution:solves_CL_issue}-\ref{contribution:sample_efficient}. More rigorous explanations follow in subsequent sections. What follows directly below is the principal result of this work.
 
-% \begin{figure*}[t!]
+%%
+
+To avoid the identification bias that arises in closed-loop due to correlation between inputs and noise (a demonstration thereof is deferred to Section~\ref{sec:CL_ID_issue}) it is possible to estimate a step-ahead predictor~\citep{Ljung1996}. A prediction horizon length $f>1$ is of more practical use in receding horizon optimal control settings, to which end step-ahead predictors can be applied sequentially. 
+
+Fig.~\ref{fig:CL-DeePC} and \eqref{eq:CL_DeePC_no_IVs} illustrate how this idea is employed in \ac{CL-DeePC}. A step-ahead predictor can be obtained from regular \ac{DeePC} (see Fig.~\ref{fig:regular-DeePC} and \eqref{eq:regular_DeePC_no_IVs}) with $f=1$. In \ac{CL-DeePC} the successive columns of $G$ (from left to right) and their corresponding columns on the right-hand side correspond to sequential applications of regular \ac{DeePC} with $f=1$ to the same matrix of sufficiently persistently exciting past input-output data on the left-hand side as well as time-shifted windows of input-output data on the right-hand side that parameterize successive initial states.
+
+%
+% \begin{figure*}[b!]
 %      \centering
 %      \begin{subfigure}[b]{\columnwidth}
 %          \centering
@@ -20,56 +27,22 @@ In this section \ac{CL-DeePC} is first introduced and compared to regular \ac{De
 % \end{figure*}
 \begin{figure}[b!]
 \centering
-\input{tikzpictures/CL-DeePC}
-\caption{Visualization of known (black) and unknown (red) variables in \ac{CL-DeePC} without \ac{IVs}. Each dot represents an input $u_k\in\mathbb{R}^r$, output $y_k\in\mathbb{R}^l$, or element of the matrix $G$. \ac{CL-DeePC} involves $f$ sequential applications of a step-ahead predictor obtained from regular \ac{DeePC} with $f=1$ (see also Fig.~\ref{fig:regular-DeePC}), resulting in the dashed block-anti diagonals with the same $u_k$ or $y_k$ on the right hand side.}
-\label{fig:CL-DeePC}
-\end{figure}
-\begin{figure}[b!]
-\centering
 \input{tikzpictures/regular_DeePC}
 \caption{Visualization of known (black) and unknown (red) variables in regular \ac{DeePC} without \ac{IVs}. Each dot represents an input $u_k\in\mathbb{R}^r$, output $y_k\in\mathbb{R}^l$, or element of the matrix $G$. A multi-step ahead predictor of prediction length $f$ is formed directly by taking a linear combination of past input and output data.\\\vspace{0.75mm}}
 \label{fig:regular-DeePC}
 \end{figure}
-
-
-This section will first present the new \ac{CL-DeePC} framework, which does not suffer from closed-loop identification bias during operation. Subsequently, data equations that underpin this method are derived upon which a noise mitigation strategy using \ac{IVs} is presented.
-
 % ==============================================================================================================================================================
 % ==============================================================================================================================================================
-\subsection{The basic idea}
-To derive a variant of \ac{DeePC} that does not suffer from the aforementioned closed-loop identification issue lets start by considering regular \ac{DeePC}. Closed-loop identification bias can be avoided by using a step-ahead predictor~\citep{Ljung1996}. However, such a short prediction horizon length is typically not conducive to good performance in a receding horizon control setting. Hence, to obtain another output prediction, the previous regular \ac{DeePC} problem is repeated with the same past data (but a different vector $g$ to span it) to obtain trajectories of input-output data that are shifted forwards one time step. This procedure can be repeated to obtain a desired prediction horizon length $f$. The entire procedure is succinctly described by Fig.~\ref{fig:CL-DeePC} and \eqref{eq:CL_DeePC_no_IVs}, \todo{check length conditions DeePC}
-% 
-% To explain the newly-developed \ac{CL-DeePC} framework, consider applying regular \ac{DeePC} $f$ times to the same past data to find consecutive step-ahead predictions of the outputs. This is succinctly described by
-% 
-% \begin{align}\label{eq:CL_DeePC_no_IVs}
-% \begin{bmatrix}
-%     U_{i,p,N}\\U_{i_p,1,N}\\Y_{i,p,N}\\ \hline Y_{i_p,1,N}
-% \end{bmatrix}
-% \underbrace{
-% \begin{bmatrix}
-%     g_1 & g_2 & \cdots & g_f
-% \end{bmatrix}}_{= G} =
-% \begin{bmatrix}
-%     U_{\hat{i},p,f}\\
-%     U_{\hat{i}_p,1,f}\\
-%     \widetilde{Y}_{\hat{i},p,f}\\
-%     \hline
-%     \widehat{Y}_{\hat{i}_p,1,f}
-% \end{bmatrix},
-% % \begin{bmatrix}
-% %     \datavec{u}{\hat{i},p} & \datavec{u}{\hat{i}+1,p} & \cdots & \datavec{u}{\hat{i}+f-1,p}\\
-% %     \datavec{u}{\hat{i}_p,1} & \datavec{u}{\hat{i}_p+1,1} & \cdots & \datavec{u}{\hat{i}_p+f-1,1}\\
-% %     \datavec{y}{\hat{i},p} & \datavec{y}{\hat{i}+1,p} & \cdots & \datavec{y}{\hat{i}+f-1,p}\\
-% %     \datavec{y}{\hat{i}_p,1} & \datavec{y}{\hat{i}_p+1,1} & \cdots & \datavec{y}{\hat{i}_p+f-1,1}
-% % \end{bmatrix}
-% \end{align}
-in which $i$, $i_p$, $\hat{i}$, and $\hat{i}_p$ are discrete time indices (the first three indices lie in the past, and the last index $\hat{i}_p$ resembles the first future time index), and $G$ defines a matrix with columns given by the vectors $\{g_k\}^f_{k=1}$. Furthermore, note that $\Phi_{i,1,N}$ and $\Phi_{\hat{i},1,f}$ are present on respectively the top left and top right hand side.
+% \subsection{The basic idea}
+% To derive a variant of \ac{DeePC} that does not suffer from the aforementioned closed-loop identification issue lets start by considering regular \ac{DeePC}. Closed-loop identification bias can be avoided by using a step-ahead predictor~\citep{Ljung1996}. However, such a short prediction horizon length is typically not conducive to good performance in a receding horizon control setting. Hence, to obtain another output prediction, the previous regular \ac{DeePC} problem is repeated with the same past data (but a different vector $g$ to span it) to obtain trajectories of input-output data that are shifted forwards one time step. This procedure can be repeated to obtain a desired prediction horizon length $f$. The entire procedure is succinctly described by Fig.~\ref{fig:CL-DeePC} and \eqref{eq:CL_DeePC_no_IVs}, \todo{check length conditions DeePC}
 
-Treatment of different \ac{CL-DeePC} solution strategies is deferred to Section \ref{sec:SolutionMethods}. Suffice it for now to take note of the structure of \eqref{eq:CL_DeePC_no_IVs} illustrated by Fig.~\ref{fig:CL-DeePC} and to say that if the input is sufficiently persistently exciting such that $\Phi_{i,1,N}$ is full row rank~\cite[Chapt.~9.6.1]{Verhaegen2007a} then making $\Phi_{i,1,N}$ square and invertible by selecting $N=(p+1)r+pl$ minimizes the number of optimization variables.
+% in which $i$, $i_p$, $\hat{i}$, and $\hat{i}_p$ are discrete time indices (the first three indices lie in the past, and the last index $\hat{i}_p$ resembles the first future time index), and $G$ defines a matrix with columns given by the vectors $\{g_k\}^f_{k=1}$. Furthermore, note that $\Phi_{i,1,N}$ and $\Phi_{\hat{i},1,f}$ are present on respectively the top left and top right hand side.
+
+% Treatment of different \ac{CL-DeePC} solution strategies is deferred to Section \ref{sec:SolutionMethods}. Suffice it for now to take note of the structure of \eqref{eq:CL_DeePC_no_IVs} illustrated by Fig.~\ref{fig:CL-DeePC} and to say that if the input is sufficiently persistently exciting such that $\Phi_{i,1,N}$ is full row rank~\cite[Chapt.~9.6.1]{Verhaegen2007a} then making $\Phi_{i,1,N}$ square and invertible by selecting $N=(p+1)r+pl$ minimizes the number of optimization variables.
 % 
 % As with regular \ac{DeePC} the idea is to find an optimal combination of allowable future inputs and outputs that minimizes a cost function that is possibly subject to constraints. To see how \eqref{eq:CL_DeePC_no_IVs} can be used in a receding horizon optimal control setting, first consider the top three blocks of the past data matrix. If the input is sufficiently persistently exciting then this matrix, $\Phi_{i,1,N}$, is full row rank~\cite[Chapt.~9.6.1]{Verhaegen2007a}. If, furthermore, ${N=(p+1)r+pl}$, then $\Phi_{i,1,N}$ becomes square and invertible. Hence, a unique solution for $G$ can then be obtained from the top three block equations of \eqref{eq:CL_DeePC_no_IVs} (in terms of future inputs and outputs), which can then be used to obtain output predictions by using the bottom block equation. The structure of \eqref{eq:CL_DeePC_no_IVs} is visualized by Fig.~\ref{fig:CL-DeePC}. This figure demonstrates that successive future output predictions are dependent on preceding input-output data as well as their concurrent input, opening the door to the sequential construction of an output predictor. This is described in \todo{section}, and can be used in a receding horizon optimal control framework.
 % 
-
+% 
 % ==============================================================================================================================================================
 % ==============================================================================================================================================================
 \subsection{The data equations}\label{sec:DerivingDataEquations}
