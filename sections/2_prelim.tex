@@ -27,8 +27,8 @@ in which $\tilde{B}=B-KD$.
 %
 % in which ${\bar{x}_k\in\mathbb{R}^n}$, ${u_k\in\mathbb{R}^r}$, ${y_k\in\mathbb{R}^l}$, ${w_k\in\mathbb{R}^n}$, ${v_k\in\mathbb{R}^l}$ respectively represent states, inputs, outputs, process noise, and measurement noise, and $\{A,B,C,D\}$ are system matrices of compatible dimensions. If the process and measurement noise are either zero-mean white or colored Gaussian sequences such that the system $\mathcal{S}$ satisfies notions of detectability and reachability there exists an equivalent innovation form $\mathcal{F}_\mathcal{I}$ that is based on Kalman filtering (see~\citet[p.~112-113\todo{Check pages}]{Anderson1979}, or \citet[p.~162]{Verhaegen2007a} for details) and is given by
 %
-\subsection{Definitions and notation}\label{sec:notation}
-Having described the different system representations of the considered system, this section introduces some useful preliminary notation.
+\subsection{Notation}\label{sec:notation}
+Having described the different system representations of the considered system, this section introduces some useful preliminary notation and definitions.
 
 To start, block-Toeplitz matrices are defined by
 \begin{align}\label{eqn:blockToeplitz} 
@@ -81,7 +81,7 @@ in which $q\in\mathbb{Z}_{>0}$ is another generic positive-definite integer that
 \begin{defn}\label{def:PE}
     A signal consisting of samples ${w_j\in\mathbb{R}^q},$ $j\in[k,\,k+s+N-2]$ is persistently exciting of order $s$ if the associated block-Hankel matrix ${W_{k,s,N}\in\mathbb{R}^{sq \times N}}$ is full row rank.
 \end{defn}
-Data vectors and block-Hankel data matrices that contain only predictions are indicated by $\hat{(\cdot)}$ whilst those that are comprised in part of predictions are indicated by $\tilde{(\cdot)}$.
+Predicted samples, vectors, or matrices of data are indicated by $\hat{(\cdot)}$.% whilst those that are comprised in part of predictions are indicated by $\tilde{(\cdot)}$.
 
 For convenience, the notation $\Phi$ is reserved to denote an often encountered concatenation of input and output block-Hankel matrices that is given by
 \begin{align*}
@@ -139,7 +139,7 @@ To clearly demarcate the scope of this work this section presents the receding h
     \text{s.t.}\quad& &\datavec{\hat{y}}{\hat{i}_p,f}&=\Gamma_f x_{\hat{i}_p}+\mathcal{T}_f^\mathrm{u}\datavec{u}{\hat{i}_p,f}%+\mathcal{H}_f\datavec{e}{\hat{i}_p,f}
     ,\label{eq:SS_iter}\\
    && x_{\hat{i}_p}&=x_\mathrm{ini},\label{eq:x_ini}\\
-   && u_k&\in\mathcal{U},\quad \mathbb{E}[y_k]\in\mathcal{Y},\quad \forall k\in\big[\hat{i}_p,\,\hat{i}_p+f\big),
+   && u_k&\in\mathcal{U},\quad \hat{y}_k\in\mathcal{Y},\quad \forall k\in\big[\hat{i}_p,\,\hat{i}_p+f\big),
 \end{alignat}
 \end{subequations}
 % \begin{subequations}
