@@ -135,8 +135,9 @@ in which, for convenience, we define, two reoccurring so called `dynamic matrice
 To clearly demarcate the scope of this work this section presents the receding horizon control problem that is considered here, which is formulated using \eqref{eq:Yf1} for a single column ($q=1$) from time index $k=\hat{i}$ and with $s=f\in\mathbb{Z}_{>0}$ as future prediction window length, as
 \begin{subequations}
 \begin{alignat}{2}
-    &\min_{\datavec{u}{\hat{i}_p,f}} \mathbb{E}\left[||\datavec{y}{\hat{i}_p,f}-\datavec{r}{\hat{i}_p,f}||_Q^2\right] + ||\datavec{u}{\hat{i}_p,f}||_R^2 \span\span\\
-    \text{s.t.}\quad& &\datavec{y}{\hat{i}_p,f}&=\Gamma_f x_{\hat{i}_p}+\mathcal{T}_f^\mathrm{u}\datavec{u}{\hat{i}_p,f}+\mathcal{H}_f\datavec{e}{\hat{i}_p,f},\label{eq:SS_iter}\\
+    &\min_{\datavec{u}{\hat{i}_p,f}} ||\datavec{\hat{y}}{\hat{i}_p,f}-\datavec{r}{\hat{i}_p,f}||_Q^2 + ||\datavec{u}{\hat{i}_p,f}||_R^2 \span\span\\
+    \text{s.t.}\quad& &\datavec{\hat{y}}{\hat{i}_p,f}&=\Gamma_f x_{\hat{i}_p}+\mathcal{T}_f^\mathrm{u}\datavec{u}{\hat{i}_p,f}%+\mathcal{H}_f\datavec{e}{\hat{i}_p,f}
+    ,\label{eq:SS_iter}\\
    && x_{\hat{i}_p}&=x_\mathrm{ini},\label{eq:x_ini}\\
    && u_k&\in\mathcal{U},\quad \mathbb{E}[y_k]\in\mathcal{Y},\quad \forall k\in\big[\hat{i}_p,\,\hat{i}_p+f\big),
 \end{alignat}
