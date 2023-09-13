@@ -132,7 +132,7 @@ in which, for convenience, we define, two reoccurring so called `dynamic matrice
 % Although a more generic representation was kept above for later analysis, for \ac{CL-DeePC}, $s=1$. This reduces the complexity of the above equations since ${\widetilde{L}_1=L_1=\big[ C\tKp{u} \; D \; C\tKp{y} \big]}$ and $\widetilde{\mathcal{H}}_1=\mathcal{H}_1=I_l$.
 %
 \subsection{Receding horizon control problem formulation}
-To clearly demarcate the scope of this work this section presents the receding horizon control problem that is considered here, which is formulated using \eqref{eq:Yf1} for a single column ($q=1$) from time index $k=\hat{i}$, and with $s=f\in\mathbb{Z}_{>0}$ as future prediction window length, as
+To clearly demarcate the scope of this work this section presents the receding horizon control problem that is considered here, which is formulated using \eqref{eq:Yf1} for a single column ($q=1$) from time index $k=\hat{i}$ and with $s=f\in\mathbb{Z}_{>0}$ as future prediction window length, as
 \begin{subequations}
 \begin{alignat}{2}
     &\min_{\datavec{u}{\hat{i}_p,f}} \mathbb{E}\left[||\datavec{y}{\hat{i}_p,f}-\datavec{r}{\hat{i}_p,f}||_Q^2\right] + ||\datavec{u}{\hat{i}_p,f}||_R^2 \span\span\\
