@@ -22,12 +22,13 @@ A solution to this problem is to avoid correlation between inputs and noise by u
 \todo{update: Wang2023...}To date all solutions of the closed-loop identification issue in direct data-driven predictive control applications are based on a subspace framework, as with \ac{CL-SPC}. Although the \textit{original} \ac{SPC} and \ac{DeePC} algorithms are equivalent, no behavioural approach has yet been developed that deals with closed-loop identification bias. \todo{behavi-oural treatment possible?} To this end, the aim of this paper is to develop a \ac{CL-DeePC} method that does not suffer from the aforementioned closed-loop identification issue. In doing so, the main contributions of this article are: %
 \begin{enumerate}%
 \item the development of \ac{CL-DeePC} by sequential application of a step-ahead predictor that solves the closed-loop identification problem that arises in the presence of noise, \label{contribution:solves_CL_issue}
-\begin{enumerate}
-    \item implicitly enforces a causal multi-step ahead predictor model, and \label{contribution:causality}
-    \item is particularly sample-efficient (taken to mean here that it requires less past data) compared to regular \ac{DeePC}, \label{contribution:sample_efficient}
-\end{enumerate}
 \item to develop and compare different possible \ac{CL-DeePC} implementations,
 \item the incorporation of \ac{IVs} in \ac{CL-DeePC} as a systematic noise-mitigation technique,
 \item to establish an equivalence between the developed \ac{CL-DeePC} algorithm and \ac{CL-SPC},
 \item to show the superior performance of the \ac{CL-DeePC} algorithms in a simulation example.
+\end{enumerate}
+
+\begin{enumerate}
+    \item implicitly enforces a causal multi-step ahead predictor model, and \label{contribution:causality}
+    \item is particularly sample-efficient (taken to mean here that it requires less past data) compared to regular \ac{DeePC}, \label{contribution:sample_efficient}
 \end{enumerate}
