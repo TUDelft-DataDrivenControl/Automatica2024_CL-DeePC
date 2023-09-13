@@ -2,3 +2,4 @@ unused/*
 autosam.*
 !autosam.tex
 !autosam.bib
+feedback/
