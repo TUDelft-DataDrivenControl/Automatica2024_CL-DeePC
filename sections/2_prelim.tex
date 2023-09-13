@@ -65,11 +65,6 @@ Moreover, two extended reversed controllability matrices are defined as
 \tKp{y} &= \begin{bmatrix} \tilde{A}^{p-1}K & \tilde{A}^{p-2}K & \cdots & \tilde{A}K & K \end{bmatrix}.
 \end{align*}
 
-From the above matrices, two reoccurring so called `dynamic matrices' are defined as
-\begin{align*}
-    L_s &= \begin{bmatrix} \Gamma_s\tKp{u} & \mathcal{T}_s^\mathrm{u} & \Gamma_s\tKp{y} \end{bmatrix},\\%\text{ and}\\
-    \widetilde{L}_s &= \begin{bmatrix} \widetilde{\Gamma}_s\tKp{u} & \widetilde{\mathcal{T}}_s^\mathrm{u} & \widetilde{\Gamma}_s\tKp{y} \end{bmatrix}.
-\end{align*}
 %
 Furthermore, data vectors are denoted as examplified by
 \begin{align*}
@@ -79,7 +74,7 @@ which represents a vector of ordered input data starting at time index $k$, and 
 
 Using such data vectors it is possible to concisely define block-Hankel data matrices. Such a block-Hankel data matrix is examplified by
 \begin{align*}
-    U_{k,s,q} = \begin{bmatrix}
+    U_{k,s,q} = \frac{1}{\sqrt{q}}\begin{bmatrix}
         \datavec{u}{k,s} & \datavec{u}{k+1,s} & \cdots & \datavec{u}{k+q-1,s}
     \end{bmatrix},
 \end{align*}
@@ -119,6 +114,12 @@ It is possible to rewrite the initial states in terms of preceding states and in
     % \end{bmatrix}.
 \end{align}
 % in which $\tKp{}=\big[\tKp{y}\;\;\tKp{u}\big]$.
+From the above matrices, two reoccurring so called `dynamic matrices' are defined as
+\begin{align*}
+    L_s &= \begin{bmatrix} \Gamma_s\tKp{u} & \mathcal{T}_s^\mathrm{u} & \Gamma_s\tKp{y} \end{bmatrix},\\%\text{ and}\\
+    \widetilde{L}_s &= \begin{bmatrix} \widetilde{\Gamma}_s\tKp{u} & \widetilde{\mathcal{T}}_s^\mathrm{u} & \widetilde{\Gamma}_s\tKp{y} \end{bmatrix}.
+\end{align*}
+
 Substitute \eqref{eq:Xip} into \eqref{eq:Yf1} and \eqref{eq:Yf2} %and apply Assumption~\ref{assum:initial_contribution}
 to obtain two so called data equations:
 \begin{align}
