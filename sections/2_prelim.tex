@@ -30,9 +30,7 @@ in which $\tilde{B}=B-KD$.
 \subsection{Definitions and notation}\label{sec:notation}
 Having described the different system representations of the considered system, this section introduces some useful preliminary notation.
 
-To start, several strictly-positive integers are denoted by $s,q,p,f,N,\bar{N}\in\mathbb{Z}_{>0}$ and are frequently used to indicate window lengths. Throughout this article, time indices $i$, $\hat{i}$, $j$, and $k$, will be used together with the shorthand exemplified by $k_p=k+p$.
-
-Block-Toeplitz matrices are defined by
+To start, block-Toeplitz matrices are defined by
 \begin{align}\label{eqn:blockToeplitz} 
 \mathcal{T}_s(\mathcal{A},\mathcal{B},\mathcal{C},\mathcal{D}) =\scriptsize{
 	\begin{bmatrix}
@@ -43,7 +41,7 @@ Block-Toeplitz matrices are defined by
 		\mathcal{C}\mathcal{A}^{s-2}\mathcal{B} & \mathcal{C}\mathcal{A}^{s-3}\mathcal{B} & \cdots  & \mathcal{C}\mathcal{B}     & \mathcal{D}
 	\end{bmatrix}},
 \end{align}
-in which the subscript $s$ indicates the number of block-rows, the matrices $\mathcal{A}$, $\mathcal{B}$, $\mathcal{C}$, and $\mathcal{D}$ are all of compatible dimensions. Let ${I_s\in\mathbb{R}^{s\times s}}$ represent an identity matrix. Equation~\eqnref{eqn:blockToeplitz} thereby defines the block-Toeplitz matrices
+in which the subscript $s\in\mathbb{Z}_{>0}$ indicates the number of block-rows, the matrices $\mathcal{A}$, $\mathcal{B}$, $\mathcal{C}$, and $\mathcal{D}$ are all of compatible dimensions. Let ${I_s\in\mathbb{R}^{s\times s}}$ represent an identity matrix. Equation~\eqnref{eqn:blockToeplitz} thereby defines the block-Toeplitz matrices
 \begin{alignat*}{2}
 \mathcal{T}_s^\mathrm{u}&=\mathcal{T}_s(A,B,C,D),\quad  &\mathcal{H}_s&=\mathcal{T}_s(A,K,C,I_l),\\
 \widetilde{\mathcal{T}}_s^\mathrm{u}&=\mathcal{T}_s(\tilde{A},\tilde{B},C,D),\quad  &\widetilde{\mathcal{H}}_s&=\mathcal{T}_s(\tilde{A},K,-C,I_l).
@@ -155,3 +153,5 @@ To clearly demarcate the scope of this work this section presents the receding h
 in which $\datavec{r}{\hat{i}_p,f}\in\mathbb{R}^{fl}$ is a data vector of a future reference trajectory, $x_\mathrm{ini}$ is an initial state at the first future time $k=\hat{i}_p$, and $||\cdot||_\cdot$ denotes a weighted Euclidian norm, with $Q\in\mathbb{R}^{fl\times fl}$ and $R\in\mathbb{R}^{fr\times fr}$ as respectively positive semi-definite and positive definite user-defined weighting matrices. Furthermore, $\mathbb{E}[\cdot]$ represents an expectation w.r.t. the future innovation signal $\datavec{e}{\hat{i}_p,f}$ that is conditioned on the future input sequence $\datavec{u}{\hat{i}_p,f}$ and the initial state $x_{\hat{i}_p}$, and $\mathcal{U}$ and $\mathcal{Y}$ respectively represent sets of allowable inputs and outputs.
 
 Without knowledge of the system matrices $\{A,B,C,D,K\}$ and the initial state $x_\mathrm{ini}$, but given sufficiently informative past input-output data from the intervals $k\in[i,\,i+\bar{N})$ and $k\in[\hat{i},\,\hat{i}_p)$ that may have been collected in closed-loop, the principal goal is to find an unbiased behavioural output predictor to replace the unknown relations \eqref{eq:SS_iter} and \eqref{eq:x_ini}.
+
+To start, several strictly-positive integers are denoted by $s,q,p,f,N,\bar{N}\in\mathbb{Z}_{>0}$ and are frequently used to indicate window lengths. Throughout this article, time indices $i$, $\hat{i}$, $j$, and $k$, will be used together with the shorthand exemplified by $k_p=k+p$.
