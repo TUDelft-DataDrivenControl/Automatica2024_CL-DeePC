@@ -114,21 +114,21 @@ It is possible to rewrite the initial states in terms of preceding states and in
     % \end{bmatrix}.
 \end{align}
 % in which $\tKp{}=\big[\tKp{y}\;\;\tKp{u}\big]$.
-For convenieFrom the above matrices, two reoccurring so called `dynamic matrices' are defined as
+Substitute \eqref{eq:Xip} into \eqref{eq:Yf1} and \eqref{eq:Yf2} %and apply Assumption~\ref{assum:initial_contribution}
+to obtain two so called data equations:
+\begin{align}
+    Y_{k_p,s,q} &= L_s \Phi_{k,s,q} + \mathcal{H}_s E_{k_p,s,q} + \Gamma_s \tilde{A}^p X_{k,1,q},\label{eq:DataEq1}\\
+    \begin{split}
+    Y_{k_p,s,q} &= \widetilde{L}_s \Phi_{k,s,q} + E_{k_p,s,q} + (I_{sl}-\widetilde{\mathcal{H}}_s) Y_{k_p,s,q} \\
+    &\phantom{=}+ \widetilde{\Gamma}_s \tilde{A}^p X_{k,1,q},
+    \end{split}\label{eq:DataEq2}
+\end{align}
+in which, for convenience, we define, two reoccurring so called `dynamic matrices' as
 \begin{align*}
     L_s &= \begin{bmatrix} \Gamma_s\tKp{u} & \mathcal{T}_s^\mathrm{u} & \Gamma_s\tKp{y} \end{bmatrix},\\%\text{ and}\\
     \widetilde{L}_s &= \begin{bmatrix} \widetilde{\Gamma}_s\tKp{u} & \widetilde{\mathcal{T}}_s^\mathrm{u} & \widetilde{\Gamma}_s\tKp{y} \end{bmatrix}.
 \end{align*}
 
-Substitute \eqref{eq:Xip} into \eqref{eq:Yf1} and \eqref{eq:Yf2} %and apply Assumption~\ref{assum:initial_contribution}
-to obtain two so called data equations:
-\begin{align}
-    Y_{k_p,s,q} &= L_s \Phi_{k,s,q} + \mathcal{H}_s E_{k_p,s,q} + \Gamma_s \tilde{A}^p X_{k,1,q}\label{eq:DataEq1}\\
-    \begin{split}
-    Y_{k_p,s,q} &= \widetilde{L}_s \Phi_{k,s,q} + E_{k_p,s,q} + (I_{sl}-\widetilde{\mathcal{H}}_s) Y_{k_p,s,q} \\
-    &\phantom{=}+ \widetilde{\Gamma}_s \tilde{A}^p X_{k,1,q}.
-    \end{split}\label{eq:DataEq2}
-\end{align}
 % in which $L_s$, $\widetilde{L}_s$, $\Phi_{k,s,q}$ are defined in Section \ref{sec:notation}. %Similarly to \eqref{eq:DataEq1} and \eqref{eq:DataEq2}, the future outputs are defined by
 % Although a more generic representation was kept above for later analysis, for \ac{CL-DeePC}, $s=1$. This reduces the complexity of the above equations since ${\widetilde{L}_1=L_1=\big[ C\tKp{u} \; D \; C\tKp{y} \big]}$ and $\widetilde{\mathcal{H}}_1=\mathcal{H}_1=I_l$.
 %
