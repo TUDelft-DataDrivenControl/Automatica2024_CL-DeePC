@@ -1,13 +1,6 @@
 \section{Closed-loop Data-enabled Predictive Control}
-In this section \ac{CL-DeePC} is first introduced and compared to regular \ac{DeePC}, thereby offering an intuitive explanation for contribution \ref{contribution:solves_CL_issue}. More rigorous explanations follow in subsequent sections. What follows directly below is the principal result of this work.
-
-\begin{thm}\label{theorem:main_result}
-    Consider the minimal representation of a discrete non-deterministic system given by~\eqref{eqn:SS_innovation}. Let $\bar{u}_k=\left[u_k^\top \; e_k^\top\right]^\top$ represent an `extended' input. Given a sequence of input $u_k$ and output $y_k$ data of length $\bar{N}=N+p$, if the extended input sequence is persistently exciting of order $p+1+n$ and $p\geq\ell$, then the \ac{CL-DeePC} formulation given by~\eqref{eq:CL_DeePC_no_IVs} provides an unbiased output predictor.%asymptotically unbiased output predictor in the limit $N\rightarrow \infty$.
-\end{thm}
-\textbf{Proof:} 
-To avoid the identification bias that arises in closed-loop due to correlation between inputs and noise (a demonstration thereof is deferred to Section~\ref{sec:CL_ID_issue}) it is possible to estimate a step-ahead predictor~\citep{Ljung1996}. A prediction horizon length $f>1$ is of more practical use in receding horizon optimal control settings, to which end step-ahead predictors can be applied sequentially. 
-
-Fig.~\ref{fig:CL-DeePC} and \eqref{eq:CL_DeePC_no_IVs} illustrate how this idea is employed in \ac{CL-DeePC}. A step-ahead predictor can be obtained from regular \ac{DeePC} (see Fig.~\ref{fig:regular-DeePC} and \eqref{eq:regular_DeePC_no_IVs}) with $f=1$. In \ac{CL-DeePC} the successive columns of $G$ (from left to right) and their corresponding columns on the right-hand side correspond to sequential applications of regular \ac{DeePC} with $f=1$ to the same matrix of sufficiently persistently exciting past input-output data on the left-hand side as well as time-shifted windows of input-output data on the right-hand side that parameterize successive initial states.
+In this section we
+% In this section \ac{CL-DeePC} is first introduced and compared to regular \ac{DeePC}, thereby offering an intuitive explanation for contribution \ref{contribution:solves_CL_issue}. More rigorous explanations follow in subsequent sections. What follows directly below is the principal result of this work.
 %
 % \begin{figure*}[h!]
 %      \centering
@@ -38,6 +31,14 @@ Fig.~\ref{fig:CL-DeePC} and \eqref{eq:CL_DeePC_no_IVs} illustrate how this idea 
 \caption{Visualization of known (black) and unknown (red) variables in regular \ac{DeePC} without \ac{IVs}. Each dot represents an input $u_k\in\mathbb{R}^r$, output $y_k\in\mathbb{R}^l$, or element of the matrix $G$. A multi-step ahead predictor of prediction length $f$ is formed directly by taking a linear combination of past input and output data.\\\vspace{0.75mm}}
 \label{fig:regular-DeePC}
 \end{figure}
+%
+\begin{thm}\label{theorem:main_result}
+    Consider the minimal representation of a discrete non-deterministic system given by~\eqref{eqn:SS_innovation}. Let $\bar{u}_k=\left[u_k^\top \; e_k^\top\right]^\top$ represent an `extended' input. Given a sequence of input $u_k$ and output $y_k$ data of length $\bar{N}=N+p$, if the extended input sequence is persistently exciting of order $p+1+n$ and $p\geq\ell$, then the \ac{CL-DeePC} formulation given by~\eqref{eq:CL_DeePC_no_IVs} provides an unbiased output predictor.%asymptotically unbiased output predictor in the limit $N\rightarrow \infty$.
+\end{thm}
+\textbf{Proof:} 
+To avoid the identification bias that arises in closed-loop due to correlation between inputs and noise (a demonstration thereof is deferred to Section~\ref{sec:CL_ID_issue}) it is possible to estimate a step-ahead predictor~\citep{Ljung1996}. A prediction horizon length $f>1$ is of more practical use in receding horizon optimal control settings, to which end step-ahead predictors can be applied sequentially. 
+
+Fig.~\ref{fig:CL-DeePC} and \eqref{eq:CL_DeePC_no_IVs} illustrate how this idea is employed in \ac{CL-DeePC}. A step-ahead predictor can be obtained from regular \ac{DeePC} (see Fig.~\ref{fig:regular-DeePC} and \eqref{eq:regular_DeePC_no_IVs}) with $f=1$. In \ac{CL-DeePC} the successive columns of $G$ (from left to right) and their corresponding columns on the right-hand side correspond to sequential applications of regular \ac{DeePC} with $f=1$ to the same matrix of sufficiently persistently exciting past input-output data on the left-hand side as well as time-shifted windows of input-output data on the right-hand side that parameterize successive initial states.
 % ==============================================================================================================================================================
 % ==============================================================================================================================================================
 % \subsection{The basic idea}
