@@ -62,14 +62,14 @@ For any observable dynamic \ac{LTI} system, $1\leq \ell \leq n$.
 
 Moreover, two extended reversed controllability matrices are defined as 
 \begin{align*}
-\tKp{u} &= \begin{bmatrix} \tilde{A}^{p-1}\tilde{B}\:\, & \tilde{A}^{p-2}\tilde{B} & \cdots & \tilde{A}\tilde{B} & \tilde{B}\:\, \end{bmatrix},\\%\text{ and}\\
-\tKp{y} &= \begin{bmatrix} \tilde{A}^{p-1}K & \tilde{A}^{p-2}K & \cdots & \tilde{A}K & K \end{bmatrix},
+\tKp{u} &= \begin{bmatrix} \tilde{A}^{p-1}\tilde{B}\, & \tilde{A}^{p-2}\tilde{B} & \cdots & \tilde{A}\tilde{B} & \tilde{B}\,\,\end{bmatrix}\in\mathbb{R}^{n\times pr},\\%\text{ and}\\
+\tKp{y} &= \begin{bmatrix} \tilde{A}^{p-1}K & \tilde{A}^{p-2}K & \cdots & \tilde{A}K & K \end{bmatrix}\in\mathbb{R}^{n\times pl},
 \end{align*}
 in which $p\in\mathbb{Z}_{>0}$ is a past data window length.
 
 Furthermore, data vectors are denoted as examplified by
 \begin{align*}
-    \datavec{u}{k,s} = \begin{bmatrix} u_k^\top & u_{k+1}^\top & \cdots & u_{k+s-1}^\top\end{bmatrix}^\top,
+    \datavec{u}{k,s} = \begin{bmatrix} u_k^\top & u_{k+1}^\top & \cdots & u_{k+s-1}^\top\end{bmatrix}^\top\in\mathbb{R}^{sr},
 \end{align*}
 which represents a vector of ordered input data starting at time index $k$, and containing a number of samples $s$.
 
@@ -77,13 +77,13 @@ Using such data vectors it is possible to concisely define block-Hankel data mat
 \begin{align*}
     U_{k,s,q} = \frac{1}{\sqrt{q}}\begin{bmatrix}
         \datavec{u}{k,s} & \datavec{u}{k+1,s} & \cdots & \datavec{u}{k+q-1,s}
-    \end{bmatrix},
+    \end{bmatrix}\in\mathbb{R}^{sr\times q},
 \end{align*}
-in which $q\in\mathbb{Z}_{>0}$ is another generic positive-definite integer that here represents the number of successive input data vectors with $s$ data samples each, starting from time index $k$. Note the block-anti diagonal structure of block-Hankel matrices. This notion of block-Hankel data matrices is employed to define the notion of persistency of excition.
+in which $q\in\mathbb{Z}_{>0}$ is another generic positive-definite integer that here represents the number of successive input data vectors with $s$ data samples each, starting from time index $k$. Note the block-anti diagonal structure of block-Hankel matrices. This notion of block-Hankel data matrices is employed to define the notion of persistency of excition below, with $N\in\mathbb{Z}_{>0}$ as a number of columns.
 \begin{defn}\label{def:PE}
     A signal consisting of samples ${w_j\in\mathbb{R}^q},$ $j\in[k,\,k+s+N-2]$ is persistently exciting of order $s$ if the associated block-Hankel matrix ${W_{k,s,N}\in\mathbb{R}^{sq \times N}}$ is full row rank.
 \end{defn}
-Predicted samples, vectors, or matrices of data are indicated by $\hat{(\cdot)}$.% whilst those that are comprised in part of predictions are indicated by $\tilde{(\cdot)}$.
+Predicted samples, vectors, or matrices of data are indicated by $\hat{(\cdot)}$. % whilst those that are comprised in part of predictions are indicated by $\tilde{(\cdot)}$.
 
 For convenience, the notation $\Phi$ is reserved to denote an often encountered concatenation of input and output block-Hankel matrices that is given by
 \begin{align*}
@@ -126,15 +126,15 @@ to obtain two so called data equations:
 \end{align}
 in which, for convenience, we define, two reoccurring so called `dynamic matrices' as
 \begin{align*}
-    L_s &= \begin{bmatrix} \Gamma_s\tKp{u} & \mathcal{T}_s^\mathrm{u} & \Gamma_s\tKp{y} \end{bmatrix},\\%\text{ and}\\
-    \widetilde{L}_s &= \begin{bmatrix} \widetilde{\Gamma}_s\tKp{u} & \widetilde{\mathcal{T}}_s^\mathrm{u} & \widetilde{\Gamma}_s\tKp{y} \end{bmatrix}.
+    L_s &= \begin{bmatrix} \Gamma_s\tKp{u} & \mathcal{T}_s^\mathrm{u} & \Gamma_s\tKp{y} \end{bmatrix}\in\mathbb{R}^{sl\times (p+s)r+pl},\\%\text{ and}\\
+    \widetilde{L}_s &= \begin{bmatrix} \widetilde{\Gamma}_s\tKp{u} & \widetilde{\mathcal{T}}_s^\mathrm{u} & \widetilde{\Gamma}_s\tKp{y} \end{bmatrix}\in\mathbb{R}^{sl\times (p+s)r+pl}.
 \end{align*}
 
 % in which $L_s$, $\widetilde{L}_s$, $\Phi_{k,s,q}$ are defined in Section \ref{sec:notation}. %Similarly to \eqref{eq:DataEq1} and \eqref{eq:DataEq2}, the future outputs are defined by
 % Although a more generic representation was kept above for later analysis, for \ac{CL-DeePC}, $s=1$. This reduces the complexity of the above equations since ${\widetilde{L}_1=L_1=\big[ C\tKp{u} \; D \; C\tKp{y} \big]}$ and $\widetilde{\mathcal{H}}_1=\mathcal{H}_1=I_l$.
 %
 \subsection{Receding horizon control problem formulation}
-To clearly demarcate the scope of this work this section presents the receding horizon control problem that is considered here, which is formulated using \eqref{eq:Yf1} for a single column ($q=1$) from time index $k=\hat{i}$ and with $s=f\in\mathbb{Z}_{>0}$ as future prediction window length, as
+To clearly demarcate the scope of this work this section presents the receding horizon control problem that is considered here, which uses a predictor $\datavec{\hat{y}}{\hat{i}_p,f}$ based on \eqref{eq:Yf1} with a single column ($q=1$) from time index $k=\hat{i}$ and with $s=f\in\mathbb{Z}_{>0}$ as future prediction window length, as
 \begin{subequations}
 \begin{alignat}{2}
     &\min_{\datavec{u}{\hat{i}_p,f}} ||\datavec{\hat{y}}{\hat{i}_p,f}-\datavec{r}{\hat{i}_p,f}||_Q^2 + ||\datavec{u}{\hat{i}_p,f}||_R^2 \span\span\\

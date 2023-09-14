@@ -1,5 +1,9 @@
 \section{Closed-loop Data-enabled Predictive Control}
-This section presents the main result of this article, which relates to contribution~(\ref{contribution:solves_CL_issue}) and whereby we develop \ac{CL-DeePC}.
+This section presents the main result of this article, providing contribution~(\ref{contribution:solves_CL_issue}) whereby we develop \ac{CL-DeePC}. An intuitive explanation is first offered before a more rigorous proof of the method is provided.
+
+As a solution to the identification bias that arises in closed-loop due to correlation between inputs and noise (a demonstration thereof is deferred to Section~\ref{sec:CL_ID_issue}) it is possible to estimate a step-ahead predictor~\citep{Ljung1996}. A prediction horizon length $f>1$ is of more practical use in receding horizon optimal control settings, to which end step-ahead predictors can be applied sequentially. 
+
+Fig.~\ref{fig:CL-DeePC} and \eqref{eq:CL_DeePC_no_IVs} illustrate how this idea is employed in \ac{CL-DeePC}. A step-ahead predictor can be obtained from regular \ac{DeePC} (see Fig.~\ref{fig:regular-DeePC} and \eqref{eq:regular_DeePC_no_IVs}) with $f=1$. In \ac{CL-DeePC} the successive columns of $G$ (from left to right) and their corresponding columns on the right-hand side correspond to sequential applications of regular \ac{DeePC} with $f=1$ to the same matrix of sufficiently persistently exciting past input-output data on the left-hand side as well as time-shifted windows of input-output data on the right-hand side that parameterize successive initial states.
 % In this section \ac{CL-DeePC} is first introduced and compared to regular \ac{DeePC}, thereby offering an intuitive explanation for contribution \ref{contribution:solves_CL_issue}. More rigorous explanations follow in subsequent sections. What follows directly below is the principal result of this work.
 %
 % \begin{figure*}[h!]
@@ -36,9 +40,41 @@ This section presents the main result of this article, which relates to contribu
     Consider the minimal representation of a discrete non-deterministic system given by~\eqref{eqn:SS_innovation}. Let $\bar{u}_k=\left[u_k^\top \; e_k^\top\right]^\top$ represent an `extended' input. Given a sequence of input $u_k$ and output $y_k$ data of length $\bar{N}=N+p$, if the extended input sequence is persistently exciting of order $p+1+n$ and $p\geq\ell$, then the \ac{CL-DeePC} formulation given by~\eqref{eq:CL_DeePC_no_IVs} provides an unbiased output predictor.%asymptotically unbiased output predictor in the limit $N\rightarrow \infty$.
 \end{thm}
 \textbf{Proof:} 
-To avoid the identification bias that arises in closed-loop due to correlation between inputs and noise (a demonstration thereof is deferred to Section~\ref{sec:CL_ID_issue}) it is possible to estimate a step-ahead predictor~\citep{Ljung1996}. A prediction horizon length $f>1$ is of more practical use in receding horizon optimal control settings, to which end step-ahead predictors can be applied sequentially. 
+Rewriting \eqref{eq:DataEq1} yields
+\begin{align*}
+    \underbrace{\begin{bmatrix}-\Gamma_s \tilde{A}^p & -L_s & I_{sl}&-\mathcal{H}_s\end{bmatrix}}_{= M_\mathfrak{R}}
+    \begin{bmatrix}
+        X_{k,1,q}\\
+        \Phi_{k,s,q}\\
+        Y_{k_p,s,q}\\
+        E_{k_p,s,q}
+    \end{bmatrix}=\mathcal{O},
+\end{align*}
+with $M_\mathfrak{R}\in\mathbb{R}^{sl\times n+(p+s)(r+l)+sl}$ defined as indicated for brevity. Similarly, decomposing the right hand side matrix into contributions from exogenous inputs and initial states using \eqref{eq:DataEq1} for $Y_{k,p,q}$ and $Y_{k_p,s,q}$ obtains
+\begin{align}
+    M_\mathfrak{R}
+    \underbrace{\begin{bmatrix}
+        I_n      & 0      & 0       & 0 & 0\\
+        0        & I_{pr} & 0       & 0 & 0\\
+        0        & 0      & I_{sr}  & 0 & 0\\
+        \Gamma_p & \mathcal{T}_p^\mathrm{u} & 0 & \mathcal{H}_p & 0\\
+        \varepsilon_1 & \varepsilon_2 & \mathcal{T}_s^\mathrm{u} & \varepsilon_3 & \mathcal{H}_s\\
+        0 & 0 & 0 & 0 & I_{sl}
+    \end{bmatrix}}_{=M_\mathfrak{B}}
+    \begin{bmatrix}
+        X_{k,1,q}\\
+        U_{k,p,q}\\
+        U_{k_p,s,q}\\
+        E_{k,p,q}\\
+        E_{k_p,s,q}
+    \end{bmatrix}=\mathcal{O},
+\end{align}
+with $\varepsilon_1=\Gamma_s(\tilde{A}^p+\tKp{y}\Gamma_p)$, $\varepsilon_2=\Gamma_s(\tKp{u}+\tKp{y}\mathcal{T}_p^\mathrm{u})$, and $\varepsilon_3=\Gamma_s\tKp{y}\mathcal{H}_p$. By inspection, the range of the underbraced matrix $M_\mathfrak{B}$ is equal to the nullspace of $M_\mathfrak{R}$: $\mathcal{R}(M_\mathfrak{B})=\mathcal{N}(M_\mathfrak{B})$. If the matrix post-multiplying $M_\mathfrak{B}$ is full row rank then the range of this product is also equal to the nullspace of $M_\mathfrak{R}$.
 
-Fig.~\ref{fig:CL-DeePC} and \eqref{eq:CL_DeePC_no_IVs} illustrate how this idea is employed in \ac{CL-DeePC}. A step-ahead predictor can be obtained from regular \ac{DeePC} (see Fig.~\ref{fig:regular-DeePC} and \eqref{eq:regular_DeePC_no_IVs}) with $f=1$. In \ac{CL-DeePC} the successive columns of $G$ (from left to right) and their corresponding columns on the right-hand side correspond to sequential applications of regular \ac{DeePC} with $f=1$ to the same matrix of sufficiently persistently exciting past input-output data on the left-hand side as well as time-shifted windows of input-output data on the right-hand side that parameterize successive initial states.
+\begin{lem}
+    If the input is persistently exciting of order $p+s+n$ and
+\end{lem}
+
 % ==============================================================================================================================================================
 % ==============================================================================================================================================================
 % \subsection{The basic idea}
