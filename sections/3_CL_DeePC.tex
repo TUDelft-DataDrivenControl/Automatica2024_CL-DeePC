@@ -51,9 +51,9 @@ Rewriting \eqref{eq:DataEq1} yields
     \end{bmatrix}}_{\mathfrak{B}\mathfrak{D}}=\mathcal{O},\\
     &\mathfrak{R}\in\mathbb{R}^{sl\times n+(p+s)(r+l)+sl},\;\mathfrak{BD}\in\mathbb{R}^{n+(p+s)(r+l)+sl \times q},
 \end{align*}
-with $\mathfrak{R}$, and $\mathfrak{BD}$ as indicated for brevity. Similarly, using \eqref{eq:DataEq1} to decompose $\mathfrak{BD}$ into a matrix of exogenous inputs and initial states $\mathfrak{D}$ and a matrix to describe their effects $\mathfrak{B}$ obtains
+with $\mathfrak{R}$, and $\mathfrak{BD}$ as indicated for brevity. Similarly, using \eqref{eq:DataEq1} to decompose $\mathfrak{BD}$ into a matrix $\mathfrak{D}$ of exogenous inputs and initial states and a matrix $\mathfrak{B}$ to describe their effects obtains
 \begin{align}
-    \mathfrak{R}
+    &\mathfrak{R}
     \underbrace{\begin{bmatrix}
         I_n      & 0      & 0       & 0 & 0\\
         0        & I_{pr} & 0       & 0 & 0\\
@@ -68,7 +68,8 @@ with $\mathfrak{R}$, and $\mathfrak{BD}$ as indicated for brevity. Similarly, us
         U_{k_p,s,q}\\
         E_{k,p,q}\\
         E_{k_p,s,q}
-    \end{bmatrix}}_{=\mathfrak{D}}=\mathcal{O},
+    \end{bmatrix}}_{=\mathfrak{D}}=\mathcal{O},\\
+    \mathfrak{B}\in{R}^{n+(p+s)(r+l)+sl\times n+(p+s)(r+l)},\;\mathfrak{B}\in{R}^{n+(p+s)(r+l)\times q}
 \end{align}
 with $\varepsilon_1=\Gamma_s(\tilde{A}^p+\tKp{y}\Gamma_p)$, $\varepsilon_2=\Gamma_s(\tKp{u}+\tKp{y}\mathcal{T}_p^\mathrm{u})$, and $\varepsilon_3=\Gamma_s\tKp{y}\mathcal{H}_p$ defined as shown. By inspection, with $\mathcal{R}(\cdot)$ and $\mathcal{N}(\cdot)$ respectively denoting the range and nullspace of a matrix: $\mathcal{R}(\mathfrak{B}\mathfrak{D})\subseteq\mathcal{R}(\mathfrak{B})=\mathcal{N}(\mathfrak{R})$. Only if $\mathfrak{D}$ is full row rank we therefore have
 
