@@ -83,7 +83,16 @@ This yields the following corollary for extensions to non-deterministic systems,
 \begin{cor}
     If for a controllable non-deterministic \ac{LTI} system of the form given by \eqref{eqn:SS_innovation} the sequence of inputs and noise $\{[u_k^\top\;e_k^\top]^\top\}_{k=i}^{i+\epsilon+q-2}$ is persistently exciting of order $\epsilon+n$ then the matrix $\left[X_{i,1,q}^\top\;U_{i,\epsilon,q}^\top\;E_{i,\epsilon,q}^\top\right]^\top$ is full row rank.
 \end{cor}
-Hence, since \eqref{eqn:SS_innovation} is assumed to be minimal and therefore also controllable, $\mathfrak{D}$ in \eqref{eq:RBD2} is full row rank if $\{[u_k^\top\;e_k^\top]^\top\}_{k=i}^{i+p+s+q-2}$ is persistently exciting of order $p+s+n$.
+Hence, since \eqref{eqn:SS_innovation} is assumed to be minimal and therefore also controllable, $\mathfrak{D}$ in \eqref{eq:RBD2} is full row rank if $\{[u_k^\top\;e_k^\top]^\top\}_{k=i}^{i+p+s+q-2}$ is persistently exciting of order $p+s+n$. The mathematical specification given hereof by \ref{def:PE} is equivalent to
+\begin{align}
+    \begin{bmatrix}
+        U_{i,p+s+n,q-n}\\
+        E_{i,p+s+n,q-n}
+    \end{bmatrix}
+    \begin{bmatrix}
+        U_{i,p+s+n,q-n}^\top & E_{i,p+s+n,q-n}
+    \end{bmatrix}
+\end{align}
 
 % ==============================================================================================================================================================
 % ==============================================================================================================================================================
