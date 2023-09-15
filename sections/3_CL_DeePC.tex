@@ -41,14 +41,14 @@ Fig.~\ref{fig:CL-DeePC} and \eqref{eq:CL_DeePC_no_IVs} illustrate how this idea 
     Consider the minimal representation of a discrete non-deterministic system given by~\eqref{eqn:SS_innovation}. Let $\bar{u}_k=\left[u_k^\top \; e_k^\top\right]^\top$ represent an `extended' input. Given a sequence of input $u_k$ and output $y_k$ data of length $\bar{N}=N+p$, if the extended input sequence is persistently exciting of order $p+1+n$ and $p\geq\ell$, then the \ac{CL-DeePC} formulation given by~\eqref{eq:CL_DeePC_no_IVs} provides an unbiased output predictor.%asymptotically unbiased output predictor in the limit $N\rightarrow \infty$.
 \end{thm}
 \textbf{Proof:} 
-Rewriting \eqref{eq:DataEq1} yields
+Rewriting \eqref{eq:DataEq1} with $k=i$ yields
 \begin{align*}
     &\underbrace{\begin{bmatrix}-\Gamma_s \tilde{A}^p & -L_s & I_{sl}&-\mathcal{H}_s\end{bmatrix}}_{= \mathfrak{R}}
     \underbrace{\begin{bmatrix}
-        X_{k,1,q}\\
-        \Phi_{k,s,q}\\
-        Y_{k_p,s,q}\\
-        E_{k_p,s,q}
+        X_{i,1,q}\\
+        \Phi_{i,s,q}\\
+        Y_{i_p,s,q}\\
+        E_{i_p,s,q}
     \end{bmatrix}}_{\mathfrak{B}\mathfrak{D}}=\mathcal{O},\\
     &\mathfrak{R}\in\mathbb{R}^{sl\times n+(p+s)(r+l)+sl},\;\mathfrak{BD}\in\mathbb{R}^{n+(p+s)(r+l)+sl \times q},
 \end{align*}
@@ -83,7 +83,7 @@ This yields the following corollary for extensions to non-deterministic systems,
 \begin{cor}
     If for a non-deterministic \ac{LTI} system of the form given by \eqref{eqn:SS_innovation} with controllable $(A,B)$ the sequence of inputs and noise $\{[u_k^\top\;e_k^\top]^\top\}_{k=i}^{i+\epsilon+q-2}$ is persistently exciting of order $\epsilon+n$ then the matrix $\left[X_{i,1,q}^\top\;U_{i,\epsilon,q}^\top\;E_{i,\epsilon,q}^\top\right]^\top$ is full row rank.
 \end{cor}
-Hence, $\mathfrak{D}$ in \eqref{eq:} is full row rank if $\{[u_k^\top\;e_k^\top]^\top\}_{k=i}^{i+p+s+q-2}$ is persistently exciting of order $p+s+n$.
+Hence, $\mathfrak{D}$ in \eqref{eq:RBD2} is full row rank if $\{[u_k^\top\;e_k^\top]^\top\}_{k=i}^{i+p+s+q-2}$ is persistently exciting of order $p+s+n$.
 
 % ==============================================================================================================================================================
 % ==============================================================================================================================================================
