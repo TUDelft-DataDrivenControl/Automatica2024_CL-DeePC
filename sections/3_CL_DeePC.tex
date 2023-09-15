@@ -50,7 +50,7 @@ Rewriting \eqref{eq:DataEq1} yields
         E_{k_p,s,q}
     \end{bmatrix}}_{\mathfrak{B}\mathfrak{D}}=\mathcal{O},
 \end{align*}
-with $\mathfrak{R}\in\mathbb{R}^{sl\times n+(p+s)(r+l)+sl}$ defined as indicated for brevity. Similarly, decomposing the right hand side matrix into contributions from exogenous inputs and initial states using \eqref{eq:DataEq1} for $Y_{k,p,q}$ and $Y_{k_p,s,q}$ obtains
+with $\mathfrak{R}\in\mathbb{R}^{sl\times n+(p+s)(r+l)+sl}$, and $\mathfrak{BD}$ as indicated for brevity. Similarly, decomposing the right hand side matrix into contributions from exogenous inputs and initial states using \eqref{eq:DataEq1} for $Y_{k,p,q}$ and $Y_{k_p,s,q}$ obtains
 \begin{align}
     \mathfrak{R}
     \underbrace{\begin{bmatrix}
@@ -69,7 +69,7 @@ with $\mathfrak{R}\in\mathbb{R}^{sl\times n+(p+s)(r+l)+sl}$ defined as indicated
         E_{k_p,s,q}
     \end{bmatrix}}_{=\mathfrak{D}}=\mathcal{O},
 \end{align}
-with $\varepsilon_1=\Gamma_s(\tilde{A}^p+\tKp{y}\Gamma_p)$, $\varepsilon_2=\Gamma_s(\tKp{u}+\tKp{y}\mathcal{T}_p^\mathrm{u})$, $\varepsilon_3=\Gamma_s\tKp{y}\mathcal{H}_p$, and $\mathfrak{B}$ and $\mathfrak{D}$ defined as shown. By inspection, with $\mathcal{R}(\cdot)$ and $\mathcal{N}(\cdot)$ respectively denoting the range and nullspace of a matrix: $\mathcal{R}(\mathfrak{B}\mathfrak{D})\subseteq\mathcal{R}(\mathfrak{B})=\mathcal{N}(\mathfrak{R})$.
+with $\varepsilon_1=\Gamma_s(\tilde{A}^p+\tKp{y}\Gamma_p)$, $\varepsilon_2=\Gamma_s(\tKp{u}+\tKp{y}\mathcal{T}_p^\mathrm{u})$, $\varepsilon_3=\Gamma_s\tKp{y}\mathcal{H}_p$, and $\mathfrak{B}$ and $\mathfrak{D}$ defined as shown. By inspection, with $\mathcal{R}(\cdot)$ and $\mathcal{N}(\cdot)$ respectively denoting the range and nullspace of a matrix: $\mathcal{R}(\mathfrak{B}\mathfrak{D})\subseteq\mathcal{R}(\mathfrak{B})=\mathcal{N}(\mathfrak{R})$. Only if $\mathfrak{D}$ is full row rank we therefore have
 
 \begin{lem}
     If the input is persistently exciting of order $p+s+n$ and
