@@ -64,11 +64,11 @@ with $\mathfrak{R}$, and $\mathfrak{BD}$ as indicated for brevity. Similarly, us
         0 & 0 & 0 & 0 & I_{sl}
     \end{bmatrix}}_{=\mathfrak{B}}
     \underbrace{\begin{bmatrix}
-        X_{k,1,q}\\
-        U_{k,p,q}\\
-        U_{k_p,s,q}\\
-        E_{k,p,q}\\
-        E_{k_p,s,q}
+        X_{i,1,q}\\
+        U_{i,p,q}\\
+        U_{i_p,s,q}\\
+        E_{i,p,q}\\
+        E_{i_p,s,q}
     \end{bmatrix}}_{=\mathfrak{D}}=\mathcal{O},\label{eq:RBD2}\\
     &\mathfrak{B}\in\mathbb{R}^{n+(p+s)(r+l)+sl\times n+(p+s)(r+l)},\notag\\
     &\mathfrak{D}\in\mathbb{R}^{n+(p+s)(r+l)\times q},\notag
@@ -83,7 +83,7 @@ This yields the following corollary for extensions to non-deterministic systems,
 \begin{cor}
     If for a non-deterministic \ac{LTI} system of the form given by \eqref{eqn:SS_innovation} with controllable $(A,B)$ the sequence of inputs and noise $\{[u_k^\top\;e_k^\top]^\top\}_{k=i}^{i+\epsilon+q-2}$ is persistently exciting of order $\epsilon+n$ then the matrix $\left[X_{i,1,q}^\top\;U_{i,\epsilon,q}^\top\;E_{i,\epsilon,q}^\top\right]^\top$ is full row rank.
 \end{cor}
-Hence, $\mathfrak{D}$ in \eqref{eq:RBD2} is full row rank if $\{[u_k^\top\;e_k^\top]^\top\}_{k=i}^{i+p+s+q-2}$ is persistently exciting of order $p+s+n$.
+Hence, since \eqref{eqn:SS_innovation} is assumed to be minimal and therefore also controllable, $\mathfrak{D}$ in \eqref{eq:RBD2} is full row rank if $\{[u_k^\top\;e_k^\top]^\top\}_{k=i}^{i+p+s+q-2}$ is persistently exciting of order $p+s+n$.
 
 % ==============================================================================================================================================================
 % ==============================================================================================================================================================
