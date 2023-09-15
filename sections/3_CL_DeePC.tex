@@ -69,7 +69,7 @@ with $\mathfrak{R}$, and $\mathfrak{BD}$ as indicated for brevity. Similarly, us
         U_{k_p,s,q}\\
         E_{k,p,q}\\
         E_{k_p,s,q}
-    \end{bmatrix}}_{=\mathfrak{D}}=\mathcal{O},\\
+    \end{bmatrix}}_{=\mathfrak{D}}=\mathcal{O},\label{eq:RBD2}\\
     &\mathfrak{B}\in\mathbb{R}^{n+(p+s)(r+l)+sl\times n+(p+s)(r+l)},\notag\\
     &\mathfrak{D}\in\mathbb{R}^{n+(p+s)(r+l)\times q},\notag
 \end{align}
@@ -83,8 +83,7 @@ This yields the following corollary for extensions to non-deterministic systems,
 \begin{cor}
     If for a non-deterministic \ac{LTI} system of the form given by \eqref{eqn:SS_innovation} with controllable $(A,B)$ the sequence of inputs and noise $\{[u_k^\top\;e_k^\top]^\top\}_{k=i}^{i+\epsilon+q-2}$ is persistently exciting of order $\epsilon+n$ then the matrix $\left[X_{i,1,q}^\top\;U_{i,\epsilon,q}^\top\;E_{i,\epsilon,q}^\top\right]^\top$ is full row rank.
 \end{cor}
-Note that 
-
+Hence, $\mathfrak{D}$ in \eqref{eq:} is full row rank if $\{[u_k^\top\;e_k^\top]^\top\}_{k=i}^{i+p+s+q-2}$ is persistently exciting of order $p+s+n$.
 
 % ==============================================================================================================================================================
 % ==============================================================================================================================================================
