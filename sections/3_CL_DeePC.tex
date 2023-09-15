@@ -42,15 +42,16 @@ Fig.~\ref{fig:CL-DeePC} and \eqref{eq:CL_DeePC_no_IVs} illustrate how this idea 
 \textbf{Proof:} 
 Rewriting \eqref{eq:DataEq1} yields
 \begin{align*}
-    \underbrace{\begin{bmatrix}-\Gamma_s \tilde{A}^p & -L_s & I_{sl}&-\mathcal{H}_s\end{bmatrix}}_{= \mathfrak{R}}
+    &\underbrace{\begin{bmatrix}-\Gamma_s \tilde{A}^p & -L_s & I_{sl}&-\mathcal{H}_s\end{bmatrix}}_{= \mathfrak{R}}
     \underbrace{\begin{bmatrix}
         X_{k,1,q}\\
         \Phi_{k,s,q}\\
         Y_{k_p,s,q}\\
         E_{k_p,s,q}
-    \end{bmatrix}}_{\mathfrak{B}\mathfrak{D}}=\mathcal{O},\;\mathfrak{R}\in\mathbb{R}^{sl\times n+(p+s)(r+l)+sl}
+    \end{bmatrix}}_{\mathfrak{B}\mathfrak{D}}=\mathcal{O},\\
+    &\mathfrak{R}\in\mathbb{R}^{sl\times n+(p+s)(r+l)+sl},\;\mathfrak{BD}\in\mathbb{R}^{n+(p+s)(r+l)+sl \times q},
 \end{align*}
-with $\mathfrak{R}\in\mathbb{R}^{sl\times n+(p+s)(r+l)+sl}$, and $\mathfrak{BD}$ as indicated for brevity. Similarly, using \eqref{eq:DataEq1} to decompose $\mathfrak{BD}$ into a matrix of exogenous inputs and initial states $\mathfrak{D}$ and a matrix to describe their effects $\mathfrak{B}$ obtains
+with $\mathfrak{R}$, and $\mathfrak{BD}$ as indicated for brevity. Similarly, using \eqref{eq:DataEq1} to decompose $\mathfrak{BD}$ into a matrix of exogenous inputs and initial states $\mathfrak{D}$ and a matrix to describe their effects $\mathfrak{B}$ obtains
 \begin{align}
     \mathfrak{R}
     \underbrace{\begin{bmatrix}
