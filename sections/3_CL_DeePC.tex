@@ -116,12 +116,11 @@ Hence, since \eqref{eqn:SS_innovation} is assumed to be minimal and therefore al
         E_{i,p+s+n,N-n}
     \end{bmatrix}^\top > 0,
 \end{align}
-which is equivalent to the positive definiteness of an experimental correlation matrix that can be decomposed into its constituent components. By considering Schur complements it follows that \eqref{eq:PE_corUE} is satisfied if both
+which is equivalent to the positive definiteness of an experimental correlation matrix that can be decomposed into its constituent components. By considering Schur complements it follows that \eqref{eq:PE_corUE} is satisfied if both \eqref{eq:PE_corUE2} and
 \begin{align}%see also https://www.cis.upenn.edu/~jean/schur-comp.pdf
-    \widehat{\Sigma}_{u,u} &> 0,\label{eq:PE_corU}\\
-    \widehat{\Sigma}_{e,e} - \widehat{\Sigma}_{u,e} \widehat{\Sigma}_{u,u}\inv \widehat{\Sigma}_{u,e}^\top&>0,\label{eq:PE_corUE2}
+    \widehat{\Sigma}_{u,u} > 0,\label{eq:PE_corU},
 \end{align}
-in which $\widehat{\Sigma}_{u,e}=U_{i,p+s+n,N-n}E_{i,p+s+n,N-n}^\top$, and likewise for $\widehat{\Sigma}_{u,u}$ and $\widehat{\Sigma}_{e,e}$. Note that by Definition~\ref{def:PE}, \eqref{eq:PE_corU} is satisfied if the input is persistently exciting of order $p+s+n$.
+are satisfied. Note that this latter condition is true if as assumed, in which $\widehat{\Sigma}_{u,e}=U_{i,p+s+n,N-n}E_{i,p+s+n,N-n}^\top$, and likewise for $\widehat{\Sigma}_{u,u}$ and $\widehat{\Sigma}_{e,e}$. Note that by Definition~\ref{def:PE}, \eqref{eq:PE_corU} is satisfied if the input is persistently exciting of order $p+s+n$.
 
 Hence, if the aforementioned persistency of excitation conditions~\eqref{eq:PE_corU} and~\eqref{eq:PE_corUE2} are met and the \ac{LTI} system is controllable then $\mathfrak{D}$ from \eqref{eq:RBD2} is full row rank. As a result, by the Rouch\'{e}-Capelli theorem there then exists a vector $g_{k-\hat{i}+1}$ such that
 \begin{align}\label{eq:Dg}
