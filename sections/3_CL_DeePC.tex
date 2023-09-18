@@ -57,8 +57,8 @@ Fig.~\ref{fig:CL-DeePC} and \eqref{eq:CL_DeePC_no_IVs} illustrate how this idea 
     \end{align}
     \begin{enumerate}
         \item there exists a solution $G$
-        \item that uniquely specifies an output predictor $\widehat{Y}_{\hat{i}_p,s,f}$ with arbitrary accuracy as $p\rightarrow\infty$
-        \item 
+        \item that uniquely specifies an output predictor $\widehat{Y}_{\hat{i}_p,s,f}$
+        \item that is asymptotically unbiased if $s=1$ and $p\rightarrow\infty$.
     \end{enumerate}
     
     Let $\bar{u}_k=\left[u_k^\top \; e_k^\top\right]^\top$ represent an `extended' input. Given a sequence of input $u_k$ and output $y_k$ data of length $\bar{N}=N+p$, if the extended input sequence is persistently exciting of order $p+1+n$ and $p\geq\ell$, then the \ac{CL-DeePC} formulation given by~\eqref{eq:CL_DeePC_no_IVs} provides an unbiased output predictor.%asymptotically unbiased output predictor in the limit $N\rightarrow \infty$.
