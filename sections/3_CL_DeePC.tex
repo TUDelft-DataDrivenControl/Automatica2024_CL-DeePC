@@ -47,10 +47,11 @@ Fig.~\ref{fig:CL-DeePC} and \eqref{eq:CL_DeePC_no_IVs} illustrate how this idea 
     &&\widehat{\Sigma}_{u,u}&=U_{i,p+s+n,N-n}U_{i,p+s+n,N-n}^\top,\notag
     \end{alignat}
     then
-    \begin{claim}
-        \item bla
-        \item bla2
-    \end{claim}
+    \begin{align}
+        \begin{bmatrix}
+            \Phi_{i,s,N}\\Y_{i_p,s,N}
+        \end{bmatrix}
+    \end{align}
     
     Let $\bar{u}_k=\left[u_k^\top \; e_k^\top\right]^\top$ represent an `extended' input. Given a sequence of input $u_k$ and output $y_k$ data of length $\bar{N}=N+p$, if the extended input sequence is persistently exciting of order $p+1+n$ and $p\geq\ell$, then the \ac{CL-DeePC} formulation given by~\eqref{eq:CL_DeePC_no_IVs} provides an unbiased output predictor.%asymptotically unbiased output predictor in the limit $N\rightarrow \infty$.
 \end{thm}
