@@ -56,9 +56,9 @@ Fig.~\ref{fig:CL-DeePC} and \eqref{eq:CL_DeePC_no_IVs} illustrate how this idea 
         \end{bmatrix}
     \end{align}
     \begin{enumerate}
-        \item there exists a solution $G$\label{claim:G_exists}
-        \item that uniquely specifies an output predictor $\widehat{Y}_{\hat{i}_p,s,f}$
-        \item that is asymptotically unbiased with $p\rightarrow\infty$ if $s=1$.
+        \item[$(i)\phantom{ii}$] there exists a solution $G$\label{claim:G_exists}
+        \item[$(ii)\phantom{i}$] that uniquely specifies an output predictor $\widehat{Y}_{\hat{i}_p,s,f}$
+        \item[$(iii)$] that is asymptotically unbiased with $p\rightarrow\infty$ if $s=1$.
     \end{enumerate}
     % Let $\bar{u}_k=\left[u_k^\top \; e_k^\top\right]^\top$ represent an `extended' input. Given a sequence of input $u_k$ and output $y_k$ data of length $\bar{N}=N+p$, if the extended input sequence is persistently exciting of order $p+1+n$ and $p\geq\ell$, then the \ac{CL-DeePC} formulation given by~\eqref{eq:CL_DeePC_no_IVs} provides an unbiased output predictor.%asymptotically unbiased output predictor in the limit $N\rightarrow \infty$.
 \end{thm}
@@ -140,7 +140,7 @@ With reference to~\eqref{eq:Yf1} and~\eqref{eq:DataEq1}, premultiplying both sid
         \datavec{e}{k_p,s}
     \end{bmatrix}.
 \end{align}
-This is written more compactly without the top and bottom matrix equations for consecutive time indices $k={\hat{i},\dots,\hat{i}+f-1}$ with $G$ containing the vectors $\{g_{k-\hat{i}+1}\}_{k=\hat{i}}^{\hat{i}+f-1}$ by \eqref{eq:Theorem1}. , this proves statement~(\ref{claim:G_exists}).
+This is written more compactly without the top and bottom matrix equations for consecutive time indices $k={\hat{i},\dots,\hat{i}+f-1}$ with $G$ containing the vectors $\{g_{k-\hat{i}+1}\}_{k=\hat{i}}^{\hat{i}+f-1}$ by \eqref{eq:Theorem1}. This proves statement~(\ref{claim:G_exists}).
 
 initial state specification by data with asymptotically decreasing error
 
