@@ -41,16 +41,16 @@ Fig.~\ref{fig:CL-DeePC} and \eqref{eq:CL_DeePC_no_IVs} illustrate how this idea 
     Consider the minimal representation of a discrete non-deterministic \ac{LTI} system given by~\eqref{eqn:SS_innovation}. Let $\bar{u}_k=\left[u_k^\top \; e_k^\top\right]^\top$ represent an `extended' input. Given a sequence of input $u_k$ and output $y_k$ data of length $\bar{N}=N+p$, if the extended input sequence is persistently exciting of order $p+1+n$ and $p\geq\ell$, then the \ac{CL-DeePC} formulation given by~\eqref{eq:CL_DeePC_no_IVs} provides an unbiased output predictor.%asymptotically unbiased output predictor in the limit $N\rightarrow \infty$.
 \end{thm}
 \textbf{Proof:} 
-Rewriting \eqref{eq:DataEq1} with $k=i$ yields
+Rewriting \eqref{eq:DataEq1} with $k=i$ and $q=N$ yields
 \begin{align*}
     &\underbrace{\begin{bmatrix}-\Gamma_s \tilde{A}^p & -L_s & I_{sl}&-\mathcal{H}_s\end{bmatrix}}_{= \mathfrak{R}}
     \underbrace{\begin{bmatrix}
-        X_{i,1,q}\\
-        \Phi_{i,s,q}\\
-        Y_{i_p,s,q}\\
-        E_{i_p,s,q}
+        X_{i,1,N}\\
+        \Phi_{i,s,N}\\
+        Y_{i_p,s,N}\\
+        E_{i_p,s,N}
     \end{bmatrix}}_{\mathfrak{B}\mathfrak{D}}=\mathcal{O},\\
-    &\mathfrak{R}\in\mathbb{R}^{sl\times n+(p+s)(r+l)+sl},\;\mathfrak{BD}\in\mathbb{R}^{n+(p+s)(r+l)+sl \times q},
+    &\mathfrak{R}\in\mathbb{R}^{sl\times n+(p+s)(r+l)+sl},\;\mathfrak{BD}\in\mathbb{R}^{n+(p+s)(r+l)+sl \times N},
 \end{align*}
 with $\mathfrak{R}$, and $\mathfrak{BD}$ as indicated for brevity. Similarly, using \eqref{eq:DataEq1} to decompose $\mathfrak{BD}$ into a matrix $\mathfrak{D}$ of exogenous inputs and initial states and a matrix $\mathfrak{B}$ to describe their effects obtains
 \begin{align}
@@ -64,14 +64,14 @@ with $\mathfrak{R}$, and $\mathfrak{BD}$ as indicated for brevity. Similarly, us
         0 & 0 & 0 & 0 & I_{sl}
     \end{bmatrix}}_{=\mathfrak{B}}
     \underbrace{\begin{bmatrix}
-        X_{i,1,q}\\
-        U_{i,p,q}\\
-        U_{i_p,s,q}\\
-        E_{i,p,q}\\
-        E_{i_p,s,q}
+        X_{i,1,N}\\
+        U_{i,p,N}\\
+        U_{i_p,s,N}\\
+        E_{i,p,N}\\
+        E_{i_p,s,N}
     \end{bmatrix}}_{=\mathfrak{D}}=\mathcal{O},\label{eq:RBD2}\\
     &\mathfrak{B}\in\mathbb{R}^{n+(p+s)(r+l)+sl\times n+(p+s)(r+l)},\notag\\
-    &\mathfrak{D}\in\mathbb{R}^{n+(p+s)(r+l)\times q},\notag
+    &\mathfrak{D}\in\mathbb{R}^{n+(p+s)(r+l)\times N},\notag
 \end{align}
 with $\varepsilon_1=\Gamma_s(\tilde{A}^p+\tKp{y}\Gamma_p)$, $\varepsilon_2=\Gamma_s(\tKp{u}+\tKp{y}\mathcal{T}_p^\mathrm{u})$, and $\varepsilon_3=\Gamma_s\tKp{y}\mathcal{H}_p$ defined as shown. By inspection, with $\mathcal{R}(\cdot)$ and $\mathcal{N}(\cdot)$ respectively denoting the range and nullspace of a matrix, $\mathcal{R}(\mathfrak{B}\mathfrak{D})\subseteq\mathcal{R}(\mathfrak{B})=\mathcal{N}(\mathfrak{R})$. Only if $\mathfrak{D}$ is full row rank $\mathcal{R}(\mathfrak{B}\mathfrak{D})=\mathcal{N}(\mathfrak{R})$. To see when this latter condition is the case, consider the following.
 \setcounter{thm}{0}
