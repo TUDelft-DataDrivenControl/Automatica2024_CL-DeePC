@@ -146,7 +146,7 @@ With reference to~\eqref{eq:Yf1} and~\eqref{eq:DataEq1}, premultiplying both sid
         \datavec{e}{k_p,s}
     \end{bmatrix}.
 \end{align}
-Equation~\eqref{eq:Theorem1} is obtained by sequential application of \eqref{eq:Dg} for $k={\hat{i},\dots,\hat{i}+f-1}$ without the top and bottom matrix equations. As a result the future outputs resemble predictions and $G=\left[g_1\;g_2\;\cdots\;g_f\right]$. Since $\Phi_{i,s,N}$ has more columns then rows with the condition $N\geq(p+s+l)(r+l)+n$ thereThis proves statement~\ref{claim:G_exists}).
+Equation~\eqref{eq:Theorem1} is obtained by sequential application of \eqref{eq:Dg} for $k={\hat{i},\dots,\hat{i}+f-1}$ without the top and bottom matrix equations such that $G=\left[g_1\;g_2\;\cdots\;g_f\right]$. As a result the future outputs resemble predictions. Since the condition $N\geq(p+s+l)(r+l)+n$ ensures that $\Phi_{i,s,N}$ has more columns then rows there are multiple solutions to $G$ in \eqref{eq:Theorem1}. This proves statement~\ref{claim:G_exists}).
 %
 % Without the top and bottom matrix equations this is written more compactly for consecutive time indices $k={\hat{i},\dots,\hat{i}+f-1}$ as given by \eqref{eq:Theorem1}, in which $G$ contains the vectors $\{g_{k-\hat{i}+1}\}_{k=\hat{i}}^{\hat{i}+f-1}$. Moreover, the future outputs under consideration become estimates since the top and bottom matrix equations with relevant but unknown data are not considered by~\eqref{eq:Theorem1}. 
 
