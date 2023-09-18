@@ -56,7 +56,7 @@ Fig.~\ref{fig:CL-DeePC} and \eqref{eq:CL_DeePC_no_IVs} illustrate how this idea 
         \end{bmatrix}
     \end{align}
     \begin{enumerate}
-        \item there exists a solution $G$
+        \item there exists a solution $G$\label{claim:G_exists}
         \item that uniquely specifies an output predictor $\widehat{Y}_{\hat{i}_p,s,f}$
         \item that is asymptotically unbiased with $p\rightarrow\infty$ if $s=1$.
     \end{enumerate}
@@ -140,7 +140,7 @@ With reference to~\eqref{eq:Yf1} and~\eqref{eq:DataEq1}, premultiplying both sid
         \datavec{e}{k_p,s}
     \end{bmatrix}.
 \end{align}
-For consecutive initial states, with $k={\hat{i},\dots,\hat{i}+f-1}$ this proves...
+For consecutive initial states, with $k={\hat{i},\dots,\hat{i}+f-1}$ this proves statement~(\ref{claim:G_exists})
 
 initial state specification by data with asymptotically decreasing error
 
