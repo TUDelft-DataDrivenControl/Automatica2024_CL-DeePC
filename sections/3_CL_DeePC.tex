@@ -41,8 +41,10 @@ Fig.~\ref{fig:CL-DeePC} and \eqref{eq:CL_DeePC_no_IVs} illustrate how this idea 
     Consider the minimal discrete non-deterministic \ac{LTI} system given by~\eqref{eqn:SS_innovation}. If the sequence of inputs $\{u_k\}_{k=i}^{i+\bar{N}-1}$ of length $\bar{N}=p+s+N-1$ is persistently exciting of order $p+s+n$, and %
     \begin{align}%see also https://www.cis.upenn.edu/~jean/schur-comp.pdf
     % \widehat{\Sigma}_{u,u} &> 0,\label{eq:PE_corU}\\
-    \widehat{\Sigma}_{e,e} &- \widehat{\Sigma}_{u,e} \widehat{\Sigma}_{u,u}\inv \widehat{\Sigma}_{u,e}^\top>0,\label{eq:PE_corUE2}\\
-    \widehat{\Sigma}_{e,e}&=E_{i,p+s+n,N-n}E_{i,p+s+n,N-n}^\top,\;
+    &\widehat{\Sigma}_{e,e} &&- \widehat{\Sigma}_{u,e} \widehat{\Sigma}_{u,u}\inv \widehat{\Sigma}_{u,e}^\top>0,\label{eq:PE_corUE2}\\
+    \text{with }&&\widehat{\Sigma}_{e,e}&=E_{i,p+s+n,N-n}E_{i,p+s+n,N-n}^\top,\notag\\
+    &&\widehat{\Sigma}_{u,e}&=U_{i,p+s+n,N-n}E_{i,p+s+n,N-n}^\top,\notag\\
+    &&\widehat{\Sigma}_{u,u}&=U_{i,p+s+n,N-n}U_{i,p+s+n,N-n}^\top\notag
     \end{align}
     in which $\widehat{\Sigma}_{e,e}=E_{i,p+s+n,N-n}E_{i,p+s+n,N-n}^\top$, $\widehat{\Sigma}_{u,e}=U_{i,p+s+n,N-n}E_{i,p+s+n,N-n}^\top$, $\widehat{\Sigma}_{u,u}=U_{i,p+s+n,N-n}U_{i,p+s+n,N-n}^\top$
     
