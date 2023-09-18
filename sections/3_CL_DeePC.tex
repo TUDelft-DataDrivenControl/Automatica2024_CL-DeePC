@@ -38,7 +38,7 @@ Fig.~\ref{fig:CL-DeePC} and \eqref{eq:CL_DeePC_no_IVs} illustrate how this idea 
 %
 \setcounter{thm}{0}
 \begin{thm}\label{theorem:main_result}
-    Consider the minimal discrete non-deterministic \ac{LTI} system given by~\eqref{eqn:SS_innovation}. If $p\geq\ell$, the sequence of inputs $\{u_k\}_{k=i}^{i+\bar{N}-1}$ of length $\bar{N}=p+s+N-1$ is persistently exciting of order $p+s+n$, and sample correlations such that%
+    Consider the minimal discrete non-deterministic \ac{LTI} system given by~\eqref{eqn:SS_innovation}. If $p\geq\ell$, the sequence of inputs $\{u_k\}_{k=i}^{i+\bar{N}-1}$ of length $\bar{N}=p+s+N-1$ is persistently exciting of order $p+s+n$, and with sample correlations such that%
     \begin{alignat}{2}%see also https://www.cis.upenn.edu/~jean/schur-comp.pdf
     % \widehat{\Sigma}_{u,u} &> 0,\label{eq:PE_corU}\\
     &\widehat{\Sigma}_{e,e} - \widehat{\Sigma}_{u,e} \widehat{\Sigma}_{u,u}\inv \widehat{\Sigma}_{u,e}^\top>0,\span\span\label{eq:PE_corUE2}\\
@@ -60,8 +60,7 @@ Fig.~\ref{fig:CL-DeePC} and \eqref{eq:CL_DeePC_no_IVs} illustrate how this idea 
         \item that uniquely specifies an output predictor $\widehat{Y}_{\hat{i}_p,s,f}$
         \item that is asymptotically unbiased with $p\rightarrow\infty$ if $s=1$.
     \end{enumerate}
-    
-    Let $\bar{u}_k=\left[u_k^\top \; e_k^\top\right]^\top$ represent an `extended' input. Given a sequence of input $u_k$ and output $y_k$ data of length $\bar{N}=N+p$, if the extended input sequence is persistently exciting of order $p+1+n$ and $p\geq\ell$, then the \ac{CL-DeePC} formulation given by~\eqref{eq:CL_DeePC_no_IVs} provides an unbiased output predictor.%asymptotically unbiased output predictor in the limit $N\rightarrow \infty$.
+    % Let $\bar{u}_k=\left[u_k^\top \; e_k^\top\right]^\top$ represent an `extended' input. Given a sequence of input $u_k$ and output $y_k$ data of length $\bar{N}=N+p$, if the extended input sequence is persistently exciting of order $p+1+n$ and $p\geq\ell$, then the \ac{CL-DeePC} formulation given by~\eqref{eq:CL_DeePC_no_IVs} provides an unbiased output predictor.%asymptotically unbiased output predictor in the limit $N\rightarrow \infty$.
 \end{thm}
 \textbf{Proof:} 
 Rewriting \eqref{eq:DataEq1} with $k=i$ and $q=N$ yields
