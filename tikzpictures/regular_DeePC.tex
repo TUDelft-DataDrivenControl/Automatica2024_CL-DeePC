@@ -70,12 +70,12 @@
         U_{i,p,N}\\U_{i_p,f,N}\\Y_{i,p,N}\\ \hline Y_{i_p,f,N}
     \end{bmatrix}$};
     % brace to the left
-    \path ([xshift=-0.75cm-0.05cm,yshift=-4pt]mat1.center) coordinate (Brace1T);
-    \path ([yshift=-1.73cm]Brace1T) coordinate (Brace1B);
-    \draw[pen colour=gray!60,decorate, decoration={calligraphic brace, amplitude=3pt, mirror, aspect=0.2},line width=0.75pt] (Brace1T) -- (Brace1B);
-    % Zp
-    \node (Zp) at ($(Brace1T)!0.2!(Brace1B) + (-3pt,-0.8pt)$) {};
-    \node[left,text=gray!100,align=center] at ([xshift=0.5mm,yshift=-0.18cm]Zp.center) {\scriptsize{\shortstack{$=$\\$\Phi_{i,f,N}$}}};
+    % \path ([xshift=-0.75cm-0.05cm,yshift=-4pt]mat1.center) coordinate (Brace1T);
+    % \path ([yshift=-1.73cm]Brace1T) coordinate (Brace1B);
+    % \draw[pen colour=gray!60,decorate, decoration={calligraphic brace, amplitude=3pt, mirror, aspect=0.2},line width=0.75pt] (Brace1T) -- (Brace1B);
+    % % Zp
+    % \node (Zp) at ($(Brace1T)!0.2!(Brace1B) + (-3pt,-0.8pt)$) {};
+    % \node[left,text=gray!100,align=center] at ([xshift=0.5mm,yshift=-0.18cm]Zp.center) {\scriptsize{\shortstack{$=$\\$\Phi_{i,f,N}$}}};
   
     % ======================= drawing G =======================
     % useful coordinates
@@ -165,17 +165,17 @@
     % matrix below brace
     \node (mat3) at ($(Brace3L)!0.5!(Brace3R) + (0,-3pt)$) {};
     \node[below] at ([xshift=0.35cm]mat3.center) {$\begin{bmatrix}
-        U_{\hat{i},p,1}\\U_{\hat{i}_p,f,1}\\Y_{\hat{i},p,1}\\ \hline Y_{\hat{i}_p,f,1}
+        U_{\hat{i},p,1}\\U_{\hat{i}_p,f,1}\\Y_{\hat{i},p,1}\\ \hline \widehat{Y}_{\hat{i}_p,f,1}
     \end{bmatrix}$};
     % tag & label (on RHS of column)
     \node[below left] at (8.35cm,-5cm) {$\refstepcounter{equation}(\theequation)\label{eq:regular_DeePC_no_IVs}$};
     % brace to the right
-    \path ([xshift=1.1cm]mat3.center |- Brace1T) coordinate (Brace3T);%([xshift=0.7cm,yshift=-4pt]mat3.center) coordinate (Brace3T);
-    \path (Brace3T |- Brace1B) coordinate (Brace3B);
-    \draw[pen colour=gray!60,decorate, decoration={calligraphic brace, amplitude=3pt, aspect=0.2},line width=0.75pt] (Brace3T) -- (Brace3B);
-    % Zf
-    \node (Zf) at ($(Brace3T)!0.2!(Brace3B) + (3pt,-1.5pt)$) {};
-    \node[right,text=gray!100] at ([yshift=-0.18cm]Zf.center) {\scriptsize{\shortstack{$=$\\$\Phi_{\hat{i},f,1}$}}};
+    % \path ([xshift=1.1cm]mat3.center |- Brace1T) coordinate (Brace3T);%([xshift=0.7cm,yshift=-4pt]mat3.center) coordinate (Brace3T);
+    % \path (Brace3T |- Brace1B) coordinate (Brace3B);
+    % \draw[pen colour=gray!60,decorate, decoration={calligraphic brace, amplitude=3pt, aspect=0.2},line width=0.75pt] (Brace3T) -- (Brace3B);
+    % % Zf
+    % \node (Zf) at ($(Brace3T)!0.2!(Brace3B) + (3pt,-1.5pt)$) {};
+    % \node[right,text=gray!100] at ([yshift=-0.18cm]Zf.center) {\scriptsize{\shortstack{$=$\\$\Phi_{\hat{i},f,1}$}}};
     
     % ======================= length indicators ======================= 
     \draw[|-|] ([yshift=\onelen]M1D) -- node[above] {\scriptsize$N$} ([yshift=\onelen]M1C);
