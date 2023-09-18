@@ -57,7 +57,10 @@ Fig.~\ref{fig:CL-DeePC} and \eqref{eq:CL_DeePC_no_IVs} illustrate how this idea 
     \end{align}
     \begin{enumerate}
         \item[1)] there exists a solution $G$\label{claim:G_exists}
-        \item[2)] with a corresponding output predictor $\widehat{Y}_{\hat{i}_p,s,f}$ that is uniquely specified by the past data and noise realization%that uniquely specifies an output predictor $\widehat{Y}_{\hat{i}_p,s,f}$
+        \item[2)] with a corresponding output predictor $\widehat{Y}_{\hat{i}_p,s,f}$
+        \begin{enumerate}
+            \item that is uniquely determined by the past data and noise realizations%that uniquely specifies an output predictor
+        \end{enumerate} %$\widehat{Y}_{\hat{i}_p,s,f}$
         \item[3)] that is asymptotically unbiased with $p\rightarrow\infty$ if $s=1$.
     \end{enumerate}
     % Let $\bar{u}_k=\left[u_k^\top \; e_k^\top\right]^\top$ represent an `extended' input. Given a sequence of input $u_k$ and output $y_k$ data of length $\bar{N}=N+p$, if the extended input sequence is persistently exciting of order $p+1+n$ and $p\geq\ell$, then the \ac{CL-DeePC} formulation given by~\eqref{eq:CL_DeePC_no_IVs} provides an unbiased output predictor.%asymptotically unbiased output predictor in the limit $N\rightarrow \infty$.
