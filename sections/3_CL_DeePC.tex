@@ -38,7 +38,8 @@ Fig.~\ref{fig:CL-DeePC} and \eqref{eq:CL_DeePC_no_IVs} illustrate how this idea 
 %
 \setcounter{thm}{0}
 \begin{thm}\label{theorem:main_result}
-    Consider the minimal discrete non-deterministic \ac{LTI} system given by~\eqref{eqn:SS_innovation} to generate input-output data in closed-loop with a controller that has no direct feedthrough. Define data matrices $\Phi_{i,s,N}$ and $\overline{\Phi}_{\hat{i},s,f}$ as in \eqref{eq:Phi_def}. If the input sequence $\{u_k\}_{k=i}^{i+\bar{N}-1}$ of length $\bar{N}=p+s+N-1$, with $N\geq(p+s+n)(r+l)+n$ and $p\geq\ell$\todo{don't forget}, is persistently exciting of order $p+s+n$, and has sample correlations such that%
+    Consider the minimal discrete non-deterministic \ac{LTI} system given by~\eqref{eqn:SS_innovation} to generate input-output data in closed-loop with a controller that has no direct feedthrough. Define data matrices $\Phi_{i,s,N}$ and $\overline{\Phi}_{\hat{i},s,f}$ as in \eqref{eq:Phi_def}. If the input sequence $\{u_k\}_{k=i}^{i+\bar{N}-1}$ of length $\bar{N}=p+s+N-1$ %, with $N\geq(p+s+n)(r+l)+n$ and $p\geq\ell$\todo{don't forget},
+    is persistently exciting of order $p+s+n$, and has sample correlations such that%
     \begin{alignat}{2}%see also https://www.cis.upenn.edu/~jean/schur-comp.pdf
     % \widehat{\Sigma}_{u,u} &> 0,\label{eq:PE_corU}\\
     &\widehat{\Sigma}_{\mathrm{ee}} - \widehat{\Sigma}_{\mathrm{ue}^\top} \widehat{\Sigma}_{\mathrm{uu}}\inv \widehat{\Sigma}_{\mathrm{ue}}\succ0,\span\span\label{eq:PE_corUE2}\\
@@ -137,20 +138,20 @@ The persistency of excitation condition of the input sequence of order $\epsilon
 % %which is equivalent to the positive definiteness of a sample correlation matrix that can be decomposed into its constituent components.
 % By considering Schur complements of the resulting positive definite sample correlation matrix it follows that \eqref{eq:PE_corUE} is satisfied if both \eqref{eq:PE_corUE2} holds true and $\widehat{\Sigma}_{u,u} > 0$. Note that both of these conditions are satisfied by assumption, with the latter condition being implied by a persistently exciting input of order $p+s+n$. %see also https://www.cis.upenn.edu/~jean/schur-comp.pdf
 % 
-Furthermore, it will be useful to analyse the rank of a matrix product by means of the following lemma:
-\begin{lem}\cite{Kailath1980}\label{lem:ineq_Sylvester}
-    For two matrices $\mathcal{A}\in\mathbb{R}^{\delta \times \epsilon}$ and $\mathcal{B}\in\mathbb{R}^{\epsilon \times \kappa}$ the rank (denoted by $\rho(\cdot)$) of their product $\mathcal{AB}$ satisfies
-    \begin{align}\label{eq:ineq_Sylvester}
-        \rho(\mathcal{A})+\rho(\mathcal{B})-\epsilon \leq \rho(\mathcal{AB}) \leq \min(\rho(\mathcal{A}),\rho(\mathcal{B})).
-    \end{align}
-    
-\end{lem}
-
+% 
+% Furthermore, it will be useful to analyse the rank of a matrix product by means of the following lemma:
+% \begin{lem}(Sylvester's Inequality) \cite{Kailath1980}\label{lem:ineq_Sylvester}
+%     For two matrices $\mathcal{A}\in\mathbb{R}^{\delta \times \epsilon}$ and $\mathcal{B}\in\mathbb{R}^{\epsilon \times \kappa}$ the rank (denoted by $\rho(\cdot)$) of their product $\mathcal{AB}$ satisfies
+%     \begin{align}\label{eq:ineq_Sylvester}
+%         \rho(\mathcal{A})+\rho(\mathcal{B})-\epsilon \leq \rho(\mathcal{AB}) \leq \min(\rho(\mathcal{A}),\rho(\mathcal{B})).
+%     \end{align}
+% \end{lem}
+% 
 \subsection{Proof of Theorem~\ref{theorem:main_result}}%\textbf{Proof:}
 This section builds on the auxiliary results presented in \secref{sec:aux_results} to provide a proof of Theorem~\ref{theorem:main_result}, which follows next.
 
 %%%%%%%%%%%%%%%%%%%%%%%% Proof of (i) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\textbf{Proof of $\mathrm{\mathbf{(i)}}$:} 
+\noindent\textbf{Proof of $\mathrm{\mathbf{(i)}}$:} 
 Equation \eqref{eq:DataEq1} can be rewritten with $k=i,\;q=N$ in terms of actual states, inputs, outputs, and noise or with $k=\hat{i},\;q=f$ for predictions along the lines of \eqref{eq:Theorem1} as respectively
 \begin{align}
     &\begin{bmatrix}-\Gamma_s \tilde{A}^p & -L_s & I_{sl}&-\mathcal{H}_s\end{bmatrix}
@@ -173,8 +174,8 @@ with $\mathfrak{R}$, and $\mathfrak{BD}_q$ for $q=N$ and $q=f$ defined as indica
 
 The central idea of this proof is that \eqref{eq:Theorem1} holds true if there exists a $G$ such that $\mathfrak{BD}_N G=\mathfrak{BD}_f$, for which sufficient conditions are that
 \begin{enumerate}
-    \item $\mathcal{R}(\mathfrak{BD}_N)=\mathcal{N}(\mathfrak{R})$, and
-    \item $\mathcal{R}(\mathfrak{BD}_f)\subseteq\mathcal{N}(\mathfrak{R})$.
+    \item[C1.] $\mathcal{R}(\mathfrak{BD}_N)=\mathcal{N}(\mathfrak{R})$, and
+    \item[C2.] $\mathcal{R}(\mathfrak{BD}_f)\;\subseteq\mathcal{N}(\mathfrak{R})$.
 \end{enumerate}
 To prove that these conditions are satisfied use \eqref{eq:DataEq1} to rewrite $\mathfrak{BD}_N$ and $\mathfrak{BD}_f$ as contributions of initial states and exogenous inputs (respectively denoted by $\mathfrak{D}_N$ and $\mathfrak{D}_f$) as well as a matrix that describes their effects $\mathfrak{B}$. This factorization is given by
 % Similarly, using \eqref{eq:DataEq1} to decompose $\mathfrak{BD}$ into a matrix $\mathfrak{D}$ of exogenous inputs and initial states and a matrix $\mathfrak{B}$ to describe their effects obtains
@@ -211,18 +212,24 @@ To prove that these conditions are satisfied use \eqref{eq:DataEq1} to rewrite $
         \widehat{X}_{\hat{i},1,f}\\
         U_{\hat{i},p,f}\\
         U_{\hat{i}_p,s,f}\\
-        E_{\hat{i},p,f}\\
+        \overline{E}_{\hat{i},p,f}\\
         \widehat{E}_{\hat{i}_p,s,f}
-    \end{bmatrix}}_{=\mathfrak{D}_f},\notag\\%\label{eq:BD_f}\\
+    \end{bmatrix}}_{=\mathfrak{D}_f},\label{eq:BD_f}\\%\label{eq:BD_f}\\
     \span\mathfrak{B}\in\mathbb{R}^{(n+(p+s)(r+l)+sl)\times (n+(p+s)(r+l))},\notag\\
     \span\mathfrak{D}_N\in\mathbb{R}^{(n+(p+s)(r+l))\times N},\quad \mathfrak{D}_f\in\mathbb{R}^{(n+(p+s)(r+l))\times f}\notag
 \end{alignat}
 with $\mathfrak{B}$, $\mathfrak{D}_N$, and $\mathfrak{D}_f$ defined as shown and $\varepsilon_1=\Gamma_s(\tilde{A}^p+\tKp{y}\Gamma_p)$, $\varepsilon_2=\Gamma_s(\tKp{u}+\tKp{y}\mathcal{T}_p^\mathrm{u})$, and $\varepsilon_3=\Gamma_s\tKp{y}\mathcal{H}_p$. Note that $\mathfrak{RB}=\mathcal{O}$, which means that $\mathcal{R}(\mathfrak{B})\subseteq\mathcal{N}(\mathfrak{R})$. In fact, by inspection one may verify that $\mathfrak{B}$ is full column rank and that its number of columns corresponds to the nullity of $\mathfrak{R}$. Hence, $\mathcal{R}(\mathfrak{B})=\mathcal{N}(\mathfrak{R})$. This has two important implications.
 
-Firstly, since ${\mathcal{R}(\mathfrak{BD}_f)\subseteq\mathcal{R}(\mathfrak{B})=\mathcal{N}(\mathfrak{R})}$ condition condition (2) is proven.
+Firstly, since ${\mathcal{R}(\mathfrak{BD}_f)\subseteq\mathcal{R}(\mathfrak{B})=\mathcal{N}(\mathfrak{R})}$, condition C2 is satisfied.
 
-Secondly, by similar reasoning, it must hold that ${\mathcal{R}(\mathfrak{BD}_N)\subseteq\mathcal{R}(\mathfrak{B})=\mathcal{N}(\mathfrak{R})}$. To prove condition (1) it must therefore be shown that $\mathcal{R}(\mathfrak{BD}_N)=\mathcal{R}(\mathfrak{B})$, which is the case when $\mathfrak{D}_N$ is full row rank.
-
+Secondly, by similar reasoning, it must hold that ${\mathcal{R}(\mathfrak{BD}_N)\subseteq\mathcal{R}(\mathfrak{B})=\mathcal{N}(\mathfrak{R})}$. To prove condition C1 it must therefore be shown that $\mathcal{R}(\mathfrak{BD}_N)=\mathcal{R}(\mathfrak{B})$, for which $\mathfrak{D}_N$ must be full row rank.
+% : $\rho(\mathfrak{BD}_N)=\rho(\mathfrak{B})$. Let $\epsilon=n+(p+s)(r+l)$ for brevity. Then by application of Lemma~\ref{lem:ineq_Sylvester}, with $\rho(\mathfrak{B})=\epsilon$, $\rho(\mathfrak{D}_N)=\min(\epsilon,N)-\delta$, and $\delta$ as the rank-deficiency of $\mathfrak{D}_N$:
+% \begin{alignat*}{3}
+%     \rho(\mathfrak{B})+\rho(\mathfrak{D}_N)-\epsilon &\leq \rho(\mathfrak{BD}_N) &&\leq \min(\rho(\mathfrak{B}),\rho(\mathfrak{D}_N)),\\
+%     \rho(\mathfrak{D}_N) &\leq \rho(\mathfrak{BD}_N) &&\leq \rho(\mathfrak{D}_N),\\
+%     \rho(\mathfrak{BD}_N) &= \rho(\mathfrak{D}_N)=\min(\rho(\mathfrak{B}),N)-\delta\span\span.
+% \end{alignat*}
+% This shows that $\mathfrak{D}_N$ must be full row rank for $\rho(\mathfrak{BD}_N)=\rho(\mathfrak{B})$ and thus $\mathcal{R}(\mathfrak{BD}_N)=\mathcal{R}(\mathfrak{B})$ to hold. 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \setcounter{thm}{0}
 % \begin{lem}\label{lem:need_D_full_row_rank}
@@ -232,7 +239,27 @@ Secondly, by similar reasoning, it must hold that ${\mathcal{R}(\mathfrak{BD}_N)
 % %The nullity of $\mathfrak{R}$ is equal to the number of columns it contains minus its rank. Given the dimensions of $\mathfrak{R}$ and the fact that $I_{sl}$ makes it is full row rank, $\mathcal{N}(\mathfrak{R})$ is spanned by $n+(p+s)(r+l)$ linearly independent vectors. 
 % Moreover, $\mathcal{R}(\mathfrak{B})=\mathcal{N}(\mathfrak{R})$ because the $n+(p+s)(r+l)$ columns of $\mathfrak{B}$ are linearly independent (since $\mathfrak{B}$ is full column rank) and because ${\mathfrak{RB}=\mathcal{O}}$. By definition $\mathcal{R}(\mathfrak{BD})\subseteq\mathcal{R}(\mathfrak{B})$. Therefore, if and only if $\mathfrak{D}$ is full row rank does $\mathcal{R}(\mathfrak{BD})=\mathcal{R}(\mathfrak{B})$ and consequently, since ${\mathcal{R}(\mathfrak{B})=\mathcal{N}(\mathfrak{R})}$, does ${\mathcal{R}(\mathfrak{BD})=\mathcal{N}(\mathfrak{R})}$.$\hfill\qed$
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Under the stipulated persistency of excitation of the input sequence of order $p+s+n$, condition \eqref{eq:PE_corUE2}, and presumed system controllability, Theorem~\ref{theorem:main_result} satisfies the conditions of Lemma~\ref{lem:D_full_row_rank2} for $\epsilon=p+s$ and $q=N$ such that the matrix $\mathfrak{D}_N$ is full row rank. As a result, by the Rouch\'{e}-Capelli theorem there then exists a vector $g_{k-\hat{i}+1}$ such that
+Under the stipulated persistency of excitation of the input sequence of order $p+s+n$, condition \eqref{eq:PE_corUE2}, and presumed system controllability, Theorem~\ref{theorem:main_result} satisfies the conditions of Lemma~\ref{lem:D_full_row_rank2} for $\epsilon=p+s$ and $q=N$ such that the matrix $\mathfrak{D}_N$ is full row rank. This proves condition C1. Having already proven condition C2 this concludes the proof of $\mathrm{(i)}$. $\hfill\qed$
+
+\noindent\textbf{Remark 1:} A necessary condition for \eqref{eq:PE_corUE2} is that ${N\geq(p+s+n)(r+l)+n}$. This follows from the above proof, in which $\mathfrak{D}_N$ is required to be full row rank. The top matrix equation of \eqref{eq:Theorem1} defines $G$, for which there are multiple solutions given the aforementioned necessary lower bound on $N$ and the dimensions of $\Phi_{i,s,N}\in\mathbb{R}^{((p+s)r+pl)\times N}$. These different possible solutions of $G$ are given by
+\begin{align}\label{eq:G_sols}
+    G = \Phi_{i,s,N}^\dagger\overline{\Phi}_{\hat{i},s,f} + (I_N-\Phi_{i,s,N}^\dagger\Phi_{i,s,N})W,
+\end{align}
+in which the dagger $\dagger$ denotes the right inverse ($\mathcal{Q}^\dagger=\mathcal{Q}^\top(\mathcal{Q}\mathcal{Q}^\top)\inv$ with $\mathcal{Q}$ as a real, full row rank matrix), and $W\in\mathbb{R}^{N\times f}$ is a free matrix.
+
+\noindent\textbf{Proof of $\mathrm{(ii)}:$} To prove that \eqref{eq:Theorem1} defines $\widehat{Y}_{\hat{i}_p,s,f}$ as an asymptotically unbiased predictor as $p\rightarrow\infty$ if $s=1$, first consider the error of this prediction. By the bottom matrix equation of~\eqref{eq:Theorem1} and subsequent application of~\eqref{eq:DataEq1} to rewrite $Y_{i_p,s,N}$ and $Y_{\hat{i}_p,s,f}$ we find
+\begin{align}\label{eq:Yf_error1}
+    \begin{split}
+        &\!\!\!\widehat{Y}_{\hat{i}_p,s,f}-Y_{\hat{i}_p,s,f} = \Gamma_s \tilde{A}^p (\underbrace{X_{i,1,N}G}_{=\widehat{X}_{\hat{i},1,f}}-X_{\hat{i},1,f}) \\
+        &+L_s(\underbrace{\Phi_{i,s,N}G}_{\mathclap{=\overline{\Phi}_{\hat{i},s,f} \;\because \text{ \eqref{eq:Theorem1}}}}-\Phi_{\hat{i},s,f}) +\mathcal{H}_s (\underbrace{E_{i_p,s,N}G}_{=\widehat{E}_{\hat{i}_p,s,f}}-E_{\hat{i}_p,s,f})
+    \end{split}
+\end{align}
+The interpretations of the underbraced terms are obtained from $\mathfrak{BD}_N G=\mathfrak{BD}_f$, which was central to the preceding proof of $\mathrm{(i)}$. Applying the limit $p\rightarrow\infty$ asymptotically atenuates the top contribution by the error of the state estimates since $\tilde{A}$ has all of its eigenvalues strictly inside the unit circle.
+
+\begin{align*}
+    \hline
+\end{align*}
+As a result, by the Rouch\'{e}-Capelli theorem there then exists a vector $g_{k-\hat{i}+1}$ such that
 \begin{align}\label{eq:Dg}
     \mathfrak{D} g_{k-\hat{i}+1} =
     \begin{bmatrix}
@@ -258,7 +285,7 @@ Proof of~\eqref{eq:Theorem1} is obtained by sequential application of \eqref{eq:
 
 To prove statement 1) consider that $G$ is determined only by the top matrix equation in~\eqref{eq:Theorem1}, which contains known past input-output data as well as future inputs that can be chosen. Under the assumed persistency of excitation conditions $\mathfrak{D}$ is full row rank such that, by inspection of the product $\mathfrak{BD}$ in~\eqref{eq:RBD2}, $\Phi_{i,s,N}$ must also be full row rank. %This matrix is invertible if $N=p(r+l)+sl$ <- not possible
 Since the condition ${N\geq(p+s+n)(r+l)+n}$ ensures that $\Phi_{i,s,N}\in\mathbb{R}^{p(r+l)+sl\times N}$ has more columns then rows, there are multiple solutions to $G$ in \eqref{eq:Theorem1}. This proves statement~1). The different solutions of $G$ are given by
-\begin{align}\label{eq:G_sols}
+\begin{align}%\label{eq:G_sols}
     G = \Phi_{i,s,N}^\dagger\overline{\Phi}_{\hat{i},s,f} + (I_N-\Phi_{i,s,N}^\dagger\Phi_{i,s,N})W,
 \end{align}
 in which the dagger $\dagger$ denotes the right inverse ($\mathcal{Q}^\dagger=\mathcal{Q}^\top(\mathcal{Q}\mathcal{Q}^\top)\inv$ with $\mathcal{Q}$ as a real, full row rank matrix), and $W\in\mathbb{R}^{N\times f}$ is a free matrix.
@@ -266,7 +293,7 @@ in which the dagger $\dagger$ denotes the right inverse ($\mathcal{Q}^\dagger=\m
 % Without the top and bottom matrix equations this is written more compactly for consecutive time indices $k={\hat{i},\dots,\hat{i}+f-1}$ as given by \eqref{eq:Theorem1}, in which $G$ contains the vectors $\{g_{k-\hat{i}+1}\}_{k=\hat{i}}^{\hat{i}+f-1}$. Moreover, the future outputs under consideration become estimates since the top and bottom matrix equations with relevant but unknown data are not considered by~\eqref{eq:Theorem1}. 
 
 To prove statement~2) consider the error of the output prediction, which using \eqref{eq:DataEq1} to rewrite $Y_{i_p,s,N}$ and $Y_{\hat{i},s,f}$ and by subsequent application of~\eqref{eq:Theorem1} is found as
-\begin{align}\label{eq:Yf_error1}
+\begin{align}%\label{eq:Yf_error1}
     \begin{split}
         \widehat{Y}_{\hat{i}_p,s,f}-Y_{\hat{i}_p,s,f} = &\; L_s(\overline{\Phi}_{\hat{i},s,f}-\Phi_{\hat{i},s,f})\\
         &+\mathcal{H}_s (E_{i_p,s,N}G-E_{\hat{i}_p,s,f})\\
