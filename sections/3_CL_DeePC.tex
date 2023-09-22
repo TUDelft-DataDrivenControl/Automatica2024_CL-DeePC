@@ -1,9 +1,9 @@
 \section{Closed-loop Data-enabled Predictive Control}
-This section presents the main result of this article, providing contribution~(\ref{contribution:solves_CL_issue}) whereby we develop \ac{CL-DeePC}. An intuitive explanation is first offered before a more rigorous proof of the method is provided.
+This section presents the main result of this article, providing contribution~(\ref{contribution:solves_CL_issue}) whereby we develop \ac{CL-DeePC}. An intuitive explanation is first offered before a proof of the underlying main result is provided.
 
 As a solution to the identification bias that arises in closed-loop due to correlation between inputs and noise (a demonstration thereof is deferred to Section~\ref{sec:CL_ID_issue}) it is possible to estimate a step-ahead predictor~\citep{Ljung1996}. A prediction horizon length $f>1$ is of more practical use in receding horizon optimal control settings, to which end step-ahead predictors can be applied sequentially. 
 
-Fig.~\ref{fig:CL-DeePC} and \eqref{eq:CL_DeePC_no_IVs} illustrate how this idea is employed in \ac{CL-DeePC}. A step-ahead predictor can be obtained from regular \ac{DeePC} (see Fig.~\ref{fig:regular-DeePC} and \eqref{eq:regular_DeePC_no_IVs}) with $f=1$. In \ac{CL-DeePC} the successive columns of $G$ (from left to right) and their corresponding columns on the right-hand side correspond to sequential applications of regular \ac{DeePC} with $f=1$ to the same matrix of sufficiently persistently exciting past input-output data on the left-hand side as well as time-shifted windows of input-output data on the right-hand side that parameterize successive initial states.
+Fig.~\ref{fig:CL-DeePC} and \eqref{eq:CL_DeePC_no_IVs} illustrate how this idea is employed in \ac{CL-DeePC}. A step-ahead predictor can be obtained from \ac{DeePC} (see Fig.~\ref{fig:regular-DeePC} and \eqref{eq:regular_DeePC_no_IVs}) with $f=1$. In \ac{CL-DeePC} the successive columns of $G$ (from left to right) and their corresponding columns on the right-hand side correspond to sequential applications of regular \ac{DeePC} with $f=1$ to the same matrix of sufficiently persistently exciting past input-output data on the left-hand side as well as time-shifted windows of input-output data on the right-hand side that parameterize successive initial states.
 % In this section \ac{CL-DeePC} is first introduced and compared to regular \ac{DeePC}, thereby offering an intuitive explanation for contribution \ref{contribution:solves_CL_issue}. More rigorous explanations follow in subsequent sections. What follows directly below is the principal result of this work.
 %
 % \begin{figure*}[h!]
@@ -32,30 +32,31 @@ Fig.~\ref{fig:CL-DeePC} and \eqref{eq:CL_DeePC_no_IVs} illustrate how this idea 
 \begin{figure}[b!]
 \centering
 \input{tikzpictures/regular_DeePC}
-\caption{Visualization of known (black) and unknown (red) variables in regular \ac{DeePC} without \ac{IVs}. Each dot represents an input $u_k\in\mathbb{R}^r$, output $y_k\in\mathbb{R}^l$, or element of the matrix $G$. A multi-step ahead predictor of prediction length $f$ is formed directly by taking a linear combination of past input and output data.\\\vspace{0.75mm}}
+\caption{Visualization of known (black) and unknown (red) variables in \ac{DeePC} without \ac{IVs}. Each dot represents an input $u_k\in\mathbb{R}^r$, output $y_k\in\mathbb{R}^l$, or element of the matrix $G$. A multi-step ahead predictor of prediction length $f$ is formed directly by taking a linear combination of past input and output data.\\\vspace{0.75mm}}
 \label{fig:regular-DeePC}
 \end{figure}
 %
 \setcounter{thm}{0}
 \begin{thm}\label{theorem:main_result}
-    Consider the minimal discrete non-deterministic \ac{LTI} system given by~\eqref{eqn:SS_innovation}. If $p\geq\ell$, the sequence of inputs $\{u_k\}_{k=i}^{i+\bar{N}-1}$ of length $\bar{N}=p+s+N-1$ with $N\geq(p+s+n)(r+l)+n$ is persistently exciting of order $p+s+n$, and with sample correlations such that%
+    Consider the minimal discrete non-deterministic \ac{LTI} system given by~\eqref{eqn:SS_innovation} to generate input-output data in closed-loop with a controller that has no direct feedthrough. Define data matrices $\Phi_{i,s,N}$ and $\overline{\Phi}_{\hat{i},s,f}$ as in \eqref{eq:Phi_def}. If the input sequence $\{u_k\}_{k=i}^{i+\bar{N}-1}$ of length $\bar{N}=p+s+N-1$, with $N\geq(p+s+n)(r+l)+n$ and $p\geq\ell$\todo{don't forget}, is persistently exciting of order $p+s+n$, and has sample correlations such that%
     \begin{alignat}{2}%see also https://www.cis.upenn.edu/~jean/schur-comp.pdf
     % \widehat{\Sigma}_{u,u} &> 0,\label{eq:PE_corU}\\
-    &\widehat{\Sigma}_{e,e} - \widehat{\Sigma}_{u,e} \widehat{\Sigma}_{u,u}\inv \widehat{\Sigma}_{u,e}^\top>0,\span\span\label{eq:PE_corUE2}\\
-    &&\text{with}\quad\widehat{\Sigma}_{e,e}&=E_{i,p+s+n,N-n}E_{i,p+s+n,N-n}^\top,\notag\\
-    &&\widehat{\Sigma}_{u,e}&=U_{i,p+s+n,N-n}E_{i,p+s+n,N-n}^\top,\notag\\
-    &&\widehat{\Sigma}_{u,u}&=U_{i,p+s+n,N-n}U_{i,p+s+n,N-n}^\top,\notag
+    &\widehat{\Sigma}_{\mathrm{ee}} - \widehat{\Sigma}_{\mathrm{ue}^\top} \widehat{\Sigma}_{\mathrm{uu}}\inv \widehat{\Sigma}_{\mathrm{ue}}\succ0,\span\span\label{eq:PE_corUE2}\\
+    &&\text{with}\quad\widehat{\Sigma}_{\mathrm{ee}}&=E_{i,p+s+n,N-n}E_{i,p+s+n,N-n}^\top,\notag\\
+    &&\widehat{\Sigma}_{\mathrm{ue}}&=U_{i,p+s+n,N-n}E_{i,p+s+n,N-n}^\top,\notag\\
+    &&\widehat{\Sigma}_{\mathrm{uu}}&=U_{i,p+s+n,N-n}U_{i,p+s+n,N-n}^\top,\notag
     \end{alignat}
-    then for
+    then \\
+    $\mathrm{(i)}$ $\exists G\in\mathbb{R}^{N\times f}$ such that
     \begin{align}\label{eq:Theorem1}
         \begin{bmatrix}
             \Phi_{i,s,N}\\Y_{i_p,s,N}
         \end{bmatrix}G =
         \begin{bmatrix}
-            \Phi_{\hat{i},s,f}\\\widehat{Y}_{\hat{i}_p,s,f}
-        \end{bmatrix}
+            \overline{\Phi}_{\hat{i},s,f}\\\widehat{Y}_{\hat{i}_p,s,f}
+        \end{bmatrix},
     \end{align}
-    \begin{enumerate}
+    % \begin{enumerate}
         % \item[1)] there exists a solution $G$\label{claim:G_exists}
         % \item[2)] that is unique if $\Phi_{i,s,N}$ is square, such that
         % $\widehat{Y}_{\hat{i}_p,s,f}$
@@ -63,26 +64,127 @@ Fig.~\ref{fig:CL-DeePC} and \eqref{eq:CL_DeePC_no_IVs} illustrate how this idea 
         %     \item is uniquely determined by past noise and input-output data, and
         %     \item is asymptotically unbiased with $p\rightarrow\infty$ if $s=1$.
         % \end{enumerate}
-        \item[1)] there exist multiple solutions $G$\label{claim:G_exists}
-        \item[2)] that are all asymptotically unbiased with $p\rightarrow\infty$ if $s=1$.
-    \end{enumerate}
+    %     \item[2)] that all provide an asymptotically unbiased predictor $\widehat{Y}_{\hat{i}_p,s,f}$ with $p\rightarrow\infty$ if $s=1$.
+    % \end{enumerate}
     % Let $\bar{u}_k=\left[u_k^\top \; e_k^\top\right]^\top$ represent an `extended' input. Given a sequence of input $u_k$ and output $y_k$ data of length $\bar{N}=N+p$, if the extended input sequence is persistently exciting of order $p+1+n$ and $p\geq\ell$, then the \ac{CL-DeePC} formulation given by~\eqref{eq:CL_DeePC_no_IVs} provides an unbiased output predictor.%asymptotically unbiased output predictor in the limit $N\rightarrow \infty$.
+    $\mathrm{(ii)}$ and which provides an asymptotically unbiased predictor $\widehat{Y}_{\hat{i}_p,s,f}$ with $p\rightarrow\infty$ if $s=1$.
 \end{thm}
-\textbf{Proof:} 
-Rewriting \eqref{eq:DataEq1} with $k=i$ and $q=N$ yields
-\begin{align*}
-    &\underbrace{\begin{bmatrix}-\Gamma_s \tilde{A}^p & -L_s & I_{sl}&-\mathcal{H}_s\end{bmatrix}}_{= \mathfrak{R}}
+The proof of Theorem~\ref{theorem:main_result} is deferred till after the treatment of several auxiliary results.
+\subsection{Auxiliary results}\label{sec:aux_results}
+For the development of sufficient conditions for persistency of excitation, first consider the following result for deterministic systems.
+% Lemma~\ref{lem:D_full_row_rank2} is developed here to establish when the condition of Lemma~\ref{lem:need_D_full_row_rank}, namely that $\mathfrak{D}$ is full row rank, is satisfied. For the proof thereof some auxiliary results are first stated here.
+\begin{lem}\citep[Cor.~2(iii)]{Willems2005}\label{lem:D_det_full_row_rank}
+    If the input sequence $\{u_k\}_{k=i}^{i+\epsilon+q-2}$ of a controllable discrete \ac{LTI} system without noise is persistently exciting of order $\epsilon+n$ then the matrix $\left[X_{i,1,q}^\top\;U_{i,\epsilon,q}^\top\right]^\top$ is full row rank.
+\end{lem}
+Lemma~\ref{lem:D_det_full_row_rank} can be extended to non-deterministic systems as shown by the following lemma.
+% \setcounter{thm}{0}
+\begin{lem}\label{lem:D_full_row_rank}
+    If for a controllable non-deterministic \ac{LTI} system of the form given by \eqref{eqn:SS_innovation} the sequence of inputs and noise $\{[u_k^\top\;e_k^\top]^\top\}_{k=i}^{i+\epsilon+q-2}$ is persistently exciting of order $\epsilon+n$ then the matrix $\left[X_{i,1,q}^\top\;U_{i,\epsilon,q}^\top\;E_{i,\epsilon,q}^\top\right]^\top$ is full row rank.
+\end{lem}
+\textbf{Proof:} Lemma~\ref{lem:D_full_row_rank} follows from Lemma~\ref{lem:D_det_full_row_rank} by extending the exogenous inputs to include the innovation noise, thus also requiring controllable $(A,[B\,K])$. This latter condition is satisfied if $(A,B)$ is controllable.$\hfill\qed$
+
+Since the closed-loop identification problem arises due to correlation between inputs and noise the persistency of excitation condition in Lemma~\ref{lem:D_full_row_rank} is rewritten in terms of such correlations. For this the following lemma concerning Schur complements is used.
+\begin{lem}\citep[Lem.~2.7(i)]{Verhaegen2007a}\label{lem:Schur_comp}
+    Let $S\in\mathbb{R}^{(\delta+\kappa)\times(\delta+\kappa)}$ be the symmetric matrix
+    \begin{align*}
+        S=\begin{bmatrix}
+            \mathcal{A} & \mathcal{B}\\
+            \mathcal{B}^\top & \mathcal{C}
+        \end{bmatrix},
+    \end{align*}
+    with $\mathcal{A}\in\mathbb{R}^{\delta \times \delta}$, $\mathcal{B}\in\mathbb{R}^{\delta \times \kappa}$, $\mathcal{C}\in\mathbb{R}^{\kappa \times \kappa}$. If $\mathcal{A}\succ0$ then $S\succ0$ if and only if $\mathcal{C}-\mathcal{B}^\top\mathcal{A}\inv\mathcal{B}\succ0$.
+\end{lem}
+
+This allows the following lemma to express persistency of excitation conditions using correlation matrices.
+\begin{lem}\label{lem:D_full_row_rank2}
+    Consider a controllable non-deterministic \ac{LTI} system of the form given by \eqref{eqn:SS_innovation} with an input sequence $\{u_k\}_{k=i}^{i+\epsilon+q-2}$ that is persistently exciting of order $\epsilon+n$ and innovation sequence $\{e_k\}_{k=i}^{i+\epsilon+q-2}$. If the sample correlation matrices between inputs and noise are such that
+    \begin{align}
+        & \span\span \hat{\Sigma}_{\mathrm{ee},2} - \hat{\Sigma}_{\mathrm{ue},2}^\top \hat{\Sigma}_{\mathrm{uu},2}\inv \hat{\Sigma}_{\mathrm{ue},2} \succ 0,\label{eq:PE_corUE3}\\
+        & \text{with}\;\;\;&&\hat{\Sigma}_{\mathrm{ee},2}=E_{i,\epsilon+n,q-n}E_{i,\epsilon+n,q-n}^\top\notag\\
+        & &&\hat{\Sigma}_{\mathrm{ue},2}=U_{i,\epsilon+n,q-n}E_{i,\epsilon+n,q-n}^\top\notag\\
+        & &&\hat{\Sigma}_{\mathrm{uu},2}=U_{i,\epsilon+n,q-n}U_{i,\epsilon+n,q-n}^\top\notag
+    \end{align}
+    then the matrix $\left[X_{i,1,q}^\top\;U_{i,\epsilon,q}^\top\;E_{i,\epsilon,q}^\top\right]^\top$ is full row rank.
+\end{lem}
+\textbf{Proof:} By Lemma~\ref{lem:D_full_row_rank} the matrix $\left[X_{i,1,q}^\top\;U_{i,\epsilon,q}^\top\;E_{i,\epsilon,q}^\top\right]^\top$ is full row rank if the combined input and noise sequence is such that, by Definition~\ref{def:PE}, $q\geq(\epsilon+n)(r+l)+n$, and
+\begin{align}\label{eq:PE_corUE}
+    \begin{bmatrix}
+        U_{i,\epsilon+n,q-n}\\
+        E_{i,\epsilon+n,q-n}
+    \end{bmatrix}\!\!
+    \begin{bmatrix}
+        U_{i,\epsilon+n,q-n}\\
+        E_{i,\epsilon+n,q-n}
+    \end{bmatrix}^\top\!=
+    \begin{bmatrix}
+        \hat{\Sigma}_{\mathrm{uu},2} & \hat{\Sigma}_{\mathrm{ue},2}\\
+        \hat{\Sigma}_{\mathrm{ue},2}^\top & \hat{\Sigma}_{\mathrm{ee},2}
+    \end{bmatrix}\succ 0,
+\end{align}
+The persistency of excitation condition of the input sequence of order $\epsilon+n$ entails by Definition~\ref{def:PE} that ${\hat{\Sigma}_{\mathrm{uu},2}\succ0}$. Then by Lemma~\ref{lem:Schur_comp}, condition \eqref{eq:PE_corUE} is met such that $\left[X_{i,1,q}^\top\;U_{i,\epsilon,q}^\top\;E_{i,\epsilon,q}^\top\right]^\top$ is full row rank if and only if \eqref{eq:PE_corUE3} is satisfied.$\hfill\qed$
+% 
+% Hence, since \eqref{eqn:SS_innovation} is assumed to be minimal and therefore also controllable, $\mathfrak{D}$ in \eqref{eq:RBD2} is full row rank if $\{[u_k^\top\;e_k^\top]^\top\}_{k=i}^{i+p+s+N-2}$ is persistently exciting of order $p+s+n$. Definition~\ref{def:PE} thereby requires that $N\geq (p+s+n)(r+l)+n$ (which is assumed) and implies by extension that
+% \begin{align}\label{eq:PE_corUE}
+%     \begin{bmatrix}
+%         U_{i,p+s+n,N-n}\\
+%         E_{i,p+s+n,N-n}
+%     \end{bmatrix}
+%     \begin{bmatrix}
+%         U_{i,p+s+n,N-n}\\
+%         E_{i,p+s+n,N-n}
+%     \end{bmatrix}^\top \succ 0.
+% \end{align}
+% %which is equivalent to the positive definiteness of a sample correlation matrix that can be decomposed into its constituent components.
+% By considering Schur complements of the resulting positive definite sample correlation matrix it follows that \eqref{eq:PE_corUE} is satisfied if both \eqref{eq:PE_corUE2} holds true and $\widehat{\Sigma}_{u,u} > 0$. Note that both of these conditions are satisfied by assumption, with the latter condition being implied by a persistently exciting input of order $p+s+n$. %see also https://www.cis.upenn.edu/~jean/schur-comp.pdf
+% 
+Furthermore, it will be useful to analyse the rank of a matrix product by means of the following lemma:
+\begin{lem}\cite{Kailath1980}\label{lem:ineq_Sylvester}
+    For two matrices $\mathcal{A}\in\mathbb{R}^{\delta \times \epsilon}$ and $\mathcal{B}\in\mathbb{R}^{\epsilon \times \kappa}$ the rank (denoted by $\rho(\cdot)$) of their product $\mathcal{AB}$ satisfies
+    \begin{align}\label{eq:ineq_Sylvester}
+        \rho(\mathcal{A})+\rho(\mathcal{B})-\epsilon \leq \rho(\mathcal{AB}) \leq \min(\rho(\mathcal{A}),\rho(\mathcal{B})).
+    \end{align}
+    
+\end{lem}
+
+\subsection{Proof of Theorem~\ref{theorem:main_result}}%\textbf{Proof:}
+This section builds on the auxiliary results presented in \secref{sec:aux_results} to provide a proof of Theorem~\ref{theorem:main_result}, which follows next.
+
+%%%%%%%%%%%%%%%%%%%%%%%% Proof of (i) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\textbf{Proof of $\mathrm{\mathbf{(i)}}$:} 
+Equation \eqref{eq:DataEq1} can be rewritten with $k=i,\;q=N$ in terms of actual states, inputs, outputs, and noise or with $k=\hat{i},\;q=f$ for predictions along the lines of \eqref{eq:Theorem1} as respectively
+\begin{align}
+    &\begin{bmatrix}-\Gamma_s \tilde{A}^p & -L_s & I_{sl}&-\mathcal{H}_s\end{bmatrix}
     \underbrace{\begin{bmatrix}
         X_{i,1,N}\\
         \Phi_{i,s,N}\\
         Y_{i_p,s,N}\\
         E_{i_p,s,N}
-    \end{bmatrix}}_{\mathfrak{B}\mathfrak{D}}=\mathcal{O},\\
-    &\mathfrak{R}\in\mathbb{R}^{sl\times n+(p+s)(r+l)+sl},\;\mathfrak{BD}\in\mathbb{R}^{n+(p+s)(r+l)+sl \times N},
-\end{align*}
-with $\mathfrak{R}$, and $\mathfrak{BD}$ as indicated for brevity. Similarly, using \eqref{eq:DataEq1} to decompose $\mathfrak{BD}$ into a matrix $\mathfrak{D}$ of exogenous inputs and initial states and a matrix $\mathfrak{B}$ to describe their effects obtains
-\begin{align}
-    &\mathfrak{R}
+    \end{bmatrix}}_{=\mathfrak{BD}_N}=\mathcal{O},\label{eq:RBD1}\\
+    &\underbrace{\begin{bmatrix}-\Gamma_s \tilde{A}^p & -L_s & I_{sl}&-\mathcal{H}_s\end{bmatrix}}_{= \mathfrak{R}}
+    \underbrace{\begin{bmatrix}
+        \widehat{X}_{\hat{i},1,f}\\
+        \overline{\Phi}_{\hat{i},s,f}\\
+        \widehat{Y}_{\hat{i}_p,s,f}\\
+        \widehat{E}_{\hat{i}_p,s,f}
+    \end{bmatrix}}_{=\mathfrak{BD}_f}=\mathcal{O},\label{eq:RBD2}\\
+    &\mathfrak{R}\in\mathbb{R}^{sl\times (n+(p+s)(r+l)+sl)},\;\mathfrak{BD}_q\in\mathbb{R}^{(n+(p+s)(r+l)+sl) \times q},\notag
+\end{align}
+with $\mathfrak{R}$, and $\mathfrak{BD}_q$ for $q=N$ and $q=f$ defined as indicated for brevity. The estimated states $\widehat{X}_{\hat{i},1,f}$ and future innovation noise $\widehat{E}_{\hat{i}_p,s,f}$ are needed to explain the estimates $\overline{\Phi}_{\hat{i},s,f}$ and $\widehat{Y}_{\hat{i}_p,s,f}$ in \eqref{eq:RBD2} along the lines of \eqref{eq:RBD1}. Proof that the columns of $\mathfrak{BD}_f$ indeed all lie in the nullspace of $\mathfrak{R}$ follows soon. To this end, let $\mathcal{R}(\cdot)$ and $\mathcal{N}(\cdot)$ respectively denote the range and nullspace of a matrix.
+
+The central idea of this proof is that \eqref{eq:Theorem1} holds true if there exists a $G$ such that $\mathfrak{BD}_N G=\mathfrak{BD}_f$, for which sufficient conditions are that
+\begin{enumerate}
+    \item $\mathcal{R}(\mathfrak{BD}_N)=\mathcal{N}(\mathfrak{R})$, and
+    \item $\mathcal{R}(\mathfrak{BD}_f)\subseteq\mathcal{N}(\mathfrak{R})$.
+\end{enumerate}
+To prove that these conditions are satisfied use \eqref{eq:DataEq1} to rewrite $\mathfrak{BD}_N$ and $\mathfrak{BD}_f$ as contributions of initial states and exogenous inputs (respectively denoted by $\mathfrak{D}_N$ and $\mathfrak{D}_f$) as well as a matrix that describes their effects $\mathfrak{B}$. This factorization is given by
+% Similarly, using \eqref{eq:DataEq1} to decompose $\mathfrak{BD}$ into a matrix $\mathfrak{D}$ of exogenous inputs and initial states and a matrix $\mathfrak{B}$ to describe their effects obtains
+\begin{alignat}{2}
+    \begin{bmatrix}
+        X_{i,1,N}\\
+        \Phi_{i,s,N}\\
+        Y_{i_p,s,N}\\
+        E_{i_p,s,N}
+    \end{bmatrix}&=
     \underbrace{\begin{bmatrix}
         I_n      & 0      & 0       & 0 & 0\\
         0        & I_{pr} & 0       & 0 & 0\\
@@ -97,42 +199,48 @@ with $\mathfrak{R}$, and $\mathfrak{BD}$ as indicated for brevity. Similarly, us
         U_{i_p,s,N}\\
         E_{i,p,N}\\
         E_{i_p,s,N}
-    \end{bmatrix}}_{=\mathfrak{D}}=\mathcal{O},\label{eq:RBD2}\\
-    &\mathfrak{B}\in\mathbb{R}^{n+(p+s)(r+l)+sl\times n+(p+s)(r+l)},\notag\\
-    &\mathfrak{D}\in\mathbb{R}^{n+(p+s)(r+l)\times N},\notag
-\end{align}
-with $\varepsilon_1=\Gamma_s(\tilde{A}^p+\tKp{y}\Gamma_p)$, $\varepsilon_2=\Gamma_s(\tKp{u}+\tKp{y}\mathcal{T}_p^\mathrm{u})$, and $\varepsilon_3=\Gamma_s\tKp{y}\mathcal{H}_p$ defined as shown. By inspection, with $\mathcal{R}(\cdot)$ and $\mathcal{N}(\cdot)$ respectively denoting the range and nullspace of a matrix, $\mathcal{R}(\mathfrak{B}\mathfrak{D})\subseteq\mathcal{R}(\mathfrak{B})=\mathcal{N}(\mathfrak{R})$. Only if $\mathfrak{D}$ is full row rank $\mathcal{R}(\mathfrak{B}\mathfrak{D})=\mathcal{N}(\mathfrak{R})$. To see when this latter condition is the case, consider the following.
-\setcounter{thm}{0}
-\begin{lem}[\cite{Willems2005}, Cor.~2(iii)]
-    If the input sequence $\{u_k\}_{k=i}^{i+\epsilon+q-2}$ of a controllable discrete \ac{LTI} system without noise is persistently exciting of order $\epsilon+n$ then the matrix $\left[X_{i,1,q}^\top\;U_{i,\epsilon,q}^\top\right]^\top$ is full row rank.
-\end{lem}
-This yields the following corollary for extensions to non-deterministic systems, for which we note that controllable $(A,B)$ implies controllable $(A,[B\,K])$.
-\setcounter{thm}{0}
-\begin{cor}
-    If for a controllable non-deterministic \ac{LTI} system of the form given by \eqref{eqn:SS_innovation} the sequence of inputs and noise $\{[u_k^\top\;e_k^\top]^\top\}_{k=i}^{i+\epsilon+q-2}$ is persistently exciting of order $\epsilon+n$ then the matrix $\left[X_{i,1,q}^\top\;U_{i,\epsilon,q}^\top\;E_{i,\epsilon,q}^\top\right]^\top$ is full row rank.
-\end{cor}
-Hence, since \eqref{eqn:SS_innovation} is assumed to be minimal and therefore also controllable, $\mathfrak{D}$ in \eqref{eq:RBD2} is full row rank if $\{[u_k^\top\;e_k^\top]^\top\}_{k=i}^{i+p+s+N-2}$ is persistently exciting of order $p+s+n$. Definition~\ref{def:PE} thereby implies that $N\geq (p+s+n)(r+l)+n$ (which is assumed) and that, by extension
-\begin{align}\label{eq:PE_corUE}
+    \end{bmatrix}}_{=\mathfrak{D}_N},\notag\\%\label{eq:BD_N}\\
     \begin{bmatrix}
-        U_{i,p+s+n,N-n}\\
-        E_{i,p+s+n,N-n}
-    \end{bmatrix}
-    \begin{bmatrix}
-        U_{i,p+s+n,N-n}\\
-        E_{i,p+s+n,N-n}
-    \end{bmatrix}^\top > 0,
-\end{align}
-which is equivalent to the positive definiteness of an experimental correlation matrix that can be decomposed into its constituent components. By considering Schur complements it follows that \eqref{eq:PE_corUE} is satisfied if both \eqref{eq:PE_corUE2} and $\widehat{\Sigma}_{u,u} > 0$. Note that both of these conditions are satisfied by assumption, with the latter condition being implied by a persistently exciting input of order $p+s+n$. %see also https://www.cis.upenn.edu/~jean/schur-comp.pdf
+        \widehat{X}_{\hat{i},1,f}\\
+        \overline{\Phi}_{\hat{i},s,f}\\
+        \widehat{Y}_{\hat{i}_p,s,f}\\
+        \widehat{E}_{\hat{i}_p,s,f}
+    \end{bmatrix}&=
+    \mathfrak{B}
+    \underbrace{\begin{bmatrix}
+        \widehat{X}_{\hat{i},1,f}\\
+        U_{\hat{i},p,f}\\
+        U_{\hat{i}_p,s,f}\\
+        E_{\hat{i},p,f}\\
+        \widehat{E}_{\hat{i}_p,s,f}
+    \end{bmatrix}}_{=\mathfrak{D}_f},\notag\\%\label{eq:BD_f}\\
+    \span\mathfrak{B}\in\mathbb{R}^{(n+(p+s)(r+l)+sl)\times (n+(p+s)(r+l))},\notag\\
+    \span\mathfrak{D}_N\in\mathbb{R}^{(n+(p+s)(r+l))\times N},\quad \mathfrak{D}_f\in\mathbb{R}^{(n+(p+s)(r+l))\times f}\notag
+\end{alignat}
+with $\mathfrak{B}$, $\mathfrak{D}_N$, and $\mathfrak{D}_f$ defined as shown and $\varepsilon_1=\Gamma_s(\tilde{A}^p+\tKp{y}\Gamma_p)$, $\varepsilon_2=\Gamma_s(\tKp{u}+\tKp{y}\mathcal{T}_p^\mathrm{u})$, and $\varepsilon_3=\Gamma_s\tKp{y}\mathcal{H}_p$. Note that $\mathfrak{RB}=\mathcal{O}$, which means that $\mathcal{R}(\mathfrak{B})\subseteq\mathcal{N}(\mathfrak{R})$. In fact, by inspection one may verify that $\mathfrak{B}$ is full column rank and that its number of columns corresponds to the nullity of $\mathfrak{R}$. Hence, $\mathcal{R}(\mathfrak{B})=\mathcal{N}(\mathfrak{R})$. This has two important implications.
 
-Hence, if the aforementioned persistency of excitation conditions are met and the \ac{LTI} system is controllable then $\mathfrak{D}$ from \eqref{eq:RBD2} is full row rank. As a result, by the Rouch\'{e}-Capelli theorem there then exists a vector $g_{k-\hat{i}+1}$ such that
+Firstly, since ${\mathcal{R}(\mathfrak{BD}_f)\subseteq\mathcal{R}(\mathfrak{B})=\mathcal{N}(\mathfrak{R})}$ condition condition (2) is proven.
+
+Secondly, by similar reasoning, it must hold that ${\mathcal{R}(\mathfrak{BD}_N)\subseteq\mathcal{R}(\mathfrak{B})=\mathcal{N}(\mathfrak{R})}$. To prove condition (1) it must therefore be shown that $\mathcal{R}(\mathfrak{BD}_N)=\mathcal{R}(\mathfrak{B})$, which is the case when $\mathfrak{D}_N$ is full row rank.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \setcounter{thm}{0}
+% \begin{lem}\label{lem:need_D_full_row_rank}
+%     Given $\mathfrak{R}$, $\mathfrak{B}$ and $\mathfrak{D}$ as defined as shown in \eqref{eq:RBD1} and \eqref{eq:RBD2}, $\mathcal{R}(\mathfrak{B}\mathfrak{D})=\mathcal{N}(\mathfrak{R})$ if and only if $\mathfrak{D}$ is full row rank.
+% \end{lem}
+% \textbf{Proof:} By the rank-nullity theorem the nullity of $\mathfrak{R}$ is $n+(p+s)(r+l)$ because $\mathfrak{R}$ is full row rank due to $I_{sl}$. 
+% %The nullity of $\mathfrak{R}$ is equal to the number of columns it contains minus its rank. Given the dimensions of $\mathfrak{R}$ and the fact that $I_{sl}$ makes it is full row rank, $\mathcal{N}(\mathfrak{R})$ is spanned by $n+(p+s)(r+l)$ linearly independent vectors. 
+% Moreover, $\mathcal{R}(\mathfrak{B})=\mathcal{N}(\mathfrak{R})$ because the $n+(p+s)(r+l)$ columns of $\mathfrak{B}$ are linearly independent (since $\mathfrak{B}$ is full column rank) and because ${\mathfrak{RB}=\mathcal{O}}$. By definition $\mathcal{R}(\mathfrak{BD})\subseteq\mathcal{R}(\mathfrak{B})$. Therefore, if and only if $\mathfrak{D}$ is full row rank does $\mathcal{R}(\mathfrak{BD})=\mathcal{R}(\mathfrak{B})$ and consequently, since ${\mathcal{R}(\mathfrak{B})=\mathcal{N}(\mathfrak{R})}$, does ${\mathcal{R}(\mathfrak{BD})=\mathcal{N}(\mathfrak{R})}$.$\hfill\qed$
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Under the stipulated persistency of excitation of the input sequence of order $p+s+n$, condition \eqref{eq:PE_corUE2}, and presumed system controllability, Theorem~\ref{theorem:main_result} satisfies the conditions of Lemma~\ref{lem:D_full_row_rank2} for $\epsilon=p+s$ and $q=N$ such that the matrix $\mathfrak{D}_N$ is full row rank. As a result, by the Rouch\'{e}-Capelli theorem there then exists a vector $g_{k-\hat{i}+1}$ such that
 \begin{align}\label{eq:Dg}
     \mathfrak{D} g_{k-\hat{i}+1} =
     \begin{bmatrix}
         x_k^\top & \datavec{u}{k,p}^\top & \datavec{u}{k_p,s}^\top & \datavec{e}{k,p}^\top & \datavec{e}{k_p,s}^\top
-    \end{bmatrix}^\top\in\mathcal{N}(\mathfrak{RB}).
+    \end{bmatrix}^\top\in\mathbb{R}^{n+(p+s)(r+l)}.
 \end{align}
-With reference to~\eqref{eq:Yf1} and~\eqref{eq:DataEq1}, premultiplying both sides of~\eqref{eq:Dg} by $\mathfrak{B}$ from~\eqref{eq:RBD2} yields
-\begin{align}\label{eq:Dg}
+With reference to~\eqref{eq:Yf1} and~\eqref{eq:DataEq1}, pre-multiplying both sides of~\eqref{eq:Dg} by $\mathfrak{B}$ from~\eqref{eq:RBD2} yields
+\begin{align}\label{eq:BDg}
     \begin{bmatrix}
         X_{i,1,N}\\
         \Phi_{i,s,N}\\
@@ -144,18 +252,55 @@ With reference to~\eqref{eq:Yf1} and~\eqref{eq:DataEq1}, premultiplying both sid
         \Phi_{k,s,1}\\
         \datavec{y}{k_p,s}\\
         \datavec{e}{k_p,s}
-    \end{bmatrix}.
+    \end{bmatrix}\in\mathcal{N}(\mathfrak{R}).
 \end{align}
-Equation~\eqref{eq:Theorem1} is obtained by sequential application of \eqref{eq:Dg} for $k={\hat{i},\dots,\hat{i}+f-1}$ such that $G=\left[g_1\;g_2\;\cdots\;g_f\right]$ without the top and bottom matrix equations. As a result the future outputs resemble predictions. Since the condition $N\geq(p+s+n)(r+l)+n$ ensures that $\Phi_{i,s,N}$ has more columns then rows, there are multiple solutions to $G$ in \eqref{eq:Theorem1}. This proves statement~\ref{claim:G_exists}).
+Proof of~\eqref{eq:Theorem1} is obtained by sequential application of \eqref{eq:BDg} for $k={\hat{i},\dots,\hat{i}+f-1}$ such that $G=\left[g_1\;g_2\;\cdots\;g_f\right]$, and without the unknown top and bottom matrix equations. As a result the future outputs in $\bar{\Phi}_{\hat{i},s,f}$ and $\widehat{Y}_{\hat{i}_p,s,f}$ of \eqref{eq:Theorem1} are predictions.
+
+To prove statement 1) consider that $G$ is determined only by the top matrix equation in~\eqref{eq:Theorem1}, which contains known past input-output data as well as future inputs that can be chosen. Under the assumed persistency of excitation conditions $\mathfrak{D}$ is full row rank such that, by inspection of the product $\mathfrak{BD}$ in~\eqref{eq:RBD2}, $\Phi_{i,s,N}$ must also be full row rank. %This matrix is invertible if $N=p(r+l)+sl$ <- not possible
+Since the condition ${N\geq(p+s+n)(r+l)+n}$ ensures that $\Phi_{i,s,N}\in\mathbb{R}^{p(r+l)+sl\times N}$ has more columns then rows, there are multiple solutions to $G$ in \eqref{eq:Theorem1}. This proves statement~1). The different solutions of $G$ are given by
+\begin{align}\label{eq:G_sols}
+    G = \Phi_{i,s,N}^\dagger\overline{\Phi}_{\hat{i},s,f} + (I_N-\Phi_{i,s,N}^\dagger\Phi_{i,s,N})W,
+\end{align}
+in which the dagger $\dagger$ denotes the right inverse ($\mathcal{Q}^\dagger=\mathcal{Q}^\top(\mathcal{Q}\mathcal{Q}^\top)\inv$ with $\mathcal{Q}$ as a real, full row rank matrix), and $W\in\mathbb{R}^{N\times f}$ is a free matrix.
 %
 % Without the top and bottom matrix equations this is written more compactly for consecutive time indices $k={\hat{i},\dots,\hat{i}+f-1}$ as given by \eqref{eq:Theorem1}, in which $G$ contains the vectors $\{g_{k-\hat{i}+1}\}_{k=\hat{i}}^{\hat{i}+f-1}$. Moreover, the future outputs under consideration become estimates since the top and bottom matrix equations with relevant but unknown data are not considered by~\eqref{eq:Theorem1}. 
 
-Under the assumed persistency of excitation conditions $\mathfrak{D}$ is full row rank such that, by inspection of the product $\mathfrak{BD}$ in~\eqref{eq:RBD2}, $\Phi_{i,s,N}$ must also be full row rank. This matrix is invertible if $N=p(r+l)+sl$
+To prove statement~2) consider the error of the output prediction, which using \eqref{eq:DataEq1} to rewrite $Y_{i_p,s,N}$ and $Y_{\hat{i},s,f}$ and by subsequent application of~\eqref{eq:Theorem1} is found as
+\begin{align}\label{eq:Yf_error1}
+    \begin{split}
+        \widehat{Y}_{\hat{i}_p,s,f}-Y_{\hat{i}_p,s,f} = &\; L_s(\overline{\Phi}_{\hat{i},s,f}-\Phi_{\hat{i},s,f})\\
+        &+\mathcal{H}_s (E_{i_p,s,N}G-E_{\hat{i}_p,s,f})\\
+        &+ \Gamma_s \tilde{A}^p (X_{i,1,N}G-X_{\hat{i},1,f}).
+    \end{split}
+\end{align}\todo{incl. $\overline{\Phi}$}
+Note that the terms in parentheses correspond to the errors that are induced by removal of the unknown top and bottom matrix equations in~\eqref{eq:BDg}. Moreover, the bottom line is asymptotically attenuated as $p\rightarrow\infty$ because $\tilde{A}$, by its definition in \secref{sec:sys_model}, has all of its eigenvalues strictly inside the unit circle. Taking the limit $p\rightarrow\infty$ and substituting $G$ from \eqref{eq:G_sols} in \eqref{eq:Yf_error1} yields
 
-
-initial state specification by data with asymptotically decreasing error
-
-
+\begin{align}\label{eq:Yf_error2}
+    \begin{split}
+        &\lim_{p\rightarrow\infty} \Big( \widehat{Y}_{\hat{i}_p,s,f}-Y_{\hat{i}_p,s,f} \Big)=\mathcal{H}_s\Big(E_{i_p,s,N}W-E_{\hat{i}_p,s,f} \\
+        % &-E_{i_p,s,N}\Phi_{i,s,N}^\top(\Phi_{i,s,N}\Phi_{i,s,N}^\top)\inv\\
+        &+\underbrace{E_{i_p,s,N}\Phi_{i,s,N}^\top}(\Phi_{i,s,N}\Phi_{i,s,N}^\top)\inv(\Phi_{\hat{i},s,f}-\Phi_{i,s,N}W)\Big),
+    \end{split}
+\end{align}
+in which the underbraced product is the sample correlation $[E_{i_p,s,N}U_{i,p,N}^\top\;\;E_{i_p,s,N}U_{i_p,s,N}^\top\;\;E_{i_p,s,N}Y_{i,p,N}^\top]$. By causality the expectation of the leftmost and rightmost sample correlations herein are zero. The expectation of the middle correlation is however not zero in general due to feedback in closed-loop operation. The middle sample correlation $E_{i_p,s,N}U_{i_p,s,N}^\top$ is
+\begin{align}
+    \frac{1}{N}\sum\limits_{k=i_p}^{i_p+N-1}\begin{bmatrix}
+        e_k u_k^\top & \cdots & e_k u_{k+s-1}^\top\\
+        e_{k+1} u_k^\top & \cdots & e_{k+1} u_{k+s-1}^\top\\
+        \vdots &  & \vdots\\
+        e_{k+s-1}u_k^\top & \cdots & e_{k+s-1}u_{k+s-1}^\top
+    \end{bmatrix}.\notag%
+\end{align}
+Since the employed controller is assumed to have no direct feedthrough, the correlation between noise and inputs is strictly causal: $\mathbb{E}[e_ku_j^\top]=0,\forall{j\leq k}$. With $s=1$ only such correlations are employed such that the expectation of \eqref{eq:Yf_error2} is the null matrix. This proves statement~2).
+% \begin{align}\label{eq:Yf_error3}
+%     \begin{split}
+%         &\lim_{p\rightarrow\infty} \Big(\mathbb{E}\left[\widehat{Y}_{\hat{i}_p,1,f}-Y_{\hat{i}_p,1,f}\right] \Big)=\mathcal{O},
+%     \end{split}
+% \end{align}
+%
+% initial state specification by data with asymptotically decreasing error
+%
+%
 % ==============================================================================================================================================================
 % ==============================================================================================================================================================
 % \subsection{The basic idea}
@@ -205,8 +350,8 @@ initial state specification by data with asymptotically decreasing error
 %
 % ==============================================================================================================================================================
 % ==============================================================================================================================================================
-\subsection{Willems' Fundamental Lemma \& Noise}
-Equation~\eqref{eq:DataEq1} can be reformulated with $k=i$, $q=N$ or for an ideal noiseless output prediction with $k=\hat{i}$ as respectively
+\section{Willems' Fundamental Lemma \& Noise}
+\todo{Oud: reuse?}Equation~\eqref{eq:DataEq1} can be reformulated with $k=i$, $q=N$ or for an ideal noiseless output prediction with $k=\hat{i}$ as respectively
 \begin{alignat}{2}
     \begin{bmatrix}
         -L_s & I_{sl}

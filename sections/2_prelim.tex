@@ -1,7 +1,7 @@
 \section{Preliminaries}
 This section presents the employed system model, notation, and the considered control problem.
 
-\subsection{System model}
+\subsection{System model}\label{sec:sys_model}
 Consider a non-deterministic discrete \ac{LTI} system $\mathcal{S}$ whose dynamics is described in the so-called \textit{innovation} form by
 \begin{subequations}\label{eqn:SS_innovation}
 \begin{empheq}[left=\mathcal{S}_\mathcal{I}\empheqlbrace]{align}
@@ -81,16 +81,18 @@ Using such data vectors it is possible to concisely define block-Hankel data mat
 \end{align*}
 in which $q\in\mathbb{Z}_{>0}$ is another generic positive-definite integer that here represents the number of successive input data vectors with $s$ data samples each, starting from time index $k$. Note the block-anti diagonal structure of block-Hankel matrices. This notion of block-Hankel data matrices is employed to define the notion of persistency of excition below, with $N\in\mathbb{Z}_{>0}$ as a number of columns.
 \todo{Def.2 ok met $1/\sqrt{q}$ in $W$?}\begin{defn}\label{def:PE}
-    A signal consisting of samples ${w_j\in\mathbb{R}^q},$ $j\in[k,\,k+s+N-2]$ is persistently exciting of order $s$ if the associated block-Hankel matrix ${W_{k,s,N}\in\mathbb{R}^{sq \times N}}$ is full row rank.
+    A signal consisting of samples ${w_j\in\mathbb{R}^q},$ $j\in[k,\,k+s+N-2]$ is persistently exciting of order $s$ if the associated block-Hankel matrix ${W_{k,s,N}\in\mathbb{R}^{sq \times N}}$ is full row rank, or equivalently, if $W_{k,s,N}W_{k,s,N}^\top\succ0$.
 \end{defn}
-Predicted samples, vectors, or matrices of data are indicated by $\hat{(\cdot)}$. % whilst those that are comprised in part of predictions are indicated by $\tilde{(\cdot)}$.
+Data that is composed entirely or partly of predictions is indicated by respectively $\hat{(\cdot)}$ or $\overline{(\cdot)}$.
+%
+% Predicted samples, vectors, or matrices of data are indicated by $\hat{(\cdot)}$.%Matrices and vectors that are composed partly of predictions are indicated by $\bar{(\cdot)}$.
 
 For convenience, the notation $\Phi$ is reserved to denote an often encountered concatenation of input and output block-Hankel matrices that is given by
-\begin{align*}
+\begin{align}\label{eq:Phi_def}
     \Phi_{k,s,q} = \begin{bmatrix}
         U_{k,p,q}^\top & U_{k_p,s,q}^\top & Y_{k,p,q}^\top
-    \end{bmatrix}^\top\in\mathbb{R}^{(p+s)r+pl\times q},
-\end{align*}
+    \end{bmatrix}^\top\in\mathbb{R}^{((p+s)r+pl)\times q},
+\end{align}
 in which $k$, and $q$ respectively indicate the starting index and parameterize the dimensions of the concatenated matrix together with $p$.
 % 
 % ==============================================================================================================================================================
@@ -126,8 +128,8 @@ to obtain two so called data equations:
 \end{align}
 in which, for convenience, we define, two reoccurring so called `dynamic matrices' as
 \begin{align*}
-    L_s &= \begin{bmatrix} \Gamma_s\tKp{u} & \mathcal{T}_s^\mathrm{u} & \Gamma_s\tKp{y} \end{bmatrix}\in\mathbb{R}^{sl\times (p+s)r+pl},\\%\text{ and}\\
-    \widetilde{L}_s &= \begin{bmatrix} \widetilde{\Gamma}_s\tKp{u} & \widetilde{\mathcal{T}}_s^\mathrm{u} & \widetilde{\Gamma}_s\tKp{y} \end{bmatrix}\in\mathbb{R}^{sl\times (p+s)r+pl}.
+    L_s &= \begin{bmatrix} \Gamma_s\tKp{u} & \mathcal{T}_s^\mathrm{u} & \Gamma_s\tKp{y} \end{bmatrix}\in\mathbb{R}^{sl\times ((p+s)r+pl)},\\%\text{ and}\\
+    \widetilde{L}_s &= \begin{bmatrix} \widetilde{\Gamma}_s\tKp{u} & \widetilde{\mathcal{T}}_s^\mathrm{u} & \widetilde{\Gamma}_s\tKp{y} \end{bmatrix}\in\mathbb{R}^{sl\times ((p+s)r+pl)}.
 \end{align*}
 
 % in which $L_s$, $\widetilde{L}_s$, $\Phi_{k,s,q}$ are defined in Section \ref{sec:notation}. %Similarly to \eqref{eq:DataEq1} and \eqref{eq:DataEq2}, the future outputs are defined by
