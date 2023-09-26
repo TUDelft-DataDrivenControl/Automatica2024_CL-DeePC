@@ -3,7 +3,7 @@ This section presents the main result of this article, providing contribution~(\
 
 As a solution to the identification bias that arises in closed-loop due to correlation between inputs and noise (a demonstration thereof is deferred to Section~\ref{sec:CL_ID_issue}) it is possible to estimate a step-ahead predictor~\citep{Ljung1996}. A prediction horizon length $f>1$ is of more practical use in receding horizon optimal control settings, to which end step-ahead predictors can be applied sequentially. 
 
-Fig.~\ref{fig:CL-DeePC} and \eqref{eq:CL_DeePC_no_IVs} illustrate how this idea is employed in \ac{CL-DeePC}. A step-ahead predictor can be obtained from \ac{DeePC} (see Fig.~\ref{fig:regular-DeePC} and \eqref{eq:regular_DeePC_no_IVs}) with $f=1$. In \ac{CL-DeePC} the successive columns of $G$ (from left to right) and their corresponding columns on the right-hand side correspond to sequential applications of regular \ac{DeePC} with $f=1$ to the same matrix of sufficiently persistently exciting past input-output data on the left-hand side as well as time-shifted windows of input-output data on the right-hand side that parameterize successive initial states.
+Fig.~\ref{fig:CL-DeePC} and \eqref{eq:CL_DeePC_no_IVs} illustrate how this idea is employed in \ac{CL-DeePC}. A step-ahead predictor can be obtained from \ac{DeePC} (see Fig.~\ref{fig:regular-DeePC} and \eqref{eq:regular_DeePC_no_IVs}) with $f=1$. In \ac{CL-DeePC} the successive columns of $G$ (from left to right) and their corresponding columns on the right-hand side correspond to sequential applications of regular \ac{DeePC} with $f=1$ to the same matrix of sufficiently persistently exciting past input-output data on the left-hand side as well as time-shifted windows of input-output data on the right-hand side that parameterize successive initial states.\\
 % In this section \ac{CL-DeePC} is first introduced and compared to regular \ac{DeePC}, thereby offering an intuitive explanation for contribution \ref{contribution:solves_CL_issue}. More rigorous explanations follow in subsequent sections. What follows directly below is the principal result of this work.
 %
 % \begin{figure*}[h!]
@@ -38,7 +38,7 @@ Fig.~\ref{fig:CL-DeePC} and \eqref{eq:CL_DeePC_no_IVs} illustrate how this idea 
 %
 \setcounter{thm}{0}
 \begin{thm}\label{theorem:main_result}
-    Consider the minimal discrete non-deterministic \ac{LTI} system given by~\eqref{eqn:SS_innovation} to generate input-output data in closed-loop with a controller that has no direct feedthrough. Define data matrices $\Phi_{i,s,N}$ and $\overline{\Phi}_{\hat{i},s,f}$ as in \eqref{eq:Phi_def}. If the input sequence $\{u_k\}_{k=i}^{i+\bar{N}-1}$ of length $\bar{N}=p+s+N-1$ %, with $N\geq(p+s+n)(r+l)+n$ and $p\geq\ell$\todo{don't forget},
+    Consider the minimal discrete non-deterministic \ac{LTI} system given by~\eqref{eqn:SS_innovation} to generate input-output data in closed-loop with a causal controller that has no direct feedthrough. Define data matrices $\Phi_{i,s,N}$ and $\overline{\Phi}_{\hat{i},s,f}$ as in \eqref{eq:Phi_def}. If the input sequence $\{u_k\}_{k=i}^{i+\bar{N}-1}$ of length $\bar{N}=p+s+N-1$ %, with $N\geq(p+s+n)(r+l)+n$ and $p\geq\ell$\todo{don't forget},
     is persistently exciting of order $p+s+n$, and has sample correlations such that%
     \begin{alignat}{2}%see also https://www.cis.upenn.edu/~jean/schur-comp.pdf
     % \widehat{\Sigma}_{u,u} &> 0,\label{eq:PE_corU}\\
@@ -182,15 +182,19 @@ To prove that these conditions are satisfied use \eqref{eq:DataEq1} to rewrite $
 \begin{alignat}{2}
     \begin{bmatrix}
         X_{i,1,N}\\
+        \hline
         \Phi_{i,s,N}\\
+        \hline
         Y_{i_p,s,N}\\
         E_{i_p,s,N}
     \end{bmatrix}&=
     \underbrace{\begin{bmatrix}
         I_n      & 0      & 0       & 0 & 0\\
+        \hline
         0        & I_{pr} & 0       & 0 & 0\\
         0        & 0      & I_{sr}  & 0 & 0\\
         \Gamma_p & \mathcal{T}_p^\mathrm{u} & 0 & \mathcal{H}_p & 0\\
+        \hline
         \varepsilon_1 & \varepsilon_2 & \mathcal{T}_s^\mathrm{u} & \varepsilon_3 & \mathcal{H}_s\\
         0 & 0 & 0 & 0 & I_{sl}
     \end{bmatrix}}_{=\mathfrak{B}}
@@ -245,7 +249,8 @@ Under the stipulated persistency of excitation of the input sequence of order $p
 \begin{align}\label{eq:G_sols}
     G = \Phi_{i,s,N}^\dagger\overline{\Phi}_{\hat{i},s,f} + \Pi_{\Phi_{i,s,N}}^\bot W,
 \end{align}
-in which the dagger $\dagger$ denotes the right inverse ($\mathcal{Q}^\dagger=\mathcal{Q}^\top(\mathcal{Q}\mathcal{Q}^\top)\inv$ with $\mathcal{Q}$ as a real, full row rank matrix), $\Pi_{\Phi_{i,s,N}}^\bot=I_N-\Phi_{i,s,N}^\dagger\Phi_{i,s,N}$ is a matrix that forms an orthogonal projection onto the columnspace of $\Phi_{i,s,N}$, and $W\in\mathbb{R}^{N\times f}$ is a free matrix.
+in which the dagger $\dagger$ denotes the right inverse ($\mathcal{Q}^\dagger=\mathcal{Q}^\top(\mathcal{Q}\mathcal{Q}^\top)\inv$ with $\mathcal{Q}$ as a real, full row rank matrix), $\Pi_{\Phi_{i,s,N}}^\bot=I_N-\Phi_{i,s,N}^\dagger\Phi_{i,s,N}$ is a projection matrix onto the orthogonal complement of the row space of $\Phi_{i,s,N}$, %see Overschee1996, pg. 19
+and $W\in\mathbb{R}^{N\times f}$ is a free matrix.
 
 \noindent\textbf{Proof of $\mathrm{(ii)}:$} To prove that \eqref{eq:Theorem1} defines $\widehat{Y}_{\hat{i}_p,s,f}$ as an asymptotically unbiased predictor as $p\rightarrow\infty$ if $s=1$, first consider the error of this prediction. By the bottom matrix equation of~\eqref{eq:Theorem1} and subsequent application of~\eqref{eq:DataEq1} to rewrite $Y_{i_p,s,N}$ and $Y_{\hat{i}_p,s,f}$ we find
 \begin{align}\label{eq:Yf_error1}
@@ -254,14 +259,32 @@ in which the dagger $\dagger$ denotes the right inverse ($\mathcal{Q}^\dagger=\m
         &+L_s(\underbrace{\Phi_{i,s,N}G}_{=\overline{\Phi}_{\hat{i},s,f}}-\Phi_{\hat{i},s,f}) +\mathcal{H}_s (\underbrace{E_{i_p,s,N}G}_{=\widehat{E}_{\hat{i}_p,s,f}}-E_{\hat{i}_p,s,f})
     \end{split}
 \end{align}
-The interpretations of the underbraced terms are obtained from $\mathfrak{BD}_N G=\mathfrak{BD}_f$, which was central to the preceding proof of $\mathrm{(i)}$. Applying the limit $p\rightarrow\infty$ asymptotically attenuates the top contribution by the error of the state estimates since, by the definition of $K$ in \secref{sec:sys_model}, $\tilde{A}$ has all of its eigenvalues strictly inside the unit circle. In addition, substituting $G$ from \eqref{eq:G_sols} and cancelling like terms in $\overline{\Phi}_{\hat{i},s,f}$ and $\Phi_{\hat{i},s,f}$ results in
+The interpretations of the underbraced terms are obtained from $\mathfrak{BD}_N G=\mathfrak{BD}_f$, which was central to the preceding proof of $\mathrm{(i)}$. Applying the limit $p\rightarrow\infty$ asymptotically attenuates the top contribution by the error of the state estimates since, by the definition of $K$ in \secref{sec:sys_model}, $\tilde{A}$ has all of its eigenvalues strictly inside the unit circle. In addition, substituting $G$ from \eqref{eq:G_sols} and cancelling equal terms in $\overline{\Phi}_{\hat{i},s,f}$ and $\Phi_{\hat{i},s,f}$ results in
+\begin{alignat}{2}
+        &\!\!\!\!\lim_{p\rightarrow\infty} \widehat{Y}_{\hat{i}_p,s,f}-Y_{\hat{i}_p,s,f} = \Gamma_s\tKp{y}\left(\overline{Y}_{\hat{i},p,f}-Y_{\hat{i},p,f}\right)\notag\\
+        &+\mathcal{H}_s\Big(E_{i_p,s,N} W-E_{\hat{i}_p,s,f}\label{eq:Yf_error2}\\
+        &+\underbrace{E_{i_p,s,N}\Phi_{i,s,N}^\top}(\Phi_{i,s,N}\Phi_{i,s,N}^\top)\inv(\overline{\Phi}_{\hat{i},s,f}-\Phi_{i,s,N}W)\Big)\notag.
+\end{alignat}%
+In the above formulation, $W$ is a free matrix that parameterizes $G$. As such, for the predictor to be unbiased, the expectation ($\mathbb{E}[\cdot]$) of this error w.r.t. the noise and conditioned on $W$ must be zero. \todo{$\mathbb{E}[\cdot]$,\\$EW$,\\$\hat{\Sigma}\hat{\Sigma}\inv$?} This expectation renders the second row zero, but not the bottom row because of the underbraced term. Due to feedback, there is a correlation between past inputs and preceding noise such that the expectation of the sample correlation
 \begin{align}
+E_{i_p,s,N}U_{i_p,s,N}^\top =
+    \frac{1}{N}\sum\limits_{k=i_p-1}^{i_p+N-2}
+    \begin{bmatrix}
+        e_{k+1} u_{k+1}^\top & \cdots & e_{k+1} u_{k+s}^\top\\
+        e_{k+2} u_{k+1}^\top & \cdots & e_{k+2} u_{k+s}^\top\\
+        \vdots &  & \vdots\\
+        e_{k+s}u_{k+1}^\top & \cdots & e_{k+s}u_{k+s}^\top
+    \end{bmatrix},\notag%
+\end{align}
+which is contained in the underbraced term in \eqref{eq:Yf_error2}, is nonzero. Due to feedback $\mathbb{E}[e_j u_k^\top]\neq 0,\;\forall k>j$. However, if, as assumed by Theorem~\ref{theorem:main_result}, the controller has no direct feedthrough, then $\mathbb{E}[e_j u_k^\top]= 0,\;\forall k=j$. Hence, if $s=1$, the expected value of the correlation $E_{i_p,s,N}U_{i_p,s,N}^\top$ reduces to zero, rendering the expectation of the bottom row of \eqref{eq:Yf_error2} zero.
+
+Given the structure of $\overline{\Phi}_{\hat{i},1,f}$ and $\overline{Y}_{\hat{i},p,f}$ shown in Fig.~\ref{fig:CL-DeePC}, consider \eqref{eq:Yf_error2} column by column for $s=1$. Taking the expectation leaves
+\begin{align}\label{eq:Yf_error3}
 \begin{split}
-        \lim_{p\rightarrow\infty} &\widehat{Y}_{\hat{i}_p,s,f}-Y_{\hat{i}_p,s,f} = \Gamma_s\tKp{y}\big(\overline{Y}_{\hat{i},p,f}-Y_{\hat{i},p,f}\big)\\
-        &+\mathcal{H}_s\big(E_{i_p,s,N}\Phi_{i,s,N}^\top(\Phi_{i,s,N}\Phi_{i,s,N}^\top)\inv\overline{\Phi}_{\hat{i},s,f}\\
-        &+E_{i_p,s,N}\Pi_{\Phi_{i,s,N}}^\bot W-E_{\hat{i}_p,s,f}\big)
+    \mkern-3mu\lim_{p\rightarrow\infty} &\mathbb{E}\left[\widehat{y}_{\hat{i}_p+k}-y_{\hat{i}_p+k}\right] = \\ &\Gamma_1\tKp{y}\left(\mathbb{E}\left[\datavec{\overline{y}}{\hat{i}+k,p}-\datavec{y}{\hat{i}+k,p}\right]\right),\;\forall k\in[0,f-1].
 \end{split}
 \end{align}
+For $k=0$, \eqref{eq:Yf_error3} is zero because none of the relevant ouput data is estimated ($\datavec{\overline{y}}{\hat{i},p}=\datavec{y}{\hat{i},p}$). For $k=1$ no bias is thereby introduced on the right hand side, rendering the expectation zero again. Repetition of this process until $k=f-1$ demonstrates that $\widehat{Y}_{\hat{i}_p,1,f}$ is indeed an asymptotically unbiased predictor in the limit $p\rightarrow\infty$. This concludes the proof of $\mathrm{(ii)}$. $\hfill\qed$
 
 \begin{align*}
     \hline
@@ -309,7 +332,7 @@ To prove statement~2) consider the error of the output prediction, which using \
 \end{align}\todo{incl. $\overline{\Phi}$}
 Note that the terms in parentheses correspond to the errors that are induced by removal of the unknown top and bottom matrix equations in~\eqref{eq:BDg}. Moreover, the bottom line is asymptotically attenuated as $p\rightarrow\infty$ because $\tilde{A}$, by its definition in \secref{sec:sys_model}, has all of its eigenvalues strictly inside the unit circle. Taking the limit $p\rightarrow\infty$ and substituting $G$ from \eqref{eq:G_sols} in \eqref{eq:Yf_error1} yields
 
-\begin{align}\label{eq:Yf_error2}
+\begin{align}%\label{eq:Yf_error2}
     \begin{split}
         &\lim_{p\rightarrow\infty} \Big( \widehat{Y}_{\hat{i}_p,s,f}-Y_{\hat{i}_p,s,f} \Big)=\mathcal{H}_s\Big(E_{i_p,s,N}W-E_{\hat{i}_p,s,f} \\
         % &-E_{i_p,s,N}\Phi_{i,s,N}^\top(\Phi_{i,s,N}\Phi_{i,s,N}^\top)\inv\\
