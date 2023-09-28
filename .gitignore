@@ -3,3 +3,4 @@ autosam.*
 !autosam.bib
 docs/manuscript/feedback/
 docs/manuscript/unused/
+*.asv
