@@ -3,7 +3,7 @@ This section presents the main result of this article, providing contribution~(\
 
 As a solution to the identification bias that arises in closed-loop due to correlation between inputs and noise (a demonstration thereof is deferred to Section~\ref{sec:CL_ID_issue}) it is possible to estimate a step-ahead predictor~\citep{Ljung1996}. A prediction horizon length $f>1$ is of more practical use in receding horizon optimal control settings, to which end step-ahead predictors can be applied sequentially. 
 
-Fig.~\ref{fig:CL-DeePC} and \eqref{eq:CL_DeePC_no_IVs} illustrate how this idea is employed in \ac{CL-DeePC}. A step-ahead predictor can be obtained from \ac{DeePC} (see Fig.~\ref{fig:regular-DeePC} and \eqref{eq:regular_DeePC_no_IVs}) with $f=1$. In \ac{CL-DeePC} the successive columns of $G$ (from left to right) and their corresponding columns on the right-hand side correspond to sequential applications of regular \ac{DeePC} with $f=1$ to the same matrix of sufficiently persistently exciting past input-output data on the left-hand side as well as time-shifted windows of input-output data on the right-hand side that parameterize successive initial states.\\
+Fig.~\ref{fig:CL-DeePC} and \eqref{eq:CL_DeePC_no_IVs} illustrate how this idea is employed in \ac{CL-DeePC}. A step-ahead predictor can be obtained from \ac{DeePC} (see Fig.~\ref{fig:regular-DeePC} and \eqref{eq:regular_DeePC_no_IVs}) with $f=1$. In \ac{CL-DeePC} the successive columns of $G$ (from left to right) and their corresponding columns on the right-hand side correspond to sequential applications of \ac{DeePC} with $f=1$ to the same matrix of sufficiently persistently exciting past input-output data on the left-hand side as well as time-shifted windows of input-output data on the right-hand side that encode information on successive initial states.\\+
 %
 \begin{figure}[b!]
 \centering
@@ -20,7 +20,7 @@ Fig.~\ref{fig:CL-DeePC} and \eqref{eq:CL_DeePC_no_IVs} illustrate how this idea 
 %
 \setcounter{thm}{0}
 \begin{thm}\label{theorem:main_result}
-    Consider the minimal discrete non-deterministic \ac{LTI} system given by~\eqref{eqn:SS_innovation} to generate input-output data in closed-loop with a causal controller that has no direct feedthrough. Define data matrices $\Phi_{i,1,N}$ and $\overline{\Phi}_{\hat{i},1,f}$ as in \eqref{eq:Phi_def}. %
+    Consider the minimal discrete non-deterministic \ac{LTI} system given by~\eqref{eqn:SS_innovation} to generate input-output data in closed-loop with a strictly causal controller. Define data matrices $\Phi_{i,1,N}$ and $\overline{\Phi}_{\hat{i},1,f}$ as in \eqref{eq:Phi_def}. %
     %
     If the joint input and noise sequences are sufficiently persistently exciting such that $\left[X_{i,1,N}^\top \; U_{i,p,N}^\top \; U_{i_p,1,N}^\top \; E_{i,p,N}^\top\right]^\top$ is full row rank %
     %If the input sequence $\{u_k\}_{k=i}^{i+\bar{N}-1}$ of length $\bar{N}=p+s+N-1$ %, with $N\geq(p+s+n)(r+l)+n$ and $p\geq\ell$\todo{don't forget},
@@ -46,7 +46,7 @@ Fig.~\ref{fig:CL-DeePC} and \eqref{eq:CL_DeePC_no_IVs} illustrate how this idea 
 \end{thm}
 
 % ---------------- Proof of (i) ----------------
-\noindent\textbf{Proof of $(\mathrm{i})$:} Note that $G$ is determined by the top matrix row of \eqref{eq:CL_DeePC_no_IVs} since $\widehat{Y}_{\hat{i}_p,1,f}$ is unknown a priori. There exists at least one solution to this equation if $\Phi_{i,1,N}$ is full row rank. Decomposing $\Phi_{i,1,N}$ into its dependencies begets
+\noindent\textbf{Proof of $(\mathrm{i})$:} Note from \eqref{eq:CL_DeePC_no_IVs} that $G$ is determined by $\Phi_{i,1,N}G=\overline{\Phi}_{\hat{i},1,f}$ since $\widehat{Y}_{\hat{i}_p,1,f}$ is unknown a priori. There exists at least one solution to this equation if $\Phi_{i,1,N}$ is full row rank. Decomposing $\Phi_{i,1,N}$ into its dependencies begets
 \begin{align}\label{eq:Phi_isN}
     \mkern-8mu\Phi_{i,1,N}=\mkern-1mu\begin{bmatrix}
         U_{i,p,N}\\
@@ -73,7 +73,7 @@ in which the matrix on the right hand side is assumed to be full row rank, and t
     G = \Phi_{i,1,N}^\dagger\overline{\Phi}_{\hat{i},1,f} + \Pi_{\Phi_{i,1,N}}^\bot W,
 \end{align}
 in which the dagger $\dagger$ denotes the right inverse ($\mathcal{Q}^\dagger=\mathcal{Q}^\top(\mathcal{Q}\mathcal{Q}^\top)\inv$ with $\mathcal{Q}$ as a real, full row rank matrix), $\Pi_{\Phi_{i,1,N}}^\bot=I_N-\Phi_{i,1,N}^\dagger\Phi_{i,1,N}$ is a projection matrix onto the orthogonal complement of the row space of $\Phi_{i,1,N}$, %see Overschee1996, pg. 19
-and $W\in\mathbb{R}^{N\times f}$ is a free matrix.
+and $W\in\mathbb{R}^{N\times f}$ is a matrix of decision variables. If no form of regularization is applied, this $W$ does not affect the cost function and is free\todo{uniform random?}.
 
 % ---------------- Proof of (ii) ----------------
 \noindent\textbf{Proof of $(\mathrm{ii})$:} Equation \eqref{eq:CL_DeePC_no_IVs} stipulates an output predictor as $\widehat{Y}_{\hat{i}_p,1,f}=Y_{i_p,1,N}G$. Consider the error of this prediction, which using \eqref{eq:DataEq1} is written as
@@ -85,22 +85,17 @@ and $W\in\mathbb{R}^{N\times f}$ is a free matrix.
 \end{align}
 in which interpretations of underbraced terms are indicated. Applying the limit $p\rightarrow\infty$ asymptotically attenuates the top contribution by the error of the initial state estimates since, by the definition of $K$ in \secref{sec:sys_model}, $\tilde{A}$ has all of its eigenvalues strictly inside the unit circle. In addition, substituting $G$ from \eqref{eq:G_sols} and cancelling equal terms in $\overline{\Phi}_{\hat{i},1,f}$ and $\Phi_{\hat{i},1,f}$ results in
 \begin{alignat}{2}
-        &\!\!\!\!\lim_{p\rightarrow\infty} \widehat{Y}_{\hat{i}_p,1,f}-Y_{\hat{i}_p,1,f} = \lim_{p\rightarrow\infty}\Gamma_s\tKp{y}\left(\overline{Y}_{\hat{i},p,f}-Y_{\hat{i},p,f}\right)\notag\\
+        &\!\!\!\!\lim_{p\rightarrow\infty} \widehat{Y}_{\hat{i}_p,1,f}-Y_{\hat{i}_p,1,f} = \lim_{p\rightarrow\infty}\Gamma_1\tKp{y}\left(\overline{Y}_{\hat{i},p,f}-Y_{\hat{i},p,f}\right)\notag\\
         &+\mathcal{H}_1\Big(E_{i_p,1,N} W-E_{\hat{i}_p,1,f}\label{eq:Yf_error2}\\
         &+\underbrace{E_{i_p,1,N}\Phi_{i,1,N}^\top}(\Phi_{i,1,N}\Phi_{i,1,N}^\top)\inv(\overline{\Phi}_{\hat{i},1,f}-\Phi_{i,1,N}W)\Big)\notag.
 \end{alignat}%
 In the above formulation, $W$ is a free matrix that parameterizes $G$. As such, for the predictor to be unbiased, the expectation ($\mathbb{E}[\cdot]$) of this error w.r.t. the noise and conditioned on $W$ must be zero. \todo{$\mathbb{E}[\cdot]$,\\$EW$,\\$\hat{\Sigma}\hat{\Sigma}\inv$?} This expectation renders the second row zero, but not the bottom row because of the underbraced term. Due to feedback, there is a correlation between past inputs and preceding noise such that the expectation of the sample correlation
-\begin{align}
-E_{i_p,1,N}U_{i_p,1,N}^\top =
-    \frac{1}{N}\sum\limits_{k=i_p}^{i_p+N-1}e_{k} u_{k}^\top,\notag
-    % \frac{1}{N}\sum\limits_{k=i_p-1}^{i_p+N-2}
-    % \begin{bmatrix}
-    %     e_{k+1} u_{k+1}^\top & \cdots & e_{k+1} u_{k+s}^\top\\
-    %     e_{k+2} u_{k+1}^\top & \cdots & e_{k+2} u_{k+s}^\top\\
-    %     \vdots &  & \vdots\\
-    %     e_{k+s}u_{k+1}^\top & \cdots & e_{k+s}u_{k+s}^\top
-    % \end{bmatrix},\notag%
-\end{align}
+\begin{align*}
+    \begin{split}
+        &E_{i_p,1,N}\Phi_{i,1,N}^\top = \\
+        &\;\frac{1}{N}\;\sum\limits_{k=i_p}^{\mathclap{i_p+N-1}} e_k \begin{bmatrix}u_{k-p}^\top & \cdots & u_{k-1}^\top & u_k^\top & y_{k-p}^\top & \cdots & y_{k-1}^\top \end{bmatrix}
+    \end{split}
+\end{align*}
 which is contained in the underbraced term in \eqref{eq:Yf_error2}, is nonzero. Due to feedback $\mathbb{E}[e_j u_k^\top]\neq 0,\;\forall k>j$. However, if, as assumed by Theorem~\ref{theorem:main_result}, the controller has no direct feedthrough, then $\mathbb{E}[e_k u_k^\top]= 0,\;\forall k$. \todo{in lim N?}%or is this only true in the limit N->infty for above. Need for quasi-stationarity here
 Hence, if ${s=1}$, the expected value of the correlation $E_{i_p,s,N}U_{i_p,s,N}^\top$ reduces to zero, rendering the expectation of the bottom row of \eqref{eq:Yf_error2} zero.
 
@@ -118,7 +113,7 @@ The previous section demonstrated that the predictor that is obtained from \eqre
 As shown by \eqref{eq:Yf_error1}, the columns of $G$ take linear combinations of the past noise $E_{i_p,s,N}$, increasing the variance of the implicitly estimated noise in $\widehat{E}_{\hat{i}_p,s,f}$. The idea is to redefine $G$ such that its columns are orthogonal to the noise. The following theorem demonstrates the use of an \ac{IV} $\mathcal{Z}$ for this purpose based on the same assumptions as Theorem~\ref{theorem:main_result}.
 
 \begin{thm}
-    Consider the minimal discrete non-deterministic \ac{LTI} system given by~\eqref{eqn:SS_innovation} to generate input-output data in closed-loop with a causal controller that has no direct feedthrough. Define data matrices $\Phi_{i,s,N}$ and $\overline{\Phi}_{\hat{i},s,f}$ as in \eqref{eq:Phi_def}. %
+    Consider the minimal discrete non-deterministic \ac{LTI} system given by~\eqref{eqn:SS_innovation} to generate input-output data in closed-loop with a strictly causal controller. Define data matrices $\Phi_{i,s,N}$ and $\overline{\Phi}_{\hat{i},s,f}$ as in \eqref{eq:Phi_def}. %
     %
     If the joint input and noise sequences are sufficiently persistently exciting such that $\left[X_{i,1,N}^\top \; U_{i,p,N}^\top \; U_{i_p,s,N}^\top \; E_{i,p,N}^\top\right]^\top$ is full row rank, and with the choice of \ac{IV} given by $\mathcal{Z}=\Phi_{i,s,N}$ then\\
     $\mathrm{(i)}$ $\exists G\in\mathbb{R}^{((p+s)r+pl)\times f}$ such that
