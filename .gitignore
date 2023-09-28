@@ -1,5 +1,5 @@
-unused/*
 autosam.*
 !autosam.tex
 !autosam.bib
-feedback/
+docs/manuscript/feedback/
+docs/manuscript/unused/
