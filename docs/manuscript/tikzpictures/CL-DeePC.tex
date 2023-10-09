@@ -64,10 +64,10 @@
     % ---------------- drawing left brace and matrix ----------------
     \path ([xshift=-0.5\BrIn,yshift=-2\BrCl]M1A) coordinate (Brace1L);
     \path ([xshift=0.5\BrIn,yshift=-2\BrCl]M1B) coordinate (Brace1R);
-    \draw[decorate, decoration={calligraphic brace, amplitude=3pt, mirror, aspect=0.75},line width=1pt] (Brace1L) -- (Brace1R);
-    \node (mat1) at ($(Brace1L)!0.75!(Brace1R) + (0,-3pt)$) {};
+    \draw[decorate, decoration={calligraphic brace, amplitude=3pt, mirror, aspect=0.73},line width=1pt] (Brace1L) -- (Brace1R);
+    \node (mat1) at ($(Brace1L)!0.73!(Brace1R) + (0,-3pt)$) {};
     \node[below] at (mat1.center) {$\begin{bmatrix}
-        U_{i,p,N}\\U_{i_p,1,N}\\Y_{i,p,N}\\ \hline Y_{i_p,1,N}
+        U_{i,p,N_\mathrm{s}}\\U_{i_p,1,N_\mathrm{s}}\\Y_{i,p,N_\mathrm{s}}\\ \hline Y_{i_p,1,N_\mathrm{s}}
     \end{bmatrix}$};
     % brace to the left
     % \path ([xshift=-0.75cm-0.05cm,yshift=-4pt]mat1.center) coordinate (Brace1T);
@@ -75,7 +75,7 @@
     % \draw[pen colour=gray!60,decorate, decoration={calligraphic brace, amplitude=3pt, mirror, aspect=0.2},line width=0.75pt] (Brace1T) -- (Brace1B);
     % % Zp
     % \node (Zp) at ($(Brace1T)!0.2!(Brace1B) + (-3pt,-0.8pt)$) {};
-    % \node[left,text=gray!100,align=center] at ([xshift=0.5mm,yshift=-0.18cm]Zp.center) {\scriptsize{\shortstack{$=$\\$\Phi_{i,1,N}$}}};
+    % \node[left,text=gray!100,align=center] at ([xshift=0.5mm,yshift=-0.18cm]Zp.center) {\scriptsize{\shortstack{$=$\\$\Psi_{i,1,N}$}}};
   
     % ======================= drawing G =======================
     % useful coordinates
@@ -248,7 +248,7 @@
     % \draw[pen colour=gray!60,decorate, decoration={calligraphic brace, amplitude=3pt, aspect=0.2},line width=0.75pt] (Brace3T) -- (Brace3B);
     % % Zf
     % \node (Zf) at ($(Brace3T)!0.2!(Brace3B) + (3pt,-1.5pt)$) {};
-    % \node[right,text=gray!100] at ([yshift=-0.18cm]Zf.center) {\scriptsize{\shortstack{$=$\\$\Phi_{\hat{i},1,f}$}}};
+    % \node[right,text=gray!100] at ([yshift=-0.18cm]Zf.center) {\scriptsize{\shortstack{$=$\\$\Psi_{\hat{i},1,f}$}}};
     
     % ======================= length indicators ======================= 
     \draw[|-|] ([yshift=\onelen]M1D) -- node[above] {\scriptsize$N$} ([yshift=\onelen]M1C);
