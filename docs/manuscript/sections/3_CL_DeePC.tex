@@ -89,7 +89,41 @@ in which $(\cdot)^{\dagger,\mathrm{r}}$ denotes the right inverse, for which by 
 % and $W\in\mathbb{R}^{N\times f}$ is a matrix of decision variables that parameterizes $G$.
 
 % ---------------- Proof of (ii) ----------------
-\noindent\textbf{Proof of $(\mathrm{ii})$:} Equation \eqref{eq:CL_DeePC_no_IVs} stipulates an output predictor as $\widehat{Y}_{\hat{i}_p,1,f}=Y_{i_p,1,N_\mathrm{s}}G$. Consider the error of this prediction, which using \eqref{eq:DataEq1}, and considering $\Gamma_1=C$, $\mathcal{H}_1=I_l$ is written as
+\noindent\textbf{Proof of $(\mathrm{ii})$:} Equation \eqref{eq:CL_DeePC_no_IVs} stipulates an output predictor as $\widehat{Y}_{\hat{i}_p,1,f}=Y_{i_p,1,N_\mathrm{s}}G$. %
+Using \eqref{eq:DataEq1}, \eqref{eq:G_sols}, and considering $\Gamma_1=C$, $\mathcal{H}_1=I_l$
+\begin{align}
+    \mkern-6mu\widehat{Y}_{\hat{i}_p,i,f} &= C \tilde{A}^p X_{i,1,N_\mathrm{s}}G + E_{i_p,1,N_\mathrm{s}}G + L_1 \Psi_{i,1,N_\mathrm{s}}G\notag\\
+    \begin{split}
+        &=\!\Big(\!\big(C \tilde{A}^p \underbrace{X_{i,1,N_\mathrm{s}}\Psi_{i,1,N_\mathrm{s}}^\top}_{=\hat{\Sigma}_{x\psi}} + \underbrace{E_{i_p,1,N_\mathrm{s}}\Psi_{i,1,N_\mathrm{s}}^\top}_{=\hat{\Sigma}_{e\psi}}\big)\times\\
+        &\phantom{==}\big(\underbrace{\Psi_{i,1,N_\mathrm{s}}\Psi_{i,1,N_\mathrm{s}}^\top}_{=\hat{\Sigma}_{\psi\psi}}\big)\inv+L_1\Big)\overline{\Psi}_{\hat{i},1,f}.
+    \end{split}\label{eq:Yfhat_1}
+\end{align}
+Partitioning the matrices $\Psi_{i,1,N_\mathrm{s}}=[U_{i,p+1,N_\mathrm{s}}^\top\;Y_{i,p,N_\mathrm{s}}^\top]^\top$ and $\overline{\Psi}_{\hat{i},1,f}=[U_{\hat{i},p+1,f}^\top\;\overline{Y}_{\hat{i},p,f}^\top]^\top$ such that
+\begin{align*}
+\scriptsize{
+    \hat{\Sigma}_{\psi\psi}=\!\begin{bmatrix}
+        \hat{\Sigma}_{uu} & \hat{\Sigma}_{uy}\\
+        \hat{\Sigma}_{yu} & \hat{\Sigma}_{yy}
+    \end{bmatrix}\!,\;\!
+    \hat{\Sigma}_{x\psi}=\!\begin{bmatrix}
+        \hat{\Sigma}_{xu} & \hat{\Sigma}_{xy}
+    \end{bmatrix}\!,\;\!
+    \hat{\Sigma}_{e\psi}=\!\begin{bmatrix}
+        \hat{\Sigma}_{eu} & \hat{\Sigma}_{ey}
+    \end{bmatrix}\!,}
+\end{align*}
+reformulates \eqref{eq:Yfhat_1} in terms of oblique projections as
+\begin{align}
+    \begin{split}
+    \widehat{Y}_{\hat{i}_p,i,f} &= \Big(\!\!\big(C\tilde{A}^p\hat{\Sigma}_{xy|u}+\hat{\Sigma}_{ey|u}\big)\hat{\Sigma}_{yy|u}\inv+
+    C\tKp{y}\Big)\overline{Y}_{\hat{i},p,f}+\\
+    &\Big(\!\!\big(C\tilde{A}^p\hat{\Sigma}_{xu|y}+\hat{\Sigma}_{eu|y}\big)\hat{\Sigma}_{uu|y}\inv+
+    \begin{bmatrix}C\tKp{u} & D \end{bmatrix}\!\Big)U_{\hat{i},p+1,f},
+    \end{split}
+\end{align}
+in which oblique projections are exemplified by $\hat{\Sigma}_{xu|y}=\hat{\Sigma}_{xu}-\hat{\Sigma}_{xy}\hat{\Sigma}_{yy}\inv\hat{\Sigma}_{yu}$.\todo{continue here}
+%
+%Consider the error of this prediction, which using \eqref{eq:DataEq1}, and considering $\Gamma_1=C$, $\mathcal{H}_1=I_l$ is written as
 \begin{align}
     \begin{split}
         &\!\!\!\widehat{Y}_{\hat{i}_p,1,f}-Y_{\hat{i}_p,1,f} = C \tilde{A}^p (%\underbrace{
