@@ -11,7 +11,8 @@ classdef CL_DeePC < handle
         ny
 
         options = struct('use_IV',[],'adaptive',[])
-        solve
+        solve            % method has yalmip optimizer/optimize variant
+        step_data_update % method has adaptive/non-adaptive variant
 
         % data
         Upast
@@ -21,10 +22,9 @@ classdef CL_DeePC < handle
         % optimization variables & functions
         Prob = struct('cost', [],'yf_',[],'uf_',[],'rf_',[],...
                       'yp_',  [],'up_',[],... % 
-                      'Yp_',  [],'Up_',[],... % past data from i till i+N-1
                       'G_',   [],'Optimizer',[],...
                       'Hf_',[],'LHS_',[],...
-                      'con_usr',[],'con_dyn',[])
+                      'con_usr',[],'con_dyn',[],'sdp_opts',[])
     end
     properties (Dependent)
         LHS
@@ -47,6 +47,7 @@ classdef CL_DeePC < handle
                 options.adaptive logical = true
                 con_user.constr struct = struct('expr',[],'u0_sdp',[],'uf_sdp',[],'y0_sdp',[],'yf_sdp',[]);
                 solve_type.UseOptimizer logical = true
+                solve_type.sdp_opts struct = sdpsettings('solver','mosek','verbose',0);
             end
             %CL_DEEPC Construct an instance of this class
             %   Detailed explanation goes here
@@ -79,8 +80,14 @@ classdef CL_DeePC < handle
             % initialize data
             validateattributes(u, 'double',{'nrows',obj.nu,'ncols',obj.Nbar})
             validateattributes(y, 'double',{'nrows',obj.ny,'ncols',obj.Nbar})
-            obj.Upast = u;
-            obj.Ypast = y;
+            if options.adaptive
+                obj.Upast = u;
+                obj.Ypast = y;
+            else
+                % 1st part is for constant past data, latter for changing up & yp
+                obj.Upast = [u u(:,end-obj.p+1:end)];
+                obj.Ypast = [y y(:,end-obj.p+1:end)];
+            end
             
             %==============================================================
             %-------------- make optimization problem ---------------------
@@ -122,11 +129,19 @@ classdef CL_DeePC < handle
             obj.make_con_dyn(); % <-- also defines G
 
             % construct optimization problem
+            obj.Prob.sdp_opts = sdpsettings(solve_type.sdp_opts);
             if solve_type.UseOptimizer
                 obj.makeOptimizer();
                 obj.solve = @obj.optimizer_solve;
             else
                 obj.solve = @obj.optimize_solve;
+            end
+
+            % adaptive or non-adaptive -> determines method to update data
+            if options.adaptive
+                obj.step_data_update = @obj.step_data_update_adaptive;
+            else
+                obj.step_data_update = @obj.step_data_update_non_adaptive;
             end
             
             %==============================================================
@@ -150,9 +165,10 @@ classdef CL_DeePC < handle
         end
 
         function a = get.LHS(obj)
-            H_u = mat2cell(obj.Upast,obj.nu,ones(1,obj.Nbar));
+            % use first range 1:Nbar for compatibility with non-adaptive case
+            H_u = mat2cell(obj.Upast(:,1:obj.Nbar),obj.nu,ones(1,obj.Nbar));
             H_u = H_u(hankel(1:obj.p+1,obj.p+1:obj.Nbar));
-            H_y = mat2cell(obj.Ypast,obj.ny,ones(1,obj.Nbar));
+            H_y = mat2cell(obj.Ypast(:,1:obj.Nbar),obj.ny,ones(1,obj.Nbar));
             H_y = H_y(hankel(1:obj.p+1,obj.p+1:obj.Nbar));
             a = [cell2mat(H_u);cell2mat(H_y)];
             if obj.options.use_IV
@@ -175,15 +191,10 @@ classdef CL_DeePC < handle
         end
 
         function make_con_dyn(obj)
-            % dynamics are defined by equation f the from: LHS * G = RHS
-%             up_ = obj.Prob.Up_(:,end-obj.p+1:end);
-%             yp_ = obj.Prob.Yp_(:,end-obj.p+1:end);
+            % dynamics are defined by equation of the from: LHS * G = Hf
             obj.Prob.Hf_= ...
                 [obj.make_sdp_Hankel([obj.Prob.up_ obj.Prob.uf_],obj.p+1,obj.f);...
                  obj.make_sdp_Hankel([obj.Prob.yp_ obj.Prob.yf_],obj.p+1,obj.f)];
-%             obj.Prob.Hp_ = ...
-%                 [obj.make_sdp_Hankel(obj.Prob.Up_,obj.p+1,obj.N);...
-%                  obj.make_sdp_Hankel(obj.Prob.Yp_,obj.p+1,obj.N)];
             
             % define G & LHS matrix
             m = obj.p*(obj.nu+obj.ny)+obj.nu;
@@ -276,24 +287,31 @@ classdef CL_DeePC < handle
         end
         
         %% updating data
-        function step_data_update(obj,u_k,y_k)
+        function step_data_update_adaptive(obj,u_k,y_k)
             arguments
                 obj
                 u_k (:,1) double
                 y_k (:,1) double
             end
-
             obj.Ypast = circshift(obj.Ypast,[0,-1]); obj.Ypast(:,end) = y_k;
             obj.Upast = circshift(obj.Upast,[0,-1]); obj.Upast(:,end) = u_k;
+        end
+        function step_data_update_non_adaptive(obj,u_k,y_k)
+            arguments
+                obj
+                u_k (:,1) double
+                y_k (:,1) double
+            end
+            obj.yp = circshift(obj.yp,[0,-1]); obj.yp(:,end) = y_k;
+            obj.up = circshift(obj.up,[0,-1]); obj.up(:,end) = u_k;
         end
         
         %% optimization
         function makeOptimizer(obj)
             constraints = [obj.Prob.con_dyn;...
                            obj.Prob.con_usr];
-            opts = sdpsettings('solver','mosek','verbose',2);
             obj.Prob.Optimizer = ...
-                optimizer(constraints,obj.Prob.cost,opts,...
+                optimizer(constraints,obj.Prob.cost,obj.Prob.sdp_opts,...
                          {obj.Prob.LHS_,obj.Prob.up_,obj.Prob.yp_,obj.Prob.rf_},... Parameters
                          {obj.Prob.uf_,obj.Prob.yf_,obj.Prob.G_});  % Outputs
         end
@@ -323,15 +341,14 @@ classdef CL_DeePC < handle
 
             % fill in LHS matrix to enable solution with mosek
             con_dyn = replace(obj.Prob.con_dyn,obj.Prob.LHS_,obj.LHS);
-
-            % 
             constraints = [con_dyn;...
                            obj.Prob.con_usr;...
                            obj.Prob.rf_==obj.rf;...
                            obj.Prob.up_==obj.up;...
                            obj.Prob.yp_==obj.yp];
-            opts = sdpsettings('solver','mosek','verbose',2);
-            diagnostics = optimize(constraints,obj.Prob.cost,opts);
+
+            % solve optimization problem
+            diagnostics = optimize(constraints,obj.Prob.cost,obj.Prob.sdp_opts);
             if diagnostics.problem == 0
              disp('Solver thinks it is feasible')
             elseif diagnostics.problem == 1

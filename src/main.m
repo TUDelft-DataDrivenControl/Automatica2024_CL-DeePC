@@ -94,7 +94,7 @@ plant.D(:,1:nu)     = diag(y_fac)\plant.D(:,1:nu)*diag(u_fac);
 plant.D(:,nu+1:end) = diag(y_fac)\plant.D(:,nu+1:end);
 
 %% closed-loop operation
-du = 0*mvnrnd(zeros(nu,1),Ru,sim_steps).';
+du = mvnrnd(zeros(nu,1),Ru/10,sim_steps).';
 du_max = 3.75;
 du(abs(du)>du_max) = sign(du(abs(du)>du_max))*du_max;
 du = du./u_fac;
@@ -117,7 +117,7 @@ con.expr = [con.uf <=  15./u_fac;
 
 % initialize controllers after k1 = Nbar
 range_OL = OL_steps-Nbar+1:OL_steps;
-Cont1 = CL_DeePC(c1.u(:,range_OL),c1.y(:,range_OL),p,f,N,Qk,Rk,dRk,use_IV=true,constr=con);
+Cont1 = CL_DeePC(c1.u(:,range_OL),c1.y(:,range_OL),p,f,N,Qk,Rk,dRk,use_IV=true,constr=con,adaptive=true);
 
 % set counters
 k1 = OL_steps + 1;
@@ -135,50 +135,59 @@ try
         [c1.uf_k{k2},c1.yfhat_k{k2},c1.G{k2}] = Cont1.step(c1.u(:,k1-1),c1.y(:,k1-1), rf=r(:,k2:k2+f-1)); 
         c1.u(:,k1) = c1.uf_k{k2}(:,1) + du(:,k2);
         c1 = step_plant(c1,e,plant,k1);
+        
+        if rem(k2,100)==0
+            clc;
+            round(k2/sim_steps*100,2)
+            plot_all(c1,1,sim_steps,OL_steps,f,r,e,k2,u_fac,y_fac)
+        end
     end
 catch
     k2 = k2 -1;
 end
 %%
-% reverse normalization
-c1.u = c1.u.*u_fac;
-c1.y = c1.y.*y_fac;
-r = r.*y_fac;
+function plot_all(cont_struct,fignum,sim_steps,OL_steps,f,r,e,k2,u_fac,y_fac)
 
-close all;
-figure()
-ax1 = subplot(3,1,1);
-plot(1:length(c1.y),c1.y);
-hold on;
-% for k3 = 1:k2
-%     plot(OL_steps+k3:OL_steps+f+k3-1,c1.yfhat_k{k3})
-% end
-plot(OL_steps+1:OL_steps+sim_steps+f-1,r,'--')
-xline(OL_steps+0.5,'k--');
-ylabel('$y_k$','interpreter','latex');
-grid on
+    % reverse normalization
+    cont_struct.u = cont_struct.u.*u_fac;
+    cont_struct.y = cont_struct.y.*y_fac;
+    r = r.*y_fac;
 
-ax2 = subplot(3,1,2);
-plot(1:length(c1.u),c1.u);
-hold on;
-% for k3 = 1:k2
-%     plot(OL_steps+k3:OL_steps+f+k3-1,c1.uf_k{k3})
-% end
-ylim([-16,16]);
-xline(OL_steps+0.5,'k--');
-yline(-15,'r--'); yline(15,'r--');
-ylabel('$u_k$','interpreter','latex')
-grid on
-
-ax3 = subplot(3,1,3);
-plot(1:length(e),e)
-xline(OL_steps+0.5,'k--');
-ylabel('$e_k$','interpreter','latex')
-xlabel('samples','interpreter','latex')
-grid on
-
-linkaxes([ax1 ax2 ax3],'x')
-xlim([1,k2+OL_steps])
+    figure(fignum);
+    clf;
+    ax1 = subplot(3,1,1);
+    plot(1:length(cont_struct.y),cont_struct.y);
+    hold on;
+    % for k3 = 1:k2
+    %     plot(OL_steps+k3:OL_steps+f+k3-1,cont_struct.yfhat_k{k3})
+    % end
+    plot(OL_steps+1:OL_steps+sim_steps+f-1,r,'--')
+    xline(OL_steps+0.5,'k--');
+    ylabel('$y_k$','interpreter','latex');
+    grid on
+    
+    ax2 = subplot(3,1,2);
+    plot(1:length(cont_struct.u),cont_struct.u);
+    hold on;
+    % for k3 = 1:k2
+    %     plot(OL_steps+k3:OL_steps+f+k3-1,cont_struct.uf_k{k3})
+    % end
+    ylim([-16,16]);
+    xline(OL_steps+0.5,'k--');
+    yline(-15,'r--'); yline(15,'r--');
+    ylabel('$u_k$','interpreter','latex')
+    grid on
+    
+    ax3 = subplot(3,1,3);
+    plot(1:length(e),e)
+    xline(OL_steps+0.5,'k--');
+    ylabel('$e_k$','interpreter','latex')
+    xlabel('samples','interpreter','latex')
+    grid on
+    
+    linkaxes([ax1 ax2 ax3],'x')
+    xlim([1,k2+OL_steps])
+end
 
 function data = step_plant(data,e,plant,k1)
     data.y(:,k1)   = plant.C*data.x(:,k1) + plant.D*[data.u(:,k1); e(:,k1)];
