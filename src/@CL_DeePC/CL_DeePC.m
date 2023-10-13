@@ -177,19 +177,6 @@ classdef CL_DeePC < handle
         end
 
         %% help functions
-        function Hankel = make_sdp_Hankel(obj,sdp_var,dim1,dim2)
-            % construct RHS for equality governing dynamics
-            sdp_dim1 = size(sdp_var,1);
-
-            % -> construct RHS for u
-            sdp_cell = cell(sdp_dim1,1);
-            Hankel = sdpvar(sdp_dim1*dim1,dim2,'full');
-            for k_var = 1:sdp_dim1
-                sdp_cell{k_var,1} = hankel(sdp_var(k_var,1:dim1),sdp_var(k_var,dim1:dim1-1+dim2));
-                Hankel(k_var:sdp_dim1:end,:) = sdp_cell{k_var,1};
-            end
-        end
-
         function make_con_dyn(obj)
             % dynamics are defined by equation of the from: LHS * G = Hf
             obj.Prob.Hf_= ...
@@ -362,6 +349,21 @@ classdef CL_DeePC < handle
             G      = value(obj.Prob.G_);
         end
 
+    end
+
+    methods(Static)
+        function Hankel = make_sdp_Hankel(sdp_var,dim1,dim2)
+            % construct RHS for equality governing dynamics
+            sdp_dim1 = size(sdp_var,1);
+
+            % -> construct RHS for u
+            sdp_cell = cell(sdp_dim1,1);
+            Hankel = sdpvar(sdp_dim1*dim1,dim2,'full');
+            for k_var = 1:sdp_dim1
+                sdp_cell{k_var,1} = hankel(sdp_var(k_var,1:dim1),sdp_var(k_var,dim1:dim1-1+dim2));
+                Hankel(k_var:sdp_dim1:end,:) = sdp_cell{k_var,1};
+            end
+        end
     end
 end
 
