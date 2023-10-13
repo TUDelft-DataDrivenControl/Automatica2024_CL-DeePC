@@ -82,7 +82,7 @@ Using such data vectors it is possible to concisely define block-Hankel data mat
 \end{align*}
 in which $q\in\mathbb{Z}_{>0}$ is another generic positive-definite integer that here represents the number of successive input data vectors with $s$ data samples each, starting from time index $k$. Note the block-anti diagonal structure of block-Hankel matrices. This notion of block-Hankel data matrices is employed to define the notion of persistency of excition below, with $N\in\mathbb{Z}_{>0}$ as a number of columns.
 \todo{Def.2 ok met $1/\sqrt{q}$ in $W$?}%
-\begin{defn}\label{def:PE}
+\begin{defn}{\citep[Def.~10.1]{Verhaegen2007a}}\label{def:PE}
     A signal consisting of samples ${w_j\in\mathbb{R}^q},$ $j\in[k,\,k+s+N-2]$ is persistently exciting of order $s$ if the associated block-Hankel matrix ${W_{k,s,N}\in\mathbb{R}^{sq \times N}}$ is full row rank.
 \end{defn}
 Note that full row rank $W_{k,s,N} \Leftrightarrow {W_{k,s,N}W_{k,s,N}^\top\succ0}$. Data that is composed entirely or partly of predictions is indicated by respectively $\hat{(\cdot)}$ or $\overline{(\cdot)}$. The expectation of a non-deterministic variable is denoted by $\mathbb{E}[\cdot]$.
