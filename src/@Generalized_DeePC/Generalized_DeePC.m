@@ -153,10 +153,6 @@ classdef Generalized_DeePC < handle
             else
                 obj.step_data_update = @obj.step_data_update_non_adaptive;
             end
-            
-            %==============================================================
-            %-------------- sub-functions of instantiator -----------------
-            %==============================================================
 
         end
         
@@ -323,8 +319,12 @@ classdef Generalized_DeePC < handle
             if ~isempty(opt.rf)
                 obj.rf = opt.rf;
             end
-            [sol,~] = obj.Prob.Optimizer(obj.LHS,obj.up,obj.yp,obj.rf);
-            [uf, yf_hat, G] = deal(sol{:});
+            try
+                [sol,errorcode] = obj.Prob.Optimizer(obj.LHS,obj.up,obj.yp,obj.rf);
+                [uf, yf_hat, G] = deal(sol{:});
+            catch
+                error(yalmiperror(errorcode))
+            end
         end
         
         function [uf, yf_hat, G] = optimize_solve(obj,opt)
@@ -347,12 +347,8 @@ classdef Generalized_DeePC < handle
 
             % solve optimization problem
             diagnostics = optimize(constraints,obj.Prob.cost,obj.Prob.sdp_opts);
-            if diagnostics.problem == 0
-             disp('Solver thinks it is feasible')
-            elseif diagnostics.problem == 1
-             disp('Solver thinks it is infeasible')
-            else
-             disp('Something else happened')
+            if diagnostics.problem ~= 0
+                disp(yalmiperror(diagnostics.problem))
             end
             
             uf     = value(obj.Prob.uf_);
