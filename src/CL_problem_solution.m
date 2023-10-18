@@ -208,7 +208,7 @@ function varargout = plot_all(c1,fignum,sim_steps,OL_steps,f,r,e,k2,u_fac,y_fac)
     ax1 = nexttile;
 %     ax1 = subplot(2,1,1);
 %     xline(ax1,OL_steps+0.5,'k--','HandleVisibility','off');hold on;
-    xline(ax1,OL_steps+c1(1).controller.Nbar+0.5,'k--','HandleVisibility','off'); hold on;
+    xline(ax1,OL_steps+c1(1).controller.Nbar+0.5,'k-','HandleVisibility','off'); hold on;
     r = r.*y_fac; % reverse normalization of reference
     plot(ax1,OL_steps+1:OL_steps+sim_steps+f-1,r,'--',...
         'DisplayName','Reference',...
@@ -221,9 +221,10 @@ function varargout = plot_all(c1,fignum,sim_steps,OL_steps,f,r,e,k2,u_fac,y_fac)
     ax2 = nexttile;
 %     ax2 = subplot(2,1,2);
 %     xline(ax2,OL_steps+0.5,'k--');hold on;
-    xline(ax2,OL_steps+c1(1).controller.Nbar+0.5,'k--');hold on;
+    xline(ax2,OL_steps+c1(1).controller.Nbar+0.5,'k-');hold on;
     yline(ax2,-15,'r--');
     yline(ax2, 15,'r--');
+    yticks(-15:5:15)
     ylim(ax2,[-16,16]);
     ylabel(ax2,'Inputs','interpreter','latex','FontSize',FontSize)
     xlabel(ax2,'Time index','interpreter','latex','FontSize',FontSize)
