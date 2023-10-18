@@ -191,7 +191,7 @@ end
 %%
 fig_prob_sol = plot_all(c1,1,CL_sim_steps,OL_sim_steps,f,r,e,k2,u_fac,y_fac);
 
-exportgraphics(fig_prob_sol,'..\results\figures\fig_prob_sol.png','BackgroundColor','White')
+exportgraphics(fig_prob_sol,'..\results\figures\fig_prob_sol.pdf','BackgroundColor','White')
 %%
 function varargout = plot_all(c1,fignum,sim_steps,OL_steps,f,r,e,k2,u_fac,y_fac)
     if nargout == 1
@@ -201,30 +201,32 @@ function varargout = plot_all(c1,fignum,sim_steps,OL_steps,f,r,e,k2,u_fac,y_fac)
     end
     clf;
     tiledlayout(2,1,'TileSpacing','compact','Padding','compact');
+    
+    FontSize = 12;
 
     % subplot with outputs & reference
     ax1 = nexttile;
 %     ax1 = subplot(2,1,1);
-    xline(ax1,OL_steps+0.5,'k--','HandleVisibility','off');hold on;
+%     xline(ax1,OL_steps+0.5,'k--','HandleVisibility','off');hold on;
     xline(ax1,OL_steps+c1(1).controller.Nbar+0.5,'k--','HandleVisibility','off'); hold on;
     r = r.*y_fac; % reverse normalization of reference
     plot(ax1,OL_steps+1:OL_steps+sim_steps+f-1,r,'--',...
         'DisplayName','Reference',...
         'color', [.5 .5 .5], ... grey
         'linewidth', 1.5);%      thicker line
-    ylabel(ax1,'Outputs','interpreter','latex');
+    ylabel(ax1,'Outputs','interpreter','latex','FontSize',FontSize);
     grid on
     
     % subplot with inputs
     ax2 = nexttile;
 %     ax2 = subplot(2,1,2);
-    xline(ax2,OL_steps+0.5,'k--');hold on;
-    xline(ax2,OL_steps+c1(1).controller.Nbar+0.5,'k--');
+%     xline(ax2,OL_steps+0.5,'k--');hold on;
+    xline(ax2,OL_steps+c1(1).controller.Nbar+0.5,'k--');hold on;
     yline(ax2,-15,'r--');
     yline(ax2, 15,'r--');
     ylim(ax2,[-16,16]);
-    ylabel(ax2,'Inputs','interpreter','latex')
-    xlabel(ax2,'Time index','interpreter','latex')
+    ylabel(ax2,'Inputs','interpreter','latex','FontSize',FontSize)
+    xlabel(ax2,'Time index','interpreter','latex','FontSize',FontSize)
     grid on
     
     num_c = numel(c1);
@@ -254,7 +256,8 @@ function varargout = plot_all(c1,fignum,sim_steps,OL_steps,f,r,e,k2,u_fac,y_fac)
         % end
     end
     legend(ax1,'interpreter','latex','location','north west');
-    
+    ax1.TickLabelInterpreter = 'latex';
+    ax2.TickLabelInterpreter = 'latex';
 %     ax3 = subplot(3,1,3);
 %     plot(ax3,1:length(e),e)
 %     xline(ax3,OL_steps+0.5,'k--');
