@@ -1,13 +1,37 @@
 \section{Closed-loop issue with regular \ac{DeePC}}\label{sec:CL_ID_issue}
 
-\begin{align}
-    
+\begin{align}\label{eq:SysFavoreel}
+\scriptsize
+\begin{array}{lll}
+    A = \begin{bmatrix}
+        4.40 & 1 & 0 & 0 & 0\\
+       -8.09 & 0 & 1 & 0 & 0\\
+        7.83 & 0 & 0 & 1 & 0\\
+       -4.00 & 0 & 0 & 0 & 1\\
+        0.86 & 0 & 0 & 0 & 0
+    \end{bmatrix}\!,&
+    B = \begin{bmatrix}
+        0.00098\\
+        0.01299\\
+        0.01859\\
+        0.0033\\
+       -0.00002
+    \end{bmatrix}\!,&C = \begin{bmatrix}
+        1 \\ 0 \\ 0\\ 0\\ 0
+    \end{bmatrix}^\top\mkern-7mu,\\
+    K = \begin{bmatrix}
+        2.3 & -6.64 & 7.515 & -4.0146 & 0.86336
+    \end{bmatrix}^\top\mkern-7mu,\span
+    &D=0,
+\end{array}
 \end{align}
 
+% ------------------------- Figure --------------------------
 \begin{figure}
 \begin{center}
 \includegraphics[width=\columnwidth]{results/figures/fig_prob_sol.pdf}    % The printed column  
-\caption{Reference tracking by adaptive \ac{DeePC} and \ac{CL-DeePC} using \ac{IVs} with $p=f=20$, and $\bar{N}=539$ for the 5\textsuperscript{th} order system from \cite{Favoreel1999} with $\text{var}(e_k)=0.5$. After $\bar{N}$ samples at the vertical dashed line all input-output data }  % width is 8.4 cm.
+\caption{Reference tracking by adaptive \ac{DeePC} and \ac{CL-DeePC} using \ac{IVs} with $p=f=20$, $\bar{N}=539$,  for the system defined by \eqref{eq:SysFavoreel} with $\text{var}(e_k)=0.5$. Both controllers are initialized by persistently exciting open-loop data. After $\bar{N}$ samples at the vertical dashed line all employed input-output data has been collected in closed-loop.}  % width is 8.4 cm.
 \label{fig:CL_Problem_Solution}                                 % Size the figures 
 \end{center}                                 % accordingly.
 \end{figure}
+% -----------------------------------------------------------
