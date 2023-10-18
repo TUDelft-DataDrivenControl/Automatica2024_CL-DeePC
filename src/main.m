@@ -7,7 +7,7 @@
 close all;
 yalmip('clear');
 clear;
-rng default;
+s = rng('default');
 clc;
 
 %% Edit path - add dependencies
@@ -34,8 +34,10 @@ model_Favoreel1999 % loads model from Favoreel 1999 - original SPC paper
 % controller settings
 p = 20;
 f = 20;
-Nmin_CL = (p+1)*nu + p*ny; %N >= n + (p+1)*nu + p*ny
-Nmin_OL = (p+f)*nu + p*ny; %N >= n + (p+f)*nu + p*ny
+Ns_CL = (p+1)*nu + p*ny; %N >= n + (p+1)*nu + p*ny
+Ns_OL = (p+f)*nu + p*ny; %N >= n + (p+f)*nu + p*ny
+Nsbar_CL = p+Ns_CL;
+Nsbar_OL = p+f+Ns_OL-1;
 N_OL    = 500; %Nmin;
 N_CL    = N_OL+f-1; % such that Nbar_CL = Nbar_OL
 Nbar_CL = p+N_CL;
@@ -44,7 +46,9 @@ Qk = 100;
 Rk = 0;
 dRk= 10;
 
+% number of controllers
 num_c = 2;
+
 % initialize data structure
 c1 = struct('u',   cell(num_c,1),'y',      cell(num_c,1),'x',  cell(num_c,1),...
             'uf_k',cell(num_c,1),'yfhat_k',cell(num_c,1),'G_k',cell(num_c,1),...
@@ -65,7 +69,7 @@ r = nan(ny,CL_sim_steps+f-1); % +f-1 needed for simulation end
 r = (-square((0:size(r,2)-1)*2*pi/(500)))*50+1*50;
 
 % noise
-Re = 0.1*eye(ny);                       % variance
+Re = 0.5*eye(ny);                       % variance
 e  = mvnrnd(zeros(ny,1),Re,num_steps).'; % trajectory realization
 
 %% initial open loop simulation
@@ -77,23 +81,21 @@ u_ol = mvnrnd(zeros(nu,1),Ru,OL_sim_steps).';
 [y_ol,~,x_ol] = lsim(plant,[u_ol;e(:,1:OL_sim_steps)],[],x0);
 y_ol = y_ol.'; x_ol = x_ol.';
 x_k = plant.A*x_ol(:,end) + plant.B*[u_ol(:,end); e(:,OL_sim_steps)];
-for kc = 1:num_c
-    c1(kc).u(:,1:OL_sim_steps) = u_ol;
-    c1(kc).y(:,1:OL_sim_steps) = y_ol;
-    c1(kc).x(:,1:OL_sim_steps) = x_ol;
-    c1(kc).x(:,OL_sim_steps+1) = x_k;
-end
 
 % normalization factors
 u_fac = max(abs(u_ol),[],2);
 y_fac = max(abs(y_ol),[],2);
 
 % normalize data
-for kc = 1:num_c
-    c1(kc).u = c1(kc).u./u_fac;
-    c1(kc).y = c1(kc).y./y_fac;
-end
+u_ol = u_ol./u_fac;
+y_ol = y_ol./y_fac;
 r = r./y_fac;
+
+for kc = 1:num_c
+    c1(kc).u(:,1:OL_sim_steps) = u_ol;
+    c1(kc).y(:,1:OL_sim_steps) = y_ol;
+    c1(kc).x(:,1:OL_sim_steps+1) = [x_ol x_k];
+end
 
 % plant normalization
 % x+ = A x + B u + K e
@@ -112,7 +114,7 @@ plant.D(:,1:nu)     = diag(y_fac)\plant.D(:,1:nu)*diag(u_fac);
 plant.D(:,nu+1:end) = diag(y_fac)\plant.D(:,nu+1:end);
 
 %% closed-loop operation
-du = 0.1*mvnrnd(zeros(nu,1),Ru,CL_sim_steps).';
+du = 0.0*mvnrnd(zeros(nu,1),Ru,CL_sim_steps).';
 du_max = 3.75;
 du(abs(du)>du_max) = sign(du(abs(du)>du_max))*du_max;
 du = du./u_fac;
@@ -121,13 +123,12 @@ du = du./u_fac;
 for kc = 1:num_c
     c1(kc).uf_k    = cell(CL_sim_steps,1);
     c1(kc).yfhat_k = c1(kc).uf_k;
-    c1(kc).G_k     = c1(kc).uf_k;
 end
 
 % create user-defined constraints
 con = struct();
-con.uf = sdpvar(nu,f,'full');
-con.u0 = sdpvar(nu,1,'full');
+con.uf   = sdpvar(nu,f,'full');
+con.u0   = sdpvar(nu,1,'full');
 con.expr = [con.uf <=  15./u_fac;
             con.uf >= -15./u_fac;
             con.u0 - con.uf(:,1) <=  du_max./u_fac;
@@ -136,42 +137,60 @@ con.expr = [con.uf <=  15./u_fac;
             con.uf(:,1:end-1)-con.uf(:,2:end) >= -du_max./u_fac];
 
 % initialize controllers
-range_OL = OL_sim_steps-Nbar_OL+1:OL_sim_steps;
-range_CL = OL_sim_steps-Nbar_CL+1:OL_sim_steps;
-c1(1).controller =    DeePC(c1(1).u(:,range_OL),c1(2).y(:,range_OL),p,f,N_OL,Qk,Rk,dRk,use_IV=true,constr=con,adaptive=true);
-c1(2).controller = CL_DeePC(c1(1).u(:,range_CL),c1(2).y(:,range_CL),p,f,N_CL,Qk,Rk,dRk,use_IV=true,constr=con,adaptive=true);
-c1(1).label = 'OL, IV';
-c1(2).label = 'CL, IV';
+% 1) CL-DeePC, with IV
+u1 = u_ol(:,end-Nbar_CL+1:end);
+y1 = y_ol(:,end-Nbar_CL+1:end);
+c1(1).controller = CL_DeePC(u1,y1,p,f,N_CL,Qk,Rk,dRk,use_IV=true,constr=con);
+c1(1).label = 'CL-DeePC, IV, explicit';
+c1(1).color = '#005AB5';%'#1D3E23';
+
+% c1(2).controller = CL_DeePC(u1,y1,p,f,N_CL,Qk,Rk,dRk,use_IV=true,constr=con,ExplicitPredictor=false);
+% c1(2).label = 'CL-DeePC, IV implicit';
+
+% 2) DeePC, with IV
+u2 = u_ol(:,end-Nbar_OL+1:end);
+y2 = y_ol(:,end-Nbar_OL+1:end);
+c1(2).controller = DeePC(u2,y2,p,f,N_OL,Qk,Rk,dRk,use_IV=true,constr=con);
+c1(2).label = 'DeePC, IV';
+c1(2).color = '#DC3220';%'#d60000';
+
 
 for kc = 1:num_c
+    tic
     % set counters
     k1 = OL_sim_steps + 1;
     k2 = 1;
     
     % first computed input
-    [c1(kc).uf_k{k2},c1(kc).yfhat_k{k2},c1(kc).G{k2}] = c1(kc).controller.solve(rf=r(:,k2:k2+f-1));
+    [c1(kc).uf_k{k2},c1(kc).yfhat_k{k2}] = c1(kc).controller.solve(rf=r(:,k2:k2+f-1));
     c1(kc).u(:,k1) = c1(kc).uf_k{k2}(:,1) + du(:,k2);
     c1(kc) = step_plant(c1(kc),e,plant,k1);
     
-%     try
-        for k1 = OL_sim_steps+2:num_steps
-            k2 = k2 + 1;
-            
-            [c1(kc).uf_k{k2},c1(kc).yfhat_k{k2},c1(kc).G{k2}] = c1(kc).controller.step(c1(kc).u(:,k1-1),c1(kc).y(:,k1-1), rf=r(:,k2:k2+f-1)); 
-            c1(kc).u(:,k1) = c1(kc).uf_k{k2}(:,1) + du(:,k2);
-            c1(kc) = step_plant(c1(kc),e,plant,k1);
-            
-            if rem(k2,100)==0
-                clc;
-                round(k2/CL_sim_steps*100,2)
-                plot_all(c1,1,CL_sim_steps,OL_sim_steps,f,r,e,k2,u_fac,y_fac)
-            end
+    for k1 = OL_sim_steps+2:num_steps
+        k2 = k2 + 1;
+        
+        [c1(kc).uf_k{k2},c1(kc).yfhat_k{k2}] = c1(kc).controller.step(c1(kc).u(:,k1-1),c1(kc).y(:,k1-1), rf=r(:,k2:k2+f-1)); 
+        c1(kc).u(:,k1) = c1(kc).uf_k{k2}(:,1) + du(:,k2);
+        c1(kc) = step_plant(c1(kc),e,plant,k1);
+        
+        % plot progression
+        if rem(k2,100)==0
+            clc;
+            round(k2/CL_sim_steps*100,2)
+            plot_all(c1,1,CL_sim_steps,OL_sim_steps,f,r,e,k2,u_fac,y_fac)
         end
-%     catch
-%         k2 = k2 -1;
-%         plot_all(c1,1,CL_sim_steps,OL_sim_steps,f,r,e,k2,u_fac,y_fac)
-%     end
+    end
+    toc
+    er = c1(kc).y(:,OL_sim_steps+1:end)-r(:,1:CL_sim_steps);
+    u  = c1(kc).u(:,OL_sim_steps+1:end);
+    du = u-c1(kc).u(:,OL_sim_steps:end-1);
+    c1(kc).cost = er(:).'*kron(speye(CL_sim_steps),Qk)*er(:)...
+                + u(:).'*kron(speye(CL_sim_steps),Rk)*u(:)...
+                + du(:).'*kron(speye(CL_sim_steps),dRk)*du(:);
 end
+%%
+plot_all(c1,1,CL_sim_steps,OL_sim_steps,f,r,e,k2,u_fac,y_fac)
+
 %%
 function plot_all(c1,fignum,sim_steps,OL_steps,f,r,e,k2,u_fac,y_fac)
     
@@ -179,16 +198,21 @@ function plot_all(c1,fignum,sim_steps,OL_steps,f,r,e,k2,u_fac,y_fac)
     clf;
 
     % subplot with outputs & reference
-    ax1 = subplot(3,1,1);
+    ax1 = subplot(2,1,1);
     xline(ax1,OL_steps+0.5,'k--','HandleVisibility','off');hold on;
+    xline(ax1,OL_steps+c1(1).controller.Nbar+0.5,'k--','HandleVisibility','off'); hold on;
     r = r.*y_fac; % reverse normalization of reference
-    plot(ax1,OL_steps+1:OL_steps+sim_steps+f-1,r,'--','DisplayName','reference');
+    plot(ax1,OL_steps+1:OL_steps+sim_steps+f-1,r,'--',...
+        'DisplayName','reference',...
+        'color', [.5 .5 .5], ... grey
+        'linewidth', 1.5);%      thicker line
     ylabel(ax1,'$y_k$','interpreter','latex');
     grid on
     
     % subplot with inputs
-    ax2 = subplot(3,1,2);
+    ax2 = subplot(2,1,2);
     xline(ax2,OL_steps+0.5,'k--');hold on;
+    xline(ax2,OL_steps+c1(1).controller.Nbar+0.5,'k--');
     yline(ax2,-15,'r--');
     yline(ax2, 15,'r--');
     ylim(ax2,[-16,16]);
@@ -198,17 +222,20 @@ function plot_all(c1,fignum,sim_steps,OL_steps,f,r,e,k2,u_fac,y_fac)
     num_c = numel(c1);
     lineref1 = cell(num_c,1);
     lineref2 = cell(num_c,1);
-    Styles = struct('LineStyle',cell(num_c,1),'Color',cell(num_c,1));
+    Styles = struct('LineStyle',cell(num_c,1),'Color',cell(num_c,1),'LineWidth',cell(num_c,1));
     legend_descr = cell(num_c,1);
-    for kc = 1:num_c
+    for kc = num_c:-1:1
         legend_descr{kc} = c1(kc).label;
         % reverse normalization
         c1(kc).u = c1(kc).u.*u_fac;
         c1(kc).y = c1(kc).y.*y_fac;
         
         lineref1{kc} = plot(ax1,1:length(c1(kc).y),c1(kc).y,'DisplayName', c1(kc).label);
+        lineref1{kc}.LineWidth = 1;
+        lineref1{kc}.Color = c1(kc).color;
         Styles(kc).LineStyle = lineref1{kc}.LineStyle;
         Styles(kc).Color     = lineref1{kc}.Color;
+        Styles(kc).LineWidth = lineref1{kc}.LineWidth;
         % for k3 = 1:k2
         %     plot(ax1,OL_steps+k3:OL_steps+f+k3-1,cont_struct.yfhat_k{k3})
         % end
@@ -220,15 +247,15 @@ function plot_all(c1,fignum,sim_steps,OL_steps,f,r,e,k2,u_fac,y_fac)
     end
     legend(ax1);
 
-    ax3 = subplot(3,1,3);
-    plot(ax3,1:length(e),e)
-    xline(ax3,OL_steps+0.5,'k--');
-    ylabel('$e_k$','interpreter','latex')
-    xlabel('samples','interpreter','latex')
-    grid on
+%     ax3 = subplot(3,1,3);
+%     plot(ax3,1:length(e),e)
+%     xline(ax3,OL_steps+0.5,'k--');
+%     ylabel('$e_k$','interpreter','latex')
+%     xlabel('samples','interpreter','latex')
+%     grid on
     
-    linkaxes([ax1 ax2 ax3],'x')
-    xlim([1,k2+OL_steps])
+    linkaxes([ax1 ax2],'x')
+    xlim([OL_steps,k2+OL_steps])
 end
 
 function data = step_plant(data,e,plant,k1)
