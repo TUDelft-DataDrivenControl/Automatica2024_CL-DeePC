@@ -146,22 +146,13 @@ in which $L_s,\widetilde{L}_s\in\mathbb{R}^{sl\times ((p+s)r+pl)}$ are defined a
 To clearly define the scope of this work this section presents the receding horizon control problem that is considered here, which uses a predictor $\datavec{\hat{y}}{\hat{i}_p,f}$ based on \eqref{eq:Yf1} with a single column ($q=1$) from time index $k=\hat{i}$ and with $s=f\in\mathbb{Z}_{>0}$ as future prediction window length, as
 \begin{subequations}
 \begin{alignat}{2}
-    \span\min_{\datavec{u}{\hat{i}_p,f}} ||\datavec{\hat{y}}{\hat{i}_p,f}-\datavec{r}{\hat{i}_p,f}||_Q^2 + ||\datavec{u}{\hat{i}_p,f}||_R^2 + ||\datavec{\Delta u}{\hat{i}_p,f}||_{R^\Delta}^2 \span\span\\
+    \span\span\min_{\datavec{u}{\hat{i}_p,f}} ||\datavec{\hat{y}}{\hat{i}_p,f}-\datavec{r}{\hat{i}_p,f}||_Q^2 + ||\datavec{u}{\hat{i}_p,f}||_R^2 + ||\Delta\datavec{u}{\hat{i}_p,f}||_{R^\Delta}^2 \span\\
     \text{s.t.}\quad& &\datavec{\hat{y}}{\hat{i}_p,f}&=\Gamma_f x_{\hat{i}_p}+\mathcal{T}_f^\mathrm{u}\datavec{u}{\hat{i}_p,f}%+\mathcal{H}_f\datavec{e}{\hat{i}_p,f}
     ,\label{eq:SS_iter}\\
    && x_{\hat{i}_p}&=x_\mathrm{ini},\label{eq:x_ini}\\
    && u_k&\in\mathcal{U},\quad \hat{y}_k\in\mathcal{Y},\quad \forall k\in\big[\hat{i}_p,\,\hat{i}_p+f\big),
 \end{alignat}
 \end{subequations}
-% \begin{subequations}
-%     \begin{alignat}{3}
-%       &\min_{\substack{u_k,\\ \mathclap{\forall k\in\left[\hat{i}_p,\,\hat{i}_p+f\right)}}}&&\quad\sum_{k=\hat{i}_p}^{\mathclap{\hat{i}_p+f-1}} \mathbb{E} \left[||y_k-r_k||_Q^2\right] + ||u_k||_R^2\span\span \\
-%      \text{s.t.}& &&\text{\eqref{eqn:SS_innovation},} &&\forall k\in\left[\hat{i}_p,\,\hat{i}_p+f\right),\label{eq:SS_iter}\\
-%      &&x_{\hat{i}_p}&=x_\mathrm{ini},&&\label{eq:x_ini}\\
-%      && u_k&\in \mathcal{U}, \; \mathbb{E}[y_k]\in\mathcal{Y},\quad &&\forall k\in\left[\hat{i}_p,\,\hat{i}_p+f\right),
-% \end{alignat}
-% \end{subequations}
-% in which $\hat{i}_p$ is the first future time index, at which time there is an initial state $x_\mathrm{ini}$, $f\in\mathbb{Z}_{>0}$ is a future prediction window length, and $r_k\in\mathbb{R}^l$ is a sample of an output reference trajectory. In addition, $||\cdot||_\cdot$ denotes a weighted 2-norm, with $Q\in\mathbb{R}^{l\times l}$ and $R\in\mathbb{R}^{r\times r}$ as respectively positive semi-definite and positive definite user-defined weighting matrices. Furthermore, $\mathbb{E}[\cdot]$ represents an expectation with respect to the future innovation signal that is conditioned on the future input sequence and the initial state.
-in which $\datavec{r}{\hat{i}_p,f}\in\mathbb{R}^{fl}$ is a data vector of a future reference trajectory, $x_\mathrm{ini}$ is an initial state at the first future time $k=\hat{i}_p$, and $||\cdot||_{(\cdot)}$ denotes a weighted Euclidian norm, $Q\in\mathbb{R}^{fl\times fl}$ and $R\in\mathbb{R}^{fr\times fr}$ are respectively positive semi-definite and positive definite user-defined weighting matrices, and $\mathcal{U}$ and $\mathcal{Y}$ respectively represent sets of allowable inputs and outputs. %Furthermore, $\mathbb{E}[\cdot]$ represents an expectation w.r.t. the future innovation signal $\datavec{e}{\hat{i}_p,f}$ that is conditioned on the future input sequence $\datavec{u}{\hat{i}_p,f}$ and the initial state $x_{\hat{i}_p}$, and $\mathcal{U}$ and $\mathcal{Y}$ respectively represent sets of allowable inputs and outputs.
+in which $\datavec{r}{\hat{i}_p,f}\in\mathbb{R}^{fl}$ is a data vector of a future reference trajectory, $x_\mathrm{ini}$ is an initial state at the first future time $k=\hat{i}_p$, and $||\cdot||_{(\cdot)}$ denotes a weighted Euclidian norm, $\Delta\datavec{u}{\hat{i}_p,f}=\datavec{u}{\hat{i}_p,f}-\datavec{u}{\hat{i}_p-1,f}$, $Q\in\mathbb{R}^{fl\times fl}$, $R\in\mathbb{R}^{fr\times fr}$, $R^\Delta\in\mathbb{R}^{fr\times fr}$ are respectively a positive semi-definite and two positive definite weighting matrices, and $\mathcal{U}$ and $\mathcal{Y}$ respectively represent sets of allowable inputs and outputs.
 
 Without knowledge of the system matrices $\{A,B,C,D,K\}$ and the initial state $x_\mathrm{ini}$, but given sufficiently informative past input-output data from  intervals $k\in[i,\,i+\bar{N})$ and $k\in[\hat{i},\,\hat{i}_p)$ that may overlap\footnote{Depending on the difference $\hat{i}-i>0$ and the number of samples $\bar{N}$.} and have been collected in closed-loop, the principal goal is to find an unbiased behavioural output predictor to replace the unknown relations \eqref{eq:SS_iter} and \eqref{eq:x_ini}.
