@@ -141,7 +141,7 @@ con.expr = [con.uf <=  15./u_fac;
 u1 = u_ol(:,end-Nbar_CL+1:end);
 y1 = y_ol(:,end-Nbar_CL+1:end);
 c1(1).controller = CL_DeePC(u1,y1,p,f,N_CL,Qk,Rk,dRk,use_IV=true,constr=con);
-c1(1).label = 'CL-DeePC, IV, explicit';
+c1(1).label = 'CL-DeePC, IV';
 c1(1).color = '#005AB5';%'#1D3E23';
 
 % c1(2).controller = CL_DeePC(u1,y1,p,f,N_CL,Qk,Rk,dRk,use_IV=true,constr=con,ExplicitPredictor=false);
@@ -189,34 +189,42 @@ for kc = 1:num_c
                 + du(:).'*kron(speye(CL_sim_steps),dRk)*du(:);
 end
 %%
-plot_all(c1,1,CL_sim_steps,OL_sim_steps,f,r,e,k2,u_fac,y_fac)
+fig_prob_sol = plot_all(c1,1,CL_sim_steps,OL_sim_steps,f,r,e,k2,u_fac,y_fac);
 
+exportgraphics(fig_prob_sol,'..\results\figures\fig_prob_sol.png','BackgroundColor','White')
 %%
-function plot_all(c1,fignum,sim_steps,OL_steps,f,r,e,k2,u_fac,y_fac)
-    
-    figure(fignum);
+function varargout = plot_all(c1,fignum,sim_steps,OL_steps,f,r,e,k2,u_fac,y_fac)
+    if nargout == 1
+        varargout{1} = figure(fignum);
+    else
+        figure(fignum);
+    end
     clf;
+    tiledlayout(2,1,'TileSpacing','compact','Padding','compact');
 
     % subplot with outputs & reference
-    ax1 = subplot(2,1,1);
+    ax1 = nexttile;
+%     ax1 = subplot(2,1,1);
     xline(ax1,OL_steps+0.5,'k--','HandleVisibility','off');hold on;
     xline(ax1,OL_steps+c1(1).controller.Nbar+0.5,'k--','HandleVisibility','off'); hold on;
     r = r.*y_fac; % reverse normalization of reference
     plot(ax1,OL_steps+1:OL_steps+sim_steps+f-1,r,'--',...
-        'DisplayName','reference',...
+        'DisplayName','Reference',...
         'color', [.5 .5 .5], ... grey
         'linewidth', 1.5);%      thicker line
-    ylabel(ax1,'$y_k$','interpreter','latex');
+    ylabel(ax1,'Outputs','interpreter','latex');
     grid on
     
     % subplot with inputs
-    ax2 = subplot(2,1,2);
+    ax2 = nexttile;
+%     ax2 = subplot(2,1,2);
     xline(ax2,OL_steps+0.5,'k--');hold on;
     xline(ax2,OL_steps+c1(1).controller.Nbar+0.5,'k--');
     yline(ax2,-15,'r--');
     yline(ax2, 15,'r--');
     ylim(ax2,[-16,16]);
-    ylabel(ax2,'$u_k$','interpreter','latex')
+    ylabel(ax2,'Inputs','interpreter','latex')
+    xlabel(ax2,'Time index','interpreter','latex')
     grid on
     
     num_c = numel(c1);
@@ -245,8 +253,8 @@ function plot_all(c1,fignum,sim_steps,OL_steps,f,r,e,k2,u_fac,y_fac)
         %     plot(ax2,OL_steps+k3:OL_steps+f+k3-1,cont_struct.uf_k{k3})
         % end
     end
-    legend(ax1);
-
+    legend(ax1,'interpreter','latex','location','north west');
+    
 %     ax3 = subplot(3,1,3);
 %     plot(ax3,1:length(e),e)
 %     xline(ax3,OL_steps+0.5,'k--');
