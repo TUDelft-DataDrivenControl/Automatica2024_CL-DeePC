@@ -24,6 +24,57 @@ classdef DeePC < Generalized_DeePC
             solve_type = namedargs2cell(solve_type);
             obj = obj@Generalized_DeePC(u,y,p,f,fid,N,Q,R,dR,options{:}, con_user{:}, solve_type{:});
         end
+        
+        % ============ make constraints governing dynamics ================
+        % using an explicit predictor: parameterized by Gu
+        function make_con_dyn_ExplicitPredictor(obj)
+            obj.Prob.Lu_ = sdpvar(obj.f*obj.ny,obj.p*obj.nu,'full');
+            obj.Prob.Ly_ = sdpvar(obj.f*obj.ny,obj.p*obj.ny,'full');
+            obj.Prob.Gu_ = sdpvar(obj.f*obj.ny,obj.f*obj.nu,'full');
+            obj.Prob.con_dyn = obj.Prob.yf_(:) == obj.Prob.Lu_*obj.Prob.up_(:) + ...
+                                               obj.Prob.Ly_*obj.Prob.yp_(:) + ...
+                                               obj.Prob.Gu_*obj.Prob.uf_(:);
+        end
+
+        % ================ get explicit predictor matrices ================
+        function [Lu,Ly,Gu] = getPredictorMatrices(obj)
+            LHS_temp = obj.LHS;
+            % implicit estimation of Predictor Markov Parameters
+            At = LHS_temp(1:end-obj.ny*obj.f,:);
+            Bt = LHS_temp(end-obj.ny*obj.f+1:end,:);
+            LuGuLy = Bt*pinv(At);
+            %             cond(At)
+            %             tBetaTheta = Bt/At;
+            %             tBetaTheta = lsqr(At.',Bt.').';
+            %             tBetaTheta = lsqminnorm(At.',Bt.','nowarn').';
+            %             [tBetaTheta,~] = linsolve(At.',Bt.'); tBetaTheta = tBetaTheta.';
+            Lu = LuGuLy(:,1:obj.nu*obj.p);
+            Gu = LuGuLy(:,obj.nu*obj.p+1:obj.nu*(obj.p+obj.f));
+            Ly = LuGuLy(:,obj.nu*(obj.p+obj.f)+1:end);
+        end
+
+         % ======================= solve analytically ======================
+        function [uf, yf_hat] = analytical_solve(obj,opt)
+            arguments
+                obj
+                opt.rf (:,:) double = []
+            end
+            if ~isempty(opt.rf)
+                obj.rf = opt.rf;
+            end
+            
+            [Lu,Ly,Gu] = obj.getPredictorMatrices();
+             % cost function: J = 0.5 uf.'*H*uf + c.'*uf
+                    % c = c_u0*u0 + Gu.'*Q*(Lu*up+Ly*yp-rf)
+                    % H = H_const + Gu.'*Q*Gu
+            H = obj.Prob.H_const + Gu.'*obj.Prob.Q*Gu;
+            c = obj.Prob.c_u0*obj.up(:,end) + Gu.'*obj.Prob.Q*(Lu*obj.up(:)+Ly*obj.yp(:)-obj.rf(:));
+            uf = -H\c;
+            yf_hat = Lu*obj.up(:) + Ly*obj.yp(:) + Gu*uf;
+
+            uf     = reshape(uf,obj.nu,obj.f);
+            yf_hat = reshape(yf_hat,obj.ny,obj.f);
+        end
     end
 end
 

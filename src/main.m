@@ -7,7 +7,7 @@
 close all;
 yalmip('clear');
 clear;
-s = rng('default');
+% rng('default');
 clc;
 
 %% Edit path - add dependencies
@@ -31,31 +31,55 @@ addpath(genpath(pwd),'-begin');
 %% Simulation settings
 model_Favoreel1999 % loads model from Favoreel 1999 - original SPC paper
 
-% controller settings
-p = 20;
-f = 20;
-Ns_CL = (p+1)*nu + p*ny; %N >= n + (p+1)*nu + p*ny
-Ns_OL = (p+f)*nu + p*ny; %N >= n + (p+f)*nu + p*ny
-Nsbar_CL = p+Ns_CL;
-Nsbar_OL = p+f+Ns_OL-1;
-N_OL    = 500; %Nmin;
-N_CL    = N_OL+f-1; % such that Nbar_CL = Nbar_OL
-Nbar_CL = p+N_CL;
-Nbar_OL = p+f+N_OL-1;
+rho_max = max(abs(eig(A-K*C)),[],'all');
+cond1_fac = -1/(2*log(rho_max)); % cond1_fac*log(N) < p
+
+Nmax = 10^4;                      % maximum number of columns
+pmin = ceil(cond1_fac*log(Nmax)); % such that above always true
+
+% let minimum N be determined by regular DeePC
+Nmin = pmin*(2*nu+ny); % p=f
+num_N = 25;
+N_all = Nmax; %round(logspace(log10(Nmin),log10(Nmax),num_N));
+p = 25; % > pmin with Nmax
+f = p;
+Nol_bar_all = N_all+p+f-1;
+
+% % controller settings
+% p = 20;
+% f = 20;
+% Ns_CL = (p+1)*nu + p*ny; %N >= n + (p+1)*nu + p*ny
+% Ns_OL = (p+f)*nu + p*ny; %N >= n + (p+f)*nu + p*ny
+% Nsbar_CL = p+Ns_CL;
+% Nsbar_OL = p+f+Ns_OL-1;
+% N_OL    = 500; %Nmin;
+% N_CL    = N_OL+f-1; % such that Nbar_CL = Nbar_OL
+% Nbar_CL = p+N_CL;
+% Nbar_OL = p+f+N_OL-1;
 Qk = 100;
 Rk = 0;
 dRk= 10;
+
+sims_per_N = 20;
 
 % number of controllers
 num_c = 2;
 
 % initialize data structure
-c1 = struct('u',   cell(num_c,1),'y',      cell(num_c,1),'x',  cell(num_c,1),...
-            'uf_k',cell(num_c,1),'yfhat_k',cell(num_c,1),'G_k',cell(num_c,1),...
-            'controller',cell(num_c,1),'label',cell(num_c,1));
+c1 = struct('u', cell(num_c,num_N,sims_per_N),);
+fields = {'y','x','Cont','label'};
+for i_field = 1:length(fields)
+    c1(:).(fields{i_field}) = c1(:).u;
+end
+
+% noise
+Re = 0.1*eye(ny);                        % variance
+
+% for k_N = 1:num_N
+% for k_r = 1:sims_per_N
 
 % simulation length
-OL_sim_steps = 1200;
+OL_sim_steps = Nmax;
 CL_sim_steps = 1800;
 num_steps = OL_sim_steps + CL_sim_steps;
 
@@ -68,8 +92,7 @@ end
 r = nan(ny,CL_sim_steps+f-1); % +f-1 needed for simulation end
 r = (-square((0:size(r,2)-1)*2*pi/(500)))*50+1*50;
 
-% noise
-Re = 0.5*eye(ny);                       % variance
+
 e  = mvnrnd(zeros(ny,1),Re,num_steps).'; % trajectory realization
 
 %% initial open loop simulation
@@ -85,6 +108,12 @@ x_k = plant.A*x_ol(:,end) + plant.B*[u_ol(:,end); e(:,OL_sim_steps)];
 % normalization factors
 u_fac = max(abs(u_ol),[],2);
 y_fac = max(abs(y_ol),[],2);
+
+figure()
+subplot(2,1,2)
+plot(u_ol)
+subplot(2,1,1)
+plot(y_ol)
 
 % normalize data
 u_ol = u_ol./u_fac;
@@ -114,46 +143,26 @@ plant.D(:,1:nu)     = diag(y_fac)\plant.D(:,1:nu)*diag(u_fac);
 plant.D(:,nu+1:end) = diag(y_fac)\plant.D(:,nu+1:end);
 
 %% closed-loop operation
-du = 0.0*mvnrnd(zeros(nu,1),Ru,CL_sim_steps).';
-du_max = 3.75;
-du(abs(du)>du_max) = sign(du(abs(du)>du_max))*du_max;
-du = du./u_fac;
-
 % initialize data structures for controllers
 for kc = 1:num_c
     c1(kc).uf_k    = cell(CL_sim_steps,1);
     c1(kc).yfhat_k = c1(kc).uf_k;
 end
 
-% create user-defined constraints
-con = struct();
-con.uf   = sdpvar(nu,f,'full');
-con.u0   = sdpvar(nu,1,'full');
-con.expr = [con.uf <=  15./u_fac;
-            con.uf >= -15./u_fac;
-            con.u0 - con.uf(:,1) <=  du_max./u_fac;
-            con.u0 - con.uf(:,1) >= -du_max./u_fac;
-            con.uf(:,1:end-1)-con.uf(:,2:end) <=  du_max./u_fac;
-            con.uf(:,1:end-1)-con.uf(:,2:end) >= -du_max./u_fac];
-
 % initialize controllers
-% 1) CL-DeePC, with IV
-u1 = u_ol(:,end-Nbar_CL+1:end);
-y1 = y_ol(:,end-Nbar_CL+1:end);
-c1(1).controller = CL_DeePC(u1,y1,p,f,N_CL,Qk,Rk,dRk,use_IV=true,constr=con);
-c1(1).label = 'CL-DeePC, IV, explicit';
-c1(1).color = '#005AB5';%'#1D3E23';
+% 1) DeePC, with IV
+u1 = u_ol(:,end-Nbar_OL+1:end);
+y1 = y_ol(:,end-Nbar_OL+1:end);
+c1(1).controller = DeePC(u1,y1,p,f,N_OL,Qk,Rk,dRk,use_IV=true);
+c1(1).label = 'DeePC, IV';
+c1(1).color = '#DC3220';
 
-% c1(2).controller = CL_DeePC(u1,y1,p,f,N_CL,Qk,Rk,dRk,use_IV=true,constr=con,ExplicitPredictor=false);
-% c1(2).label = 'CL-DeePC, IV implicit';
-
-% 2) DeePC, with IV
-u2 = u_ol(:,end-Nbar_OL+1:end);
-y2 = y_ol(:,end-Nbar_OL+1:end);
-c1(2).controller = DeePC(u2,y2,p,f,N_OL,Qk,Rk,dRk,use_IV=true,constr=con);
-c1(2).label = 'DeePC, IV';
-c1(2).color = '#DC3220';%'#d60000';
-
+% 2) CL-DeePC, with IV
+u2 = u_ol(:,end-Nbar_CL+1:end);
+y2 = y_ol(:,end-Nbar_CL+1:end);
+c1(2).controller = CL_DeePC(u2,y2,p,f,N_CL,Qk,Rk,dRk,use_IV=true);
+c1(2).label = 'CL-DeePC, IV, explicit';
+c1(2).color = '#005AB5';
 
 for kc = 1:num_c
     tic
@@ -165,6 +174,9 @@ for kc = 1:num_c
     [c1(kc).uf_k{k2},c1(kc).yfhat_k{k2}] = c1(kc).controller.solve(rf=r(:,k2:k2+f-1));
     c1(kc).u(:,k1) = c1(kc).uf_k{k2}(:,1) + du(:,k2);
     c1(kc) = step_plant(c1(kc),e,plant,k1);
+    LHSt = c1(kc).controller.LHS(1:(p+f)*nu+c1(kc).controller.fid*nu,:);
+    c1(kc).sv(:,k2) = svd(LHSt);
+    c1(kc).rcond(:,k2) = rcond(LHSt);
     
     for k1 = OL_sim_steps+2:num_steps
         k2 = k2 + 1;
@@ -172,6 +184,9 @@ for kc = 1:num_c
         [c1(kc).uf_k{k2},c1(kc).yfhat_k{k2}] = c1(kc).controller.step(c1(kc).u(:,k1-1),c1(kc).y(:,k1-1), rf=r(:,k2:k2+f-1)); 
         c1(kc).u(:,k1) = c1(kc).uf_k{k2}(:,1) + du(:,k2);
         c1(kc) = step_plant(c1(kc),e,plant,k1);
+        LHSt = c1(kc).controller.LHS(1:(p+f)*nu+c1(kc).controller.fid*nu,:);
+        c1(kc).sv(:,k2) = svd(LHSt);
+        c1(kc).rcond(:,k2) = rcond(LHSt);
         
         % plot progression
         if rem(k2,100)==0

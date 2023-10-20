@@ -56,8 +56,6 @@ classdef Generalized_DeePC < handle
                 solve_type.UseOptimizer logical = true
                 solve_type.sdp_opts struct = sdpsettings('solver','mosek','verbose',0);
             end
-            %CL_DEEPC Construct an instance of this class
-            %   Detailed explanation goes here
 
             obj.nu = min(size(u)); if size(u,2) < size(u,1); u=u.'; end
             obj.ny = min(size(y)); if size(y,2) < size(y,1); y=y.'; end
@@ -100,20 +98,7 @@ classdef Generalized_DeePC < handle
                 obj.Ypast = [y y(:,end-obj.p+1:end)];
             end
             
-            %==============================================================
-            %-------------- make optimization problem ---------------------
-            %==============================================================
-            % define optimization variables
-            obj.Prob.yf_ = sdpvar(obj.ny,obj.f,   'full');
-            obj.Prob.uf_ = sdpvar(obj.nu,obj.f,   'full');
-            obj.Prob.rf_ = sdpvar(obj.ny,obj.f,   'full');
-            obj.Prob.yp_ = sdpvar(obj.ny,obj.p,   'full');
-            obj.Prob.up_ = sdpvar(obj.nu,obj.p,   'full');
-                % tracking error & u increments
-            er_ = obj.Prob.yf_ - obj.Prob.rf_; % error w.r.t. reference
-            du_ = diff([obj.Prob.up_(:,end) obj.Prob.uf_],1,2); % u_{k+1}-u_k
-
-            % construct cost function
+            % size cost function weighting matrices
             if size(Q,1)==obj.ny && size(Q,2)==size(Q,1)
                 Q = kron(eye(obj.f),Q);
             elseif ~(size(Q,1)==obj.ny*obj.f && size(Q,2)==size(Q,1))
@@ -129,24 +114,63 @@ classdef Generalized_DeePC < handle
             elseif ~(size(dR,1)==obj.nu*obj.f && size(dR,2)==size(dR,1))
                 error('Input weighting matrix dR of incompatible dimensions.')
             end
-            obj.Prob.cost = er_(:).'*Q*er_(:)...
-                           + obj.Prob.uf_(:).'*R*obj.Prob.uf_(:)...
-                           + du_(:).'*dR*du_(:);
+                % make all weighting matrices symmetric
+            [Q,R,dR] = deal((Q+Q.')/2,(R+R.')/2,(dR+dR.')/2);
+            [obj.Prob.Q,obj.Prob.R,obj.Prob.dR] = deal(Q,R,dR);
 
-            % parse user-defined constraints, replace user's uf & yf
-            S = namedargs2cell(con_user.constr);
-            obj.Prob.con_usr = parse_user_con(obj,S{:});
-            
-            % make constraints governing dynamics
-            obj.make_con_dyn(); % <-- also defines G
+            %==============================================================
+            %-------------- make optimization problem ---------------------
+            %==============================================================
+            if ~isempty(con_user.constr.expr)
+                % user-defined constraints involved -> use optimization
 
-            % construct optimization problem
-            obj.Prob.sdp_opts = sdpsettings(solve_type.sdp_opts);
-            if solve_type.UseOptimizer
-                obj.makeOptimizer();
-                obj.solve = @obj.optimizer_solve;
+                % define optimization variables
+                obj.Prob.yf_ = sdpvar(obj.ny,obj.f,   'full');
+                obj.Prob.uf_ = sdpvar(obj.nu,obj.f,   'full');
+                obj.Prob.rf_ = sdpvar(obj.ny,obj.f,   'full');
+                obj.Prob.yp_ = sdpvar(obj.ny,obj.p,   'full');
+                obj.Prob.up_ = sdpvar(obj.nu,obj.p,   'full');
+                    % tracking error & u increments
+                er_ = obj.Prob.yf_ - obj.Prob.rf_; % error w.r.t. reference
+                du_ = diff([obj.Prob.up_(:,end) obj.Prob.uf_],1,2); % u_{k+1}-u_k
+
+                % construct cost function
+                obj.Prob.cost = er_(:).'*Q*er_(:)...
+                               + obj.Prob.uf_(:).'*R*obj.Prob.uf_(:)...
+                               + du_(:).'*dR*du_(:);
+    
+                % parse user-defined constraints, replace user's uf & yf
+                S = namedargs2cell(con_user.constr);
+                obj.Prob.con_usr = parse_user_con(obj,S{:});
+                
+                % make constraints governing dynamics
+                if obj.options.ExplicitPredictor
+                    obj.make_con_dyn_ExplicitPredictor(); % <-- also defines G
+                else
+                    obj.make_con_dyn_4Optimization();
+                end
+    
+                % construct optimization problem
+                obj.Prob.sdp_opts = sdpsettings(solve_type.sdp_opts);
+                if solve_type.UseOptimizer
+                    obj.makeOptimizer();
+                    obj.solve = @obj.optimizer_solve;
+                else
+                    obj.solve = @obj.optimize_solve;
+                end
             else
-                obj.solve = @obj.optimize_solve;
+                % no user-defined constraints -> use analytical solution
+                col1 = zeros(1,obj.f*obj.nu); col1(1) = 1; col1(obj.nu+1) = -1;
+                row1 = zeros(1,obj.nu*obj.f); row1(1) = 1;
+                Sdel = toeplitz(col1,row1);
+
+                % cost function: J = 0.5 uf.'*H*uf + c.'*uf
+                    % c = c_u0*u0 + Gu.'*Q*(Lu*up+Ly*yp-rf)
+                obj.Prob.c_u0 = -Sdel.'*R(:,1:obj.nu);
+                    % H = H_const + Gu.'*Q*Gu
+                obj.Prob.H_const = R + Sdel.'*dR*Sdel;
+                
+                obj.solve = @obj.analytical_solve;
             end
 
             % adaptive or non-adaptive -> determines method to update data
@@ -179,55 +203,37 @@ classdef Generalized_DeePC < handle
             H_y = mat2cell(obj.Ypast(:,1:obj.Nbar),obj.ny,ones(1,obj.Nbar));
             H_y = H_y(hankel(1:obj.pfid,obj.pfid:obj.Nbar));
             a = [cell2mat(H_u);cell2mat(H_y)];
+            a = a/sqrt(size(a,2));
             if obj.options.use_IV
                 a = a*a(1:end-obj.fid*obj.ny,:).';
             end
         end
 
         %% help functions
-        function make_con_dyn(obj)
-            
-            if ~obj.options.ExplicitPredictor
-                % dynamics are defined by equation of the from: LHS * G = Hf
-                obj.Prob.Hf_= ...
-                    [obj.make_sdp_Hankel([obj.Prob.up_ obj.Prob.uf_],obj.pfid,obj.nGcols);...
-                    obj.make_sdp_Hankel([obj.Prob.yp_ obj.Prob.yf_],obj.pfid,obj.nGcols)];
-                
-                % define G & LHS matrix
-                m1 = obj.pfid*obj.nu + obj.p*obj.ny;
-                m2 = m1 + obj.fid*obj.ny;
-                if obj.options.use_IV
-                    obj.Prob.G_   = sdpvar(m1, obj.nGcols, 'full');
-                    obj.Prob.LHS_ = sdpvar(m2, m1,         'full');
-                else
-                    obj.Prob.G_   = sdpvar(obj.N, obj.nGcols, 'full');
-                    obj.Prob.LHS_ = sdpvar(m2,    obj.N,      'full');
-                end
 
-                % make constraints governing dynamics
-                obj.Prob.con_dyn = obj.Prob.LHS_*obj.Prob.G_==obj.Prob.Hf_;
+        % ============ make constraints governing dynamics ================
+        function make_con_dyn_4Optimization(obj)
+            % dynamics are defined by equation of the from: LHS * G = Hf
+            obj.Prob.Hf_= ...
+                [obj.make_sdp_Hankel([obj.Prob.up_ obj.Prob.uf_],obj.pfid,obj.nGcols);...
+                obj.make_sdp_Hankel([obj.Prob.yp_ obj.Prob.yf_],obj.pfid,obj.nGcols)];
+            
+            % define G & LHS matrix
+            m1 = obj.pfid*obj.nu + obj.p*obj.ny;
+            m2 = m1 + obj.fid*obj.ny;
+            if obj.options.use_IV
+                obj.Prob.G_   = sdpvar(m1, obj.nGcols, 'full');
+                obj.Prob.LHS_ = sdpvar(m2, m1,         'full');
             else
-                obj.Prob.Lu_ = sdpvar(obj.f*obj.ny,obj.p*obj.nu,'full');
-                obj.Prob.Ly_ = sdpvar(obj.f*obj.ny,obj.p*obj.ny,'full');
-                
-                % make 
-                obj.Prob.Gu_ = sdpvar(obj.f*obj.ny,obj.f*obj.nu,'full');
-                shape_Gu = kron(tril(toeplitz(ones(1,obj.f),1:obj.f)),ones(obj.ny,obj.nu));
-                obj.Prob.Gu_ = obj.Prob.Gu_.*shape_Gu;
-                obj.Prob.GuCol_ = sdpvar(obj.f*obj.ny,obj.nu,'full');
-                obj.Prob.Gu_(:,1:obj.nu) = obj.Prob.GuCol_;
-                for kc = 2:obj.f
-                    r1 = obj.ny*(kc-1)+1;
-                    c1 = obj.nu*(kc-1)+1;
-                    c2 = obj.nu*kc;
-                    obj.Prob.Gu_(r1:end,c1:c2)=obj.Prob.GuCol_(1:end-obj.ny*(kc-1),:);
-                end
-                obj.Prob.con_dyn = obj.Prob.yf_(:) == obj.Prob.Lu_*obj.Prob.up_(:) + ...
-                                                   obj.Prob.Ly_*obj.Prob.yp_(:) + ...
-                                                   obj.Prob.Gu_*obj.Prob.uf_(:);
+                obj.Prob.G_   = sdpvar(obj.N, obj.nGcols, 'full');
+                obj.Prob.LHS_ = sdpvar(m2,    obj.N,      'full');
             end
+
+            % make constraints governing dynamics
+            obj.Prob.con_dyn = obj.Prob.LHS_*obj.Prob.G_==obj.Prob.Hf_;
         end
         
+        % ================ parse user-defined constraints =================
         function usr_con = parse_user_con(obj,usr_con)
                 % Parses constraint structure. Returns user defined
                 % constraints with variables defined by user switched for
@@ -277,66 +283,8 @@ classdef Generalized_DeePC < handle
                     end
                 end
             end
+
         
-        function [Lu,Ly,GuCol] = getPredictorMatrices(obj)
-            LHS_temp = obj.LHS;
-            % implicit estimation of Predictor Markov Parameters
-            At = LHS_temp(1:end-obj.ny,:);
-            Bt = LHS_temp(end-obj.ny+1:end,:);
-            tBetaTheta = Bt*pinv(At);
-%             cond(At)
-%             tBetaTheta = Bt/At;
-%             tBetaTheta = lsqr(At.',Bt.').';
-%             tBetaTheta = lsqminnorm(At.',Bt.','nowarn').';
-%             [tBetaTheta,~] = linsolve(At.',Bt.'); tBetaTheta = tBetaTheta.';
-            tBeta  = tBetaTheta(:,1:obj.nu*(obj.p+1));
-            tTheta = tBetaTheta(:,obj.nu*(obj.p+1)+1:end);
-
-            % make tHf
-            shape_tHf = toeplitz(obj.p+1:-1:obj.p+2-obj.f,[obj.p+1,(obj.p+2)*ones(1,obj.f-1)]);
-            shape_tHf(shape_tHf<=0) = obj.p+2;
-            tTheta2 = [-tTheta eye(obj.ny) zeros(obj.ny)];
-            tTheta2 = mat2cell(tTheta2,obj.ny,obj.ny*ones(1,obj.p+2));
-            tHf = cell2mat(tTheta2(shape_tHf));
-
-            % make tLuGu & tLy
-            rows_old = 1:obj.ny; % initial row numbers
-            % initialize tLuGu
-            n_uchan = obj.nu*(obj.p+1);
-            tLuGu   = zeros(obj.ny*obj.f,n_uchan);
-            tLuGu(rows_old,:) = tBeta;
-            % initialize tLy
-            n_ychan = obj.ny*obj.p;
-            tLy   = zeros(obj.ny*obj.f,n_ychan);
-            tLy(rows_old,:) = tTheta;
-            for kr = 2:obj.f
-                % update new row range
-                rows_new = rows_old(1)+obj.ny:rows_old(end)+obj.ny;
-
-                % get new rows of tLuGu
-                tLuGu(rows_new,:) = circshift(tLuGu(rows_old,:),[0,obj.nu]);
-                tLuGu(rows_new,1:obj.nu) = zeros(obj.ny,obj.nu);
-
-                % get new rows of tLy
-                tLy(rows_new,:) = circshift(tLy(rows_old,:),[0,obj.ny]);
-                tLy(rows_new,1:obj.ny) = zeros(obj.ny);
-
-                % update old row range
-                rows_old = rows_new;
-            end
-            tLuGuLy = [tLuGu tLy];
-
-            % tHf * LuGuLy = tLuGuLy <- use forward subst. to solve
-            LuGuLy = fixed.forwardSubstitute(tHf.',tLuGuLy);
-            Lu = LuGuLy(:,1:obj.nu*obj.p);
-            GuCol = LuGuLy(:,obj.nu*obj.p+1:n_uchan); %only first block column of Gu
-            Ly = LuGuLy(:,n_uchan+1:end);
-
-            % reconstruct entire Gu from first block column
-%             GuCol2 = mat2cell([GuCol;zeros(obj.ny,obj.nu)],obj.ny*ones(1,obj.f+1),obj.nu);
-%             shape_Gu = toeplitz(1:obj.f,[1 (obj.f+1)*ones(1,obj.f-1)]);
-%             Gu = cell2mat(GuCol2(shape_Gu));
-        end
         %% step
         function [uf, yf_hat] = step(obj,u_k,y_k,opt)
             arguments
@@ -387,19 +335,20 @@ classdef Generalized_DeePC < handle
         function makeOptimizer(obj)
             constraints = [obj.Prob.con_dyn;...
                            obj.Prob.con_usr];
-            if ~obj.options.ExplicitPredictor
+            if obj.options.ExplicitPredictor
                 obj.Prob.Optimizer = ...
-                    optimizer(constraints,obj.Prob.cost,obj.Prob.sdp_opts,...
-                             {obj.Prob.LHS_,obj.Prob.up_,obj.Prob.yp_,obj.Prob.rf_},... Parameters
-                             {obj.Prob.uf_,obj.Prob.yf_});  % Outputs
+                optimizer(constraints,obj.Prob.cost,obj.Prob.sdp_opts,...
+                         {obj.Prob.Lu_,obj.Prob.Ly_,obj.Prob.Gu_,obj.Prob.up_,obj.Prob.yp_,obj.Prob.rf_},... Parameters
+                         {obj.Prob.uf_,obj.Prob.yf_});  % Outputs
             else
                 obj.Prob.Optimizer = ...
                 optimizer(constraints,obj.Prob.cost,obj.Prob.sdp_opts,...
-                         {obj.Prob.Lu_,obj.Prob.Ly_,obj.Prob.GuCol_,obj.Prob.up_,obj.Prob.yp_,obj.Prob.rf_},... Parameters
-                         {obj.Prob.uf_,obj.Prob.yf_});  % Outputs
+                        {obj.Prob.LHS_,obj.Prob.up_,obj.Prob.yp_,obj.Prob.rf_},... Parameters
+                        {obj.Prob.uf_,obj.Prob.yf_});  % Outputs
             end
         end
         
+        % ==================== solve using 'optimizer' ====================
         function [uf, yf_hat] = optimizer_solve(obj,opt)
             % solve problem using call to yalmip Optimizer object
             arguments
@@ -413,8 +362,11 @@ classdef Generalized_DeePC < handle
                 if ~obj.options.ExplicitPredictor
                     [sol,errorcode] = obj.Prob.Optimizer(obj.LHS,obj.up,obj.yp,obj.rf);
                 else
-                    [Lu,Ly,GuCol] = obj.getPredictorMatrices();
-                    [sol,errorcode] = obj.Prob.Optimizer(Lu,Ly,GuCol,obj.up,obj.yp,obj.rf);
+                    [Lu,Ly,Gu] = obj.getPredictorMatrices();
+                    [sol,errorcode] = obj.Prob.Optimizer(Lu,Ly,Gu,obj.up,obj.yp,obj.rf);
+                end
+                if errorcode~=0 && (any(isnan(sol{1})) || any(isnan(sol{2})))
+                    error(yalmiperror(errorcode))
                 end
                 [uf, yf_hat] = deal(sol{:});
             catch Error
@@ -422,6 +374,7 @@ classdef Generalized_DeePC < handle
             end
         end
         
+        % ===================== solve using 'optimize' ====================
         function [uf, yf_hat] = optimize_solve(obj,opt)
             % solve problem using regular yalmip call to 'optimize'
             arguments
@@ -436,10 +389,10 @@ classdef Generalized_DeePC < handle
             if ~obj.options.ExplicitPredictor
                 con_dyn = replace(obj.Prob.con_dyn,obj.Prob.LHS_,obj.LHS);
             else
-                [Lu,Ly,GuCol] = obj.getPredictorMatrices();
+                [Lu,Ly,Gu] = obj.getPredictorMatrices();
                 con_dyn = replace(obj.Prob.con_dyn,obj.Prob.Lu_,Lu);
                 con_dyn = replace(con_dyn,obj.Prob.Ly_,Ly);
-                con_dyn = replace(con_dyn,obj.Prob.GuCol_,GuCol);
+                con_dyn = replace(con_dyn,obj.Prob.Gu_,Gu);
             end
             constraints = [con_dyn;...
                            obj.Prob.con_usr;...
