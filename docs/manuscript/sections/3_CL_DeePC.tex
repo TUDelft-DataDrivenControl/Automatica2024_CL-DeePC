@@ -55,6 +55,17 @@ Fig.~\ref{fig:CL-DeePC} and \eqref{eq:CL_DeePC_no_IVs} illustrate how this idea 
 \subsection{Auxiliary results}
 The proof of Theorem~\ref{theorem:main_result} is deferred till after the treatment of several auxiliary results. The first of which is the following lemma.
 \setcounter{thm}{0}
+\begin{lem}\label{lem:relative_rates}\citep{Bauer2002,Chiuso2006}
+    A necessary condition for consistent closed-loop subspace identification is that as $p\rightarrow\infty$, $N\rightarrow\infty$ such that
+    \begin{align}\label{eq:relative_rates}
+        \begin{split}
+            p &\geq -\frac{d\log N}{2\log|\rho|}, \quad 1 < d < \infty,\\
+            \lim_{p,N\rightarrow\infty} &\; \frac{p}{(\log N)^\alpha}=0, \quad \alpha < \infty.
+        \end{split}
+    \end{align}
+\end{lem}
+Where 
+
 \begin{lem}\label{lem:oblique_projections}\citep[Lemma~1]{VanOverschee1994,Katayama1999} Let $a$, $b$ and $c$ be random vectors with components in the Hilbert space $\mathscr{H}$, $\mathscr{A}=\text{span}\{a\}$, $\mathscr{B}=\text{span}\{b\}$ and $\mathscr{A}\cap\mathscr{B}=\{0\}$. Furthermore, let correlation matrices be exemplified by $\Sigma_{ca}=\mathbb{E}[ca^\top]$ and their conditional counterparts by $\Sigma_{ca|b}=\mathbb{E}[(c|b^\bot)(a|b^\bot)^\top]$, with $\bot$ denoting the orthogonal complement. Then the orthogonal projection of the row space of $c$ on the joint row space of $a$ and $b$ is the sum of the oblique projections $\Pi_{ca||b}a$ ($c$ onto $\mathscr{A}$ along $\mathscr{B}$) and $\Pi_{cb||a}b$ ($c$ onto $\mathscr{B}$ along $\mathscr{A}$) as
 \begin{align}
     \begin{bmatrix}
