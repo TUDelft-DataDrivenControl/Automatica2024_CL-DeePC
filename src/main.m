@@ -40,7 +40,7 @@ pmin = ceil(cond1_fac*log(Nmax)); % such that above always true
 % let minimum N be determined by regular DeePC
 Nmin = pmin*(2*nu+ny); % p=f
 num_N = 25;
-N_all = Nmax; %round(logspace(log10(Nmin),log10(Nmax),num_N));
+N_all = round(logspace(log10(Nmin),log10(Nmax),num_N));
 p = 25; % > pmin with Nmax
 f = p;
 Nol_bar_all = N_all+p+f-1;
@@ -60,23 +60,21 @@ Qk = 100;
 Rk = 0;
 dRk= 10;
 
-sims_per_N = 20;
+num_e = 100;
 
 % number of controllers
 num_c = 2;
 
 % initialize data structure
-c1 = struct('u', cell(num_c,num_N,sims_per_N),);
-fields = {'y','x','Cont','label'};
-for i_field = 1:length(fields)
-    c1(:).(fields{i_field}) = c1(:).u;
-end
+fields = {'u','y','e','x','Cont','label'};
+c1 = cell(num_N, num_c, num_e, length(fields));
+c1 = cell2struct(c1,fields,4);
 
 % noise
 Re = 0.1*eye(ny);                        % variance
 
 % for k_N = 1:num_N
-% for k_r = 1:sims_per_N
+% for k_r = 1:num_e
 
 % simulation length
 OL_sim_steps = Nmax;
