@@ -144,9 +144,6 @@ c1(1).controller = CL_DeePC(u1,y1,p,f,N_CL,Qk,Rk,dRk,use_IV=true,constr=con);
 c1(1).label = 'CL-DeePC, IV';
 c1(1).color = '#005AB5';%'#1D3E23';
 
-% c1(2).controller = CL_DeePC(u1,y1,p,f,N_CL,Qk,Rk,dRk,use_IV=true,constr=con,ExplicitPredictor=false);
-% c1(2).label = 'CL-DeePC, IV implicit';
-
 % 2) DeePC, with IV
 u2 = u_ol(:,end-Nbar_OL+1:end);
 y2 = y_ol(:,end-Nbar_OL+1:end);
@@ -191,7 +188,7 @@ end
 %%
 fig_prob_sol = plot_all(c1,1,CL_sim_steps,OL_sim_steps,f,r,e,k2,u_fac,y_fac);
 
-exportgraphics(fig_prob_sol,'..\results\figures\fig_prob_sol.pdf','BackgroundColor','White')
+% exportgraphics(fig_prob_sol,'..\results\figures\fig_prob_sol.pdf','BackgroundColor','White')
 %%
 function varargout = plot_all(c1,fignum,sim_steps,OL_steps,f,r,e,k2,u_fac,y_fac)
     if nargout == 1
