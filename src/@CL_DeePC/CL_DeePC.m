@@ -14,6 +14,7 @@ classdef CL_DeePC < Generalized_DeePC
                 dR (:,:) double
                 options.use_IV logical   = true
                 options.adaptive logical = true
+                options.useAnalytic logical = true  % use analytic solution if there are no constraints
                 options.ExplicitPredictor = true;
                 con_user.constr struct = struct('expr',[],'u0_sdp',[],'uf_sdp',[],'y0_sdp',[],'yf_sdp',[]);
                 solve_type.UseOptimizer logical = true
@@ -102,8 +103,9 @@ classdef CL_DeePC < Generalized_DeePC
             end
             tLuGuLy = [tLuGu tLy];
     
-            % tHf * LuGuLy = tLuGuLy <- use forward subst. to solve
-            LuGuLy = fixed.forwardSubstitute(tHf.',tLuGuLy);
+            % tHf * LuGuLy = tLuGuLy
+%             LuGuLy = fixed.forwardSubstitute(tHf.',tLuGuLy); % use forward subst. to solve
+            LuGuLy = tHf\tLuGuLy;
             Lu = LuGuLy(:,1:obj.nu*obj.p);
             Gu = LuGuLy(:,obj.nu*obj.p+1:n_uchan); %only first block column of Gu
             Ly = LuGuLy(:,n_uchan+1:end);

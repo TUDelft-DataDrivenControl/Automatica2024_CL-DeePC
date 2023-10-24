@@ -51,6 +51,7 @@ classdef Generalized_DeePC < handle
                 dR  (:,:) double
                 options.use_IV logical   = true
                 options.adaptive logical = true
+                options.useAnalytic logical = true  % use analytic solution if there are no constraints
                 options.ExplicitPredictor logical = false % for CL DeePC
                 con_user.constr struct = struct('expr',[],'u0_sdp',[],'uf_sdp',[],'y0_sdp',[],'yf_sdp',[]);
                 solve_type.UseOptimizer logical = true
@@ -121,7 +122,7 @@ classdef Generalized_DeePC < handle
             %==============================================================
             %-------------- make optimization problem ---------------------
             %==============================================================
-            if ~isempty(con_user.constr.expr)
+            if ~isempty(con_user.constr.expr) || ~obj.options.useAnalytic
                 % user-defined constraints involved -> use optimization
 
                 % define optimization variables
@@ -369,7 +370,7 @@ classdef Generalized_DeePC < handle
                     error(yalmiperror(errorcode))
                 end
                 [uf, yf_hat] = deal(sol{:});
-            catch Error
+            catch
                 error(yalmiperror(errorcode))
             end
         end

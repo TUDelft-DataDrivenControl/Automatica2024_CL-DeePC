@@ -14,6 +14,7 @@ classdef DeePC < Generalized_DeePC
                 dR (:,:) double
                 options.use_IV logical   = true
                 options.adaptive logical = true
+                options.useAnalytic logical = true  % use analytic solution if there are no constraints
                 con_user.constr struct = struct('expr',[],'u0_sdp',[],'uf_sdp',[],'y0_sdp',[],'yf_sdp',[]);
                 solve_type.UseOptimizer logical = true
                 solve_type.sdp_opts struct = sdpsettings('solver','mosek','verbose',0);
