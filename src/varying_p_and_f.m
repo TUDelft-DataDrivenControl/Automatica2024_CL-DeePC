@@ -7,7 +7,7 @@
 close all;
 yalmip('clear');
 clear;
-% rng('default');
+rng('default');
 clc;
 
 %% Edit path - add dependencies
@@ -33,88 +33,75 @@ model_Favoreel1999 % loads model from Favoreel 1999 - original SPC paper
 Plant = plant;
 
 rho_max = max(abs(eig(A-K*C)),[],'all');
-cond1_fac = -1/(2*log(rho_max)); % cond1_fac*log(N) < p
 
-Nmax = 10^3;                      % maximum number of columns
-pmin = ceil(cond1_fac*log(Nmax)); % such that above always true
-
-% minimum N is determined by regular DeePC
-p = 25; % > pmin with Nmax
-f = p;
-Nmin = p*(nu+ny)+f*nu; % p=f
-
-% % controller settings
-% p = 20;
-% f = 20;
-% Ns_CL = (p+1)*nu + p*ny; %N >= n + (p+1)*nu + p*ny
-% Ns_OL = (p+f)*nu + p*ny; %N >= n + (p+f)*nu + p*ny
-% Nsbar_CL = p+Ns_CL;
-% Nsbar_OL = p+f+Ns_OL-1;
-% N_OL    = 500; %Nmin;
-% N_CL    = N_OL+f-1; % such that Nbar_CL = Nbar_OL
-% Nbar_CL = p+N_CL;
-% Nbar_OL = p+f+N_OL-1;
+% controller settings
 Qk = 100;
 Rk = 0;
 dRk= 10;
+opts = sdpsettings('solver','ipopt','verbose',0);
+opts.ipopt.max_iter                 = 20;
+opts.ipopt.nlp_scaling_method       = 'none';
+opts.ipopt.warm_start_init_point    = 'no';
 
 % number of
 num_c = 2;   % controllers
-num_e = 100; % noise realizations per value of N
-num_N = 25;  % values for N
+num_e = 1; % noise realizations per value of p,f
+num_p = 20;  % number of values for p
 
-% N & Nbar values - same Nbar for DeePC & CL-DeePC
-N_all_OL = round(logspace(log10(Nmin),log10(Nmax),num_N));
-N_all_CL = N_all_OL + f-1;
-Nbar_all = N_all_OL+p+f-1;
+% p & f values
+p_max = 100;
+p_all = linspace(20,p_max,num_p); % > pmin with Nmax
+f_all = p_all; % p = f
+Nmin = p_all*(nu+ny)+p_all*nu;
+Nmax = floor(rho_max.^(-2*p_all));
 
-% initialize data structure
-% fields = {'u','y','x','e','r','Cont','label'};
-% data = cell(num_N, num_c, num_e, length(fields));
-% data = cell2struct(data,fields,4);
+Nbar = 10^3 + 2*p_max -1; % for both DeePC & CL-DeePC
+N_CL_all = Nbar - p_all;
+N_OL_all = Nbar - p_all - f_all + 1;
 
-noise = cell(num_N,num_e);       % innovation noise
-du_CL = cell(num_N,num_e);
-u_OL  = cell(num_N,num_e);
-y_OL  = cell(num_N,num_e);
-x_OL  = cell(num_N,num_e);
-Cz    = cell(num_N,num_e,num_c); % controllers
+% initialize data cells
+noise = cell(num_p,num_e);       % innovation noise
+du_CL = cell(num_p,num_e);
+u_OL  = cell(num_p,num_e);
+y_OL  = cell(num_p,num_e);
+x_OL  = cell(num_p,num_e);
+Cz    = cell(num_p,num_e,num_c); % controllers
 Label = {'DeePC, IV','CL-DeePC, IV'};           % labels
 Color = {'#DC3220','#005AB5'};
-u_CL  = cell(num_N,num_e,num_c); % CL inputs
-y_CL  = cell(num_N,num_e,num_c); % CL outputs
-x_CL  = cell(num_N,num_e,num_c); % CL states
-Cost  = cell(num_N,num_e,num_c);
+u_CL  = cell(num_p,num_e,num_c); % CL inputs
+y_CL  = cell(num_p,num_e,num_c); % CL outputs
+x_CL  = cell(num_p,num_e,num_c); % CL states
+Cost  = cell(num_p,num_e,num_c);
 
 % variances
-Re = 0.1*eye(ny); % noise
+Re = 0.25*eye(ny); % noise
 Ru = 1*eye(nu);   % OL input
-Rdu= Ru/10;       % CL input disturbance
+Rdu= sqrt(0.5);           % CL input disturbance variance
 
 % OL-sim initial state
 x0 = zeros(nx,1);
 
 % number of CL simulation steps
-CL_sim_steps = 2000;
+CL_sim_steps = 100;
+num_steps = Nbar + CL_sim_steps;  % total simulation length
 
 % define reference
-ref = nan(ny,CL_sim_steps+f-1); % +f-1 needed for simulation end
-ref = (-square((0:size(ref,2)-1)*2*pi/(500)))*50+1*50;
+ref = nan(ny,CL_sim_steps+f_all(end)-1); % +f-1 needed for simulation end
+ref = (-square((0:size(ref,2)-1)*2*pi/(200)))*50+1*50;
 
-for k_N = 1%1:num_N
-    % total simulation length
-Nbar = Nbar_all(k_N);
-N_OL = N_all_OL(k_N);
-N_CL = N_all_CL(k_N);
-num_steps = Nbar + CL_sim_steps;
+for k_p = 1:num_p
+N_OL = N_OL_all(k_p);
+N_CL = N_CL_all(k_p);
+p = p_all(k_p);
+f = f_all(k_p);
 
 tic
-for k_e = 1%:num_e
+for k_e = 1:num_e
 plant = Plant;
 
 % noise realization
 e  = mvnrnd(zeros(ny,1),Re,num_steps).';
-noise{k_N,k_e} = e;
+noise{k_p,k_e} = e;
 
 %% initial open loop simulation
 u_ol = mvnrnd(zeros(nu,1),Ru,Nbar).';
@@ -125,9 +112,9 @@ y_ol = y_ol.'; x_ol = x_ol.';
 x0_CL = plant.A*x_ol(:,end) + plant.B*[u_ol(:,end); e(:,Nbar)];
 
 % saving data
-u_OL{k_N,k_e} = u_ol;
-y_OL{k_N,k_e} = y_ol;
-x_OL{k_N,k_e} = x_ol;
+u_OL{k_p,k_e} = u_ol;
+y_OL{k_p,k_e} = y_ol;
+x_OL{k_p,k_e} = x_ol;
 
 % normalization factors
 u_fac = max(abs(u_ol),[],2);
@@ -173,16 +160,26 @@ y_run  = cell(num_c,1); % -> y_CL
 x_run  = cell(num_c,1); % -> y_CL
 
 du = mvnrnd(zeros(nu,1),Rdu,CL_sim_steps).';
-du_CL{k_N,k_e} = du;
+du_CL{k_p,k_e} = du;
+
+du_max = 3.75;
+con = struct();
+con.uf   = sdpvar(nu,f,'full');
+con.u0   = sdpvar(nu,1,'full');
+con.expr = [con.uf <=  15./u_fac;
+            con.uf >= -15./u_fac;
+            con.u0 - con.uf(:,1) <=  du_max./u_fac;
+            con.u0 - con.uf(:,1) >= -du_max./u_fac;
+            con.uf(:,1:end-1)-con.uf(:,2:end) <=  du_max./u_fac;
+            con.uf(:,1:end-1)-con.uf(:,2:end) >= -du_max./u_fac];
 
 % 1) DeePC with IV
-Cz_run{1} =    DeePC(u_ol,y_ol,p,f,N_OL,Qk_n,Rk_n,dRk_n,useAnalytic=true);
+Cz_run{1} =    DeePC(u_ol,y_ol,p,f,N_OL,Qk_n,Rk_n,dRk_n,constr=con,sdp_opts=opts);
 
 % 2) CL-DeePC with IV
-Cz_run{2} = CL_DeePC(u_ol,y_ol,p,f,N_CL,Qk_n,Rk_n,dRk_n,useAnalytic=true);
+Cz_run{2} = CL_DeePC(u_ol,y_ol,p,f,N_CL,Qk_n,Rk_n,dRk_n,constr=con,sdp_opts=opts);
 
 for k_c = 1:num_c
-    
     Cz_kc = Cz_run{k_c};
     cost = 0;
     x_k = x0_CL;
@@ -253,31 +250,30 @@ for k_c = 1:num_c
     end
 
     % saving data
-    u_CL{k_N,k_e,k_c} = u_fac.*u_run(:,end-CL_sim_steps+1:end);
-    y_CL{k_N,k_e,k_c} = y_fac.*y_run(:,end-CL_sim_steps+1:end);
-    x_CL{k_N,k_e,k_c} =        x_run(:,end-CL_sim_steps+1:end);
-    Cz{k_N,k_e,k_c}   = Cz_kc;
-    Cost{k_N,k_e,k_c} = cost;
-    
+    u_CL{k_p,k_e,k_c} = u_fac.*u_run(:,end-CL_sim_steps+1:end);
+    y_CL{k_p,k_e,k_c} = y_fac.*y_run(:,end-CL_sim_steps+1:end);
+    x_CL{k_p,k_e,k_c} =        x_run(:,end-CL_sim_steps+1:end);
+    Cz{k_p,k_e,k_c}   = Cz_kc;
+    Cost{k_p,k_e,k_c} = cost;    
 end
 
 end
 toc
 end
 %%
-plot_all(u_OL,y_OL,u_CL,y_CL,ref,Cz,1,k_N,1,Label,Color)
+plot_all(u_OL,y_OL,u_CL,y_CL,ref,Cz,1,1,1,Label,Color)
 
 %%
-function plot_all(u_OL,y_OL,u_CL,y_CL,ref,Cz,fignum,k_N,k_e,Label,Color)
+function plot_all(u_OL,y_OL,u_CL,y_CL,ref,Cz,fignum,k_p,k_e,Label,Color)
     
     figure(fignum);
     clf;
     
     num_c = size(Cz,3);
-    Nbar = Cz{k_N,1,1}.Nbar;
+    Nbar = Cz{k_p,1,1}.Nbar;
 
-    u_ol = u_OL{k_N,k_e};
-    y_ol = y_OL{k_N,k_e};
+    u_ol = u_OL{k_p,k_e};
+    y_ol = y_OL{k_p,k_e};
 
     % subplot with outputs & reference
     ax1 = subplot(2,1,1);
@@ -303,8 +299,8 @@ function plot_all(u_OL,y_OL,u_CL,y_CL,ref,Cz,fignum,k_N,k_e,Label,Color)
     Styles = struct('LineStyle',cell(num_c,1),'Color',cell(num_c,1),'LineWidth',cell(num_c,1));
     for k_c = num_c:-1:1
         
-        u_cl = u_CL{k_N,k_e,k_c};
-        y_cl = y_CL{k_N,k_e,k_c};
+        u_cl = u_CL{k_p,k_e,k_c};
+        y_cl = y_CL{k_p,k_e,k_c};
     
         u = [u_ol,u_cl];
         y = [y_ol,y_cl];
@@ -315,24 +311,11 @@ function plot_all(u_OL,y_OL,u_CL,y_CL,ref,Cz,fignum,k_N,k_e,Label,Color)
         Styles(k_c).LineStyle = lineref1{k_c}.LineStyle;
         Styles(k_c).Color     = lineref1{k_c}.Color;
         Styles(k_c).LineWidth = lineref1{k_c}.LineWidth;
-        % for k3 = 1:k2
-        %     plot(ax1,OL_steps+k3:OL_steps+f+k3-1,cont_struct.yfhat_k{k3})
-        % end
 
         styles2use = namedargs2cell(Styles(k_c));
         lineref2{k_c} = plot(ax2,1:length(u),u,styles2use{:});
-        % for k3 = 1:k2
-        %     plot(ax2,OL_steps+k3:OL_steps+f+k3-1,cont_struct.uf_k{k3})
-        % end
     end
     legend(ax1);
-
-%     ax3 = subplot(3,1,3);
-%     plot(ax3,1:length(e),e)
-%     xline(ax3,OL_steps+0.5,'k--');
-%     ylabel('$e_k$','interpreter','latex')
-%     xlabel('samples','interpreter','latex')
-%     grid on
     
     linkaxes([ax1 ax2],'x')
     xlim([Nbar,length(u)])

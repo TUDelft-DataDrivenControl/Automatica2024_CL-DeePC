@@ -7,7 +7,7 @@
 close all;
 yalmip('clear');
 clear;
-s = rng('default');
+rng('default');
 clc;
 
 %% Edit path - add dependencies
@@ -114,9 +114,10 @@ plant.D(:,1:nu)     = diag(y_fac)\plant.D(:,1:nu)*diag(u_fac);
 plant.D(:,nu+1:end) = diag(y_fac)\plant.D(:,nu+1:end);
 
 %% closed-loop operation
-du = 0.0*mvnrnd(zeros(nu,1),Ru,CL_sim_steps).';
+Rdu = 0.0;
+du = mvnrnd(zeros(nu,1),Rdu,CL_sim_steps).';
 du_max = 3.75;
-du(abs(du)>du_max) = sign(du(abs(du)>du_max))*du_max;
+du(abs(du)>du_max) = sign(du(abs(du)>du_max))*du_max; % prevent infeasibility
 du = du./u_fac;
 
 % initialize data structures for controllers
@@ -153,7 +154,6 @@ c1(2).color = '#DC3220';%'#d60000';
 
 
 for kc = 1:num_c
-    tic
     % set counters
     k1 = OL_sim_steps + 1;
     k2 = 1;
@@ -177,13 +177,12 @@ for kc = 1:num_c
             plot_all(c1,1,CL_sim_steps,OL_sim_steps,f,r,e,k2,u_fac,y_fac)
         end
     end
-    toc
     er = c1(kc).y(:,OL_sim_steps+1:end)-r(:,1:CL_sim_steps);
     u  = c1(kc).u(:,OL_sim_steps+1:end);
-    du = u-c1(kc).u(:,OL_sim_steps:end-1);
+    du2 = u-c1(kc).u(:,OL_sim_steps:end-1);
     c1(kc).cost = er(:).'*kron(speye(CL_sim_steps),Qk)*er(:)...
                 + u(:).'*kron(speye(CL_sim_steps),Rk)*u(:)...
-                + du(:).'*kron(speye(CL_sim_steps),dRk)*du(:);
+                + du2(:).'*kron(speye(CL_sim_steps),dRk)*du2(:);
 end
 %%
 fig_prob_sol = plot_all(c1,1,CL_sim_steps,OL_sim_steps,f,r,e,k2,u_fac,y_fac);

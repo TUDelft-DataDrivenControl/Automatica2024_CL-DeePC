@@ -370,7 +370,7 @@ classdef Generalized_DeePC < handle
                     error(yalmiperror(errorcode))
                 end
                 [uf, yf_hat] = deal(sol{:});
-            catch
+            catch Error
                 error(yalmiperror(errorcode))
             end
         end
