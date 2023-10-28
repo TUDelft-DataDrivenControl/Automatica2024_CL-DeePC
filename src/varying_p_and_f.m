@@ -38,10 +38,10 @@ rho_max = max(abs(eig(A-K*C)),[],'all');
 Qk = 100;
 Rk = 0;
 dRk= 10;
-opts = sdpsettings('solver','ipopt','verbose',0);
-opts.ipopt.max_iter                 = 20;
-opts.ipopt.nlp_scaling_method       = 'none';
-opts.ipopt.warm_start_init_point    = 'no';
+% opts = sdpsettings('solver','ipopt','verbose',0);
+% opts.ipopt.max_iter                 = 20;
+% opts.ipopt.nlp_scaling_method       = 'none';
+% opts.ipopt.warm_start_init_point    = 'no';
 
 % number of
 num_c = 2;   % controllers
@@ -163,21 +163,24 @@ du = mvnrnd(zeros(nu,1),Rdu,CL_sim_steps).';
 du_CL{k_p,k_e} = du;
 
 du_max = 3.75;
-con = struct();
-con.uf   = sdpvar(nu,f,'full');
-con.u0   = sdpvar(nu,1,'full');
-con.expr = [con.uf <=  15./u_fac;
-            con.uf >= -15./u_fac;
-            con.u0 - con.uf(:,1) <=  du_max./u_fac;
-            con.u0 - con.uf(:,1) >= -du_max./u_fac;
-            con.uf(:,1:end-1)-con.uf(:,2:end) <=  du_max./u_fac;
-            con.uf(:,1:end-1)-con.uf(:,2:end) >= -du_max./u_fac];
+con = struct('Opti',cell(1,2));
+for k_con = 1:num_c
+con(k_con).Opti = casadi.Opti();
+con(k_con).uf   = con(k_con).Opti.variable(nu,f);
+con(k_con).u0   = con(k_con).Opti.parameter(nu,1);
+con(k_con).expr = {con(k_con).uf <=  15./u_fac;
+            con(k_con).uf >= -15./u_fac;
+            con(k_con).u0 - con(k_con).uf(:,1) <=  du_max./u_fac;
+            con(k_con).u0 - con(k_con).uf(:,1) >= -du_max./u_fac;
+            con(k_con).uf(:,1:end-1)-con(k_con).uf(:,2:end) <=  du_max./u_fac;
+            con(k_con).uf(:,1:end-1)-con(k_con).uf(:,2:end) >= -du_max./u_fac};
+end
 
 % 1) DeePC with IV
-Cz_run{1} =    DeePC(u_ol,y_ol,p,f,N_OL,Qk_n,Rk_n,dRk_n,constr=con,sdp_opts=opts);
+Cz_run{1} =    DeePC(u_ol,y_ol,p,f,N_OL,Qk_n,Rk_n,dRk_n,constr=con(2),UseOptimizer=true);
 
 % 2) CL-DeePC with IV
-Cz_run{2} = CL_DeePC(u_ol,y_ol,p,f,N_CL,Qk_n,Rk_n,dRk_n,constr=con,sdp_opts=opts);
+Cz_run{2} = CL_DeePC(u_ol,y_ol,p,f,N_CL,Qk_n,Rk_n,dRk_n,constr=con(1),UseOptimizer=true);
 
 for k_c = 1:num_c
     Cz_kc = Cz_run{k_c};
@@ -227,7 +230,7 @@ for k_c = 1:num_c
         x_run(:,k2) = x_k;
 
         % compute input
-        [uf_k,~] = Cz_kc.step(u_k,y_k, rf=r_all(:,k3:k4)); 
+        [uf_k,~] = Cz_kc.step(u_k, y_k, rf=r_all(:,k3:k4)); 
         u_k = uf_k(:,1)+du(:,k3);
         u_run(:,k2) = u_k;
         
