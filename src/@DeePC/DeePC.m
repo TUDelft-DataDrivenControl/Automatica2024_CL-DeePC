@@ -15,6 +15,7 @@ classdef DeePC < Generalized_DeePC
                 options.use_IV logical   = true
                 options.adaptive logical = true
                 options.useAnalytic logical = true  % use analytic solution if there are no constraints
+                options.ExplicitPredictor logical = true;
                 con_user.constr struct = struct('expr',[],'u0',[],'uf',[],'y0',[],'yf',[]);
                 solve_type.UseOptimizer logical = true
                 solve_type.opts = []
@@ -29,12 +30,15 @@ classdef DeePC < Generalized_DeePC
         % ============ make constraints governing dynamics ================
         % using an explicit predictor: parameterized by Gu
         function make_con_dyn_ExplicitPredictor(obj)
-            obj.Prob.Lu_ = sdpvar(obj.f*obj.ny,obj.p*obj.nu,'full');
-            obj.Prob.Ly_ = sdpvar(obj.f*obj.ny,obj.p*obj.ny,'full');
-            obj.Prob.Gu_ = sdpvar(obj.f*obj.ny,obj.f*obj.nu,'full');
+            obj.Prob.Lu_ = obj.make_par(obj.f*obj.ny,obj.p*obj.nu);
+            obj.Prob.Ly_ = obj.make_par(obj.f*obj.ny,obj.p*obj.ny);
+            obj.Prob.Gu_ = obj.make_par(obj.f*obj.ny,obj.f*obj.nu);
             obj.Prob.con_dyn = obj.Prob.yf_(:) == obj.Prob.Lu_*obj.Prob.up_(:) + ...
                                                obj.Prob.Ly_*obj.Prob.yp_(:) + ...
                                                obj.Prob.Gu_*obj.Prob.uf_(:);
+            if obj.options.SolverFramework == 2
+                obj.Prob.con_dyn = {obj.Prob.con_dyn};
+            end
         end
 
         % ================ get explicit predictor matrices ================

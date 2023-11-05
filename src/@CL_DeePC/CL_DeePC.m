@@ -15,7 +15,7 @@ classdef CL_DeePC < Generalized_DeePC
                 options.use_IV logical   = true
                 options.adaptive logical = true
                 options.useAnalytic logical = true  % use analytic solution if there are no constraints
-                options.ExplicitPredictor = true;
+                options.ExplicitPredictor logical = true;
                 con_user.constr struct = struct('expr',[],'u0',[],'uf',[],'y0',[],'yf',[]);
                 solve_type.UseOptimizer logical = true
                 solve_type.opts = []
