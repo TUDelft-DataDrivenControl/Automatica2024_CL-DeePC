@@ -1,7 +1,6 @@
-function loop_p(x0,N_OL,N_CL,p,f,k_p,k_e,Plant,Ru,Re,ny,nu,nx,num_steps,Nbar,ref,Qk,Rk,dRk,num_c,Rdu,CL_sim_steps)
+function loop_var(x0,N_OL,N_CL,p,f,k_var,k_e,plant,Ru,Re,ny,nu,nx,num_steps,Nbar,ref,Qk,Rk,dRk,num_c,Rdu,CL_sim_steps,temp_str)
 
 %% initial open loop simulation
-plant = Plant;
 
 % noise realization
 e  = mvnrnd(zeros(ny,1),Re,num_steps).';
@@ -81,12 +80,9 @@ Cz{1} =    DeePC(u_ol,y_ol,p,f,N_OL,Qk_n,Rk_n,dRk_n,constr=con(1),UseOptimizer=t
 Cz{2} = CL_DeePC(u_ol,y_ol,p,f,N_CL,Qk_n,Rk_n,dRk_n,constr=con(2),UseOptimizer=true);
 
 for k_c = 1:num_c
-    Cz_kc = Cz{k_c};
     cost = 0;
     x_k = x0_CL;
     u_last = u_ol(:,end);
-    r_all = r;
-    plant2= plant;
 
     % initialize u, y, x
     u_run = nan(nu,num_steps); u_run(:,1:Nbar)   =  u_ol;
@@ -99,15 +95,15 @@ for k_c = 1:num_c
     k4 = k3+f-1;
     
     % first computed input
-    [uf_k,~] = Cz_kc.solve(rf=r_all(:,k3:k4));
+    [uf_k,~] = Cz{k_c}.solve(rf=r(:,k3:k4));
     u_k = uf_k(:,1)+du(:,1);
     u_run(:,k1) = u_k;
     
     % step plant
     e_k = e(:,k1);
     x_k = x_run(:,k1);
-    y_k    = plant2.C*x_k + plant2.D*[u_k; e_k];
-    x_next = plant2.A*x_k + plant2.B*[u_k; e_k];
+    y_k    = plant.C*x_k + plant.D*[u_k; e_k];
+    x_next = plant.A*x_k + plant.B*[u_k; e_k];
     y_run(:,k1) = y_k;
 
     % update cost
@@ -127,14 +123,14 @@ for k_c = 1:num_c
         x_run(:,k2) = x_k;
 
         % compute input
-        [uf_k,~] = Cz_kc.step(u_k, y_k, rf=r_all(:,k3:k4)); 
+        [uf_k,~] = Cz{k_c}.step(u_k, y_k, rf=r(:,k3:k4)); 
         u_k = uf_k(:,1)+du(:,k3);
         u_run(:,k2) = u_k;
         
         % step plant
         e_k    = e(:,k2);
-        y_k    = plant2.C*x_k + plant2.D*[u_k; e_k];
-        x_next = plant2.A*x_k + plant2.B*[u_k; e_k];
+        y_k    = plant.C*x_k + plant.D*[u_k; e_k];
+        x_next = plant.A*x_k + plant.B*[u_k; e_k];
         y_run(:,k2) = y_k;
     
         % update cost
@@ -143,12 +139,11 @@ for k_c = 1:num_c
         cost = cost + er_k.'*Qk_n*er_k + du_k.'*dRk_n*du_k + u_k.'*Rk_n*u_k;
     end
     % saving data - CL
-    u_CL{k_c} = u_fac.*u_run(:,end-CL_sim_steps+1:end); %{k_p,k_e,k_c}
+    u_CL{k_c} = u_fac.*u_run(:,end-CL_sim_steps+1:end); %{k_var,k_e,k_c}
     y_CL{k_c} = y_fac.*y_run(:,end-CL_sim_steps+1:end);
     x_CL{k_c} =        x_run(:,end-CL_sim_steps+1:end);
-%     Cz{k_c}   = Cz_kc;
     Cost{k_c} = cost;
 
 end % end for k_c
 
-save(strcat('../data/temp/Varying_p_kp_',num2str(k_p),'_ke_',num2str(k_e),'.mat'),'u_OL','y_OL','x_OL','e','du_CL','u_CL','y_CL','x_CL','Cost')
+save(strcat('../data/temp/',temp_str,num2str(k_var),'_ke_',num2str(k_e),'.mat'),'u_OL','y_OL','x_OL','e','du_CL','u_CL','y_CL','x_CL','Cost')

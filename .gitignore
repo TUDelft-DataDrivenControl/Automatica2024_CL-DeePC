@@ -1,6 +1,8 @@
 autosam.*
 !autosam.tex
 !autosam.bib
+data/raw/
+data/temp/
 docs/manuscript/feedback/
 docs/manuscript/unused/
 *.asv

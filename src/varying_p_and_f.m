@@ -30,7 +30,6 @@ addpath(genpath(pwd),'-begin');
 
 %% Simulation settings
 model_Favoreel1999 % loads model from Favoreel 1999 - original SPC paper
-Plant = plant;
 
 rho_max = max(abs(eig(A-K*C)),[],'all');
 
@@ -41,11 +40,12 @@ dRk= 10;
 
 % number of
 num_c = 2; % controllers
-num_e = 100; % noise realizations per value of p,f
+num_e = 1; % noise realizations per value of p,f
 
 % p & f values
+p_min = 20;
 p_max = 100;
-p_all = 20:2:p_max; % > pmin with Nmax
+p_all = p_min:2:p_max; % > pmin with Nmax
 num_p = length(p_all);  % number of values for p
 f_all = p_all; % p = f
 Nmin = p_all*(nu+ny)+p_all*nu;
@@ -56,6 +56,9 @@ N_CL_all = Nbar - p_all;
 N_OL_all = Nbar - p_all - f_all + 1;
 
 % initialize data cells
+results.p     = p_all;
+results.f     = f_all;
+results.CzLabel = {'DeePC, IV','CL-DeePC, IV'};           % labels
 results.noise = cell(num_p,num_e);       % innovation noise
 results.du_CL = cell(num_p,num_e);
 results.u_OL  = cell(num_p,num_e);
@@ -83,7 +86,8 @@ ref = nan(ny,CL_sim_steps+f_all(end)-1); % +f-1 needed for simulation end
 ref = (-square((0:size(ref,2)-1)*2*pi/(200)))*50+1*50;
 
 %% Running Simulations
-parpool(10);
+temp_str = 'Varying_p_kp_';
+% parpool(10);
 for k_p = 1:num_p
     N_OL = N_OL_all(k_p);
     N_CL = N_CL_all(k_p);
@@ -91,13 +95,13 @@ for k_p = 1:num_p
     f = f_all(k_p);
     
     % loop over noise realizations
-    parfor k_e = 1:num_e
-        loop_p(x0,N_OL,N_CL,p,f,k_p,k_e,Plant,Ru,Re,ny,nu,nx,num_steps,Nbar,ref,Qk,Rk,dRk,num_c,Rdu,CL_sim_steps);
+    for k_e = 1:num_e
+        loop_var(x0,N_OL,N_CL,p,f,k_p,k_e,plant,Ru,Re,ny,nu,nx,num_steps,Nbar,ref,Qk,Rk,dRk,num_c,Rdu,CL_sim_steps,temp_str);
     end
     
     % put saved temporary data into results structure
     for k_e = 1:num_e
-        Str = strcat('../data/temp/Varying_p_kp_',num2str(k_p),'_ke_',num2str(k_e),'.mat');
+        Str = strcat('../data/temp/',temp_str,num2str(k_p),'_ke_',num2str(k_e),'.mat');
         clear u_OL y_OL x_OL e du_CL u_CL y_CL x_CL Cost
         load(Str,'u_OL','y_OL','x_OL','e','du_CL','u_CL','y_CL','x_CL','Cost');
         results.noise{k_p,k_e} = e;
@@ -113,5 +117,5 @@ for k_p = 1:num_p
     end
 
     % save results structure
-    save(strcat('../data/raw/Varying_p/Varying_p_Nbar_',num2str(Nbar),'_eVar_',num2str(Re),'_uPEVar_',num2str(Rdu),'_Q_',num2str(Qk),'_R_',num2str(Rk),'_dR_',num2str(dRk),'.mat'),'results');
+    save(strcat('../data/raw/Varying_p/Varying_p_',num2str(p_min),'-',num2str(p_max),'-',num2str(num_p),'_Nbar_',num2str(Nbar),'_eVar_',num2str(Re),'_uPEVar_',num2str(Rdu),'_Q_',num2str(Qk),'_R_',num2str(Rk),'_dR_',num2str(dRk),'.mat'),'results');
 end
