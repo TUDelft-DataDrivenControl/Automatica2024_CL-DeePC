@@ -423,10 +423,8 @@ classdef Generalized_DeePC < handle
                     if ~obj.options.ExplicitPredictor
                         [uf,yf_hat] = obj.Prob.Optimizer(obj.LHS,obj.up,obj.yp,obj.rf);
                     else
-                        tic;
                         [Lu,Ly,Gu] = obj.getPredictorMatrices();
-                        toc; tic;
-                        [uf, yf_hat] = obj.Prob.Optimizer(Lu,Ly,Gu,obj.up,obj.yp,obj.rf);toc;
+                        [uf, yf_hat] = obj.Prob.Optimizer(Lu,Ly,Gu,obj.up,obj.yp,obj.rf);
                     end
                     uf = full(uf);
                     yf_hat = full(yf_hat);

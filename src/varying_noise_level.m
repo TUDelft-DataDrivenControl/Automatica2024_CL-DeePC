@@ -55,21 +55,22 @@ num_r = 1; % number of noise realizations
 % N & Nbar values - same Nbar for DeePC & CL-DeePC
 
 % initialize data cells
-noise = cell(num_e,num_r);       % innovation noise
-du_CL = cell(num_e,num_r);
-u_OL  = cell(num_e,num_r);
-y_OL  = cell(num_e,num_r);
-x_OL  = cell(num_e,num_r);
-Cz    = cell(num_e,num_r,num_c); % controllers
+results.noise = cell(num_e,num_r);       % innovation noise
+results.du_CL = cell(num_e,num_r);
+results.u_OL  = cell(num_e,num_r);
+results.y_OL  = cell(num_e,num_r);
+results.x_OL  = cell(num_e,num_r);
+% results.Cz    = cell(num_e,num_r,num_c); % controllers
+results.u_CL  = cell(num_e,num_r,num_c); % CL inputs
+results.y_CL  = cell(num_e,num_r,num_c); % CL outputs
+results.x_CL  = cell(num_e,num_r,num_c); % CL states
+results.Cost  = cell(num_e,num_r,num_c);
+
 Label = {'DeePC, IV','CL-DeePC, IV'};           % labels
 Color = {'#DC3220','#005AB5'};
-u_CL  = cell(num_e,num_r,num_c); % CL inputs
-y_CL  = cell(num_e,num_r,num_c); % CL outputs
-x_CL  = cell(num_e,num_r,num_c); % CL states
-Cost  = cell(num_e,num_r,num_c);
 
 % variances
-noise_var = 0.25;%logspace(-4,0,num_e);
+noise_var = logspace(-4,0,num_e);
 Ru = 1*eye(nu);   % OL input
 Rdu= 0;       % CL input disturbance
 
