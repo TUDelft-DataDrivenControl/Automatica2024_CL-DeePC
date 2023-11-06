@@ -5,7 +5,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 close all;
-yalmip('clear');
 clear;
 rng('default');
 clc;
@@ -15,18 +14,8 @@ clc;
 cd(mfilePath); % change cwd to folder containing this file
 
 addpath(genpath("../data"),'-begin')
-addpath(genpath("../config"),'-begin')
-
-% read directories to add to path
-fid = fopen('../config/dir_locs.txt');
-dirs = textscan(fid,'%s','delimiter','\n');
-dirs = dirs{:};
-for k1=1:length(dirs)
-    addpath(genpath(dirs{k1}),'-begin')
-end
-
-% add directory of this file to path
-addpath(genpath(pwd),'-begin');
+addpath(genpath("../bin"),'-begin')
+addpath(genpath(pwd),'-begin');% add directory of this file to path
 
 %% Simulation settings
 model_Favoreel1999 % loads model from Favoreel 1999 - original SPC paper
@@ -49,15 +38,15 @@ dRk= 10;
 
 % number of
 num_c = 2;     % controllers
-num_n = 1;     % number of noise levels
-num_e = 1; % number of noise realizations
+num_n = 50;     % number of noise levels
+num_e = 100; % number of noise realizations
 
 % variances
-eVar = 0.5;%logspace(-4,0,num_n);
+eVar = logspace(-4,0,num_n);
 Re_min = min(eVar,[],'all');
 Re_max = max(eVar,[],'all');
 Ru = 1*eye(nu);   % OL input
-Rdu= 0;       % CL input disturbance
+Rdu= 0.01;       % CL input disturbance
 
 % N & Nbar values - same Nbar for DeePC & CL-DeePC
 
@@ -68,19 +57,17 @@ results.du_CL = cell(num_n,num_e);
 results.u_OL  = cell(num_n,num_e);
 results.y_OL  = cell(num_n,num_e);
 results.x_OL  = cell(num_n,num_e);
-% results.Cz    = cell(num_n,num_e,num_c); % controllers
 results.u_CL  = cell(num_n,num_e,num_c); % CL inputs
 results.y_CL  = cell(num_n,num_e,num_c); % CL outputs
 results.x_CL  = cell(num_n,num_e,num_c); % CL states
 results.Cost  = cell(num_n,num_e,num_c);
 results.CzLabel = {'DeePC, IV','CL-DeePC, IV'};           % labels
-% Color = {'#DC3220','#005AB5'};
 
 % OL-sim initial state
 x0 = zeros(nx,1);
 
 % number of simulation steps
-CL_sim_steps = 100;
+CL_sim_steps = 1800;
 num_steps = Nbar + CL_sim_steps;  % total simulation length
 
 % define reference
@@ -90,10 +77,10 @@ ref = (-square((0:size(ref,2)-1)*2*pi/(200)))*50+1*50;
 
 %% running simulations
 temp_str = 'Varying_eVar_kn_';
-% parpool(10);
+parpool(10);
 for k_n = 1:num_n % loop over noise levels
     Re = eVar(k_n)*eye(ny);
-    for k_e = 1:num_e % loop over noise realizations
+    parfor k_e = 1:num_e % loop over noise realizations
         loop_var(x0,N_OL,N_CL,p,f,k_n,k_e,plant,Ru,Re,ny,nu,nx,num_steps,Nbar,ref,Qk,Rk,dRk,num_c,Rdu,CL_sim_steps,temp_str);
     end
 
@@ -115,5 +102,7 @@ for k_n = 1:num_n % loop over noise levels
     end
 
     % save results structure
-    save(strcat('../data/raw/Varying_eVar/Varying_eVar_',num2str(Re_min),'-',num2str(Re_max),'-',num2str(num_n),'_Nbar_',num2str(Nbar),'_p_',num2str(p),'_f_',num2str(f),'_uPEVar_',num2str(Rdu),'_Q_',num2str(Qk),'_R_',num2str(Rk),'_dR_',num2str(dRk),'.mat'),'results');
+    save(strcat('../data/raw/Varying_eVar/Varying_eVar_',num2str(Re_min),'-',num2str(Re_max),'-',num2str(num_n),...
+    '_Nbar_',num2str(Nbar),'_p_',num2str(p),'_f_',num2str(f),'_uPEVar_',num2str(Rdu),...
+    '_Q_',num2str(Qk),'_R_',num2str(Rk),'_dR_',num2str(dRk),'.mat'),'results');
 end

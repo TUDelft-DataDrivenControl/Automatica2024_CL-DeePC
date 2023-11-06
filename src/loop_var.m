@@ -91,11 +91,11 @@ for k_c = 1:num_c
 
     % set counters
     k1 = Nbar + 1;
-    k3 = 1;
-    k4 = k3+f-1;
+    k2 = 1;
+    k3 = k2+f-1;
     
     % first computed input
-    [uf_k,~] = Cz{k_c}.solve(rf=r(:,k3:k4));
+    [uf_k,~] = Cz{k_c}.solve(rf=r(:,k2:k3));
     u_k = uf_k(:,1)+du(:,1);
     u_run(:,k1) = u_k;
     
@@ -107,39 +107,43 @@ for k_c = 1:num_c
     y_run(:,k1) = y_k;
 
     % update cost
-    er_k = y_k-r(:,k3);
+    er_k = y_k-r(:,k2);
     du_k = u_k-u_last;
     cost = cost + er_k.'*Qk_n*er_k + du_k.'*dRk_n*du_k + u_k.'*Rk_n*u_k;
     
-    for k2 = Nbar+2:num_steps
+    for k1 = Nbar+2:num_steps
+        k2 = k2 + 1;
         k3 = k3 + 1;
-        k4 = k4 + 1;
         
         % previous input
         u_last = u_k;
 
         % current state
         x_k = x_next;
-        x_run(:,k2) = x_k;
+        x_run(:,k1) = x_k;
 
         % compute input
-        [uf_k,~] = Cz{k_c}.step(u_k, y_k, rf=r(:,k3:k4)); 
-        u_k = uf_k(:,1)+du(:,k3);
-        u_run(:,k2) = u_k;
+        [uf_k,~] = Cz{k_c}.step(u_k, y_k, rf=r(:,k2:k3)); 
+        u_k = uf_k(:,1)+du(:,k2);
+        u_run(:,k1) = u_k;
         
         % step plant
-        e_k    = e(:,k2);
+        e_k    = e(:,k1);
         y_k    = plant.C*x_k + plant.D*[u_k; e_k];
         x_next = plant.A*x_k + plant.B*[u_k; e_k];
-        y_run(:,k2) = y_k;
+        y_run(:,k1) = y_k;
     
         % update cost
-        er_k = y_k-r(:,k3);
+        er_k = y_k-r(:,k2);
         du_k = u_k-u_last;
         cost = cost + er_k.'*Qk_n*er_k + du_k.'*dRk_n*du_k + u_k.'*Rk_n*u_k;
+
+        if rem(k2,100) == 0
+            disp(strcat('ke',num2str(k_e),' progress: ',num2str(k2/CL_sim_steps*100),'%'))
+        end
     end
     % saving data - CL
-    u_CL{k_c} = u_fac.*u_run(:,end-CL_sim_steps+1:end); %{k_var,k_e,k_c}
+    u_CL{k_c} = u_fac.*u_run(:,end-CL_sim_steps+1:end);
     y_CL{k_c} = y_fac.*y_run(:,end-CL_sim_steps+1:end);
     x_CL{k_c} =        x_run(:,end-CL_sim_steps+1:end);
     Cost{k_c} = cost;

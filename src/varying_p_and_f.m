@@ -5,7 +5,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 close all;
-yalmip('clear');
 clear;
 rng('default');
 clc;
@@ -15,18 +14,8 @@ clc;
 cd(mfilePath); % change cwd to folder containing this file
 
 addpath(genpath("../data"),'-begin')
-addpath(genpath("../config"),'-begin')
-
-% read directories to add to path
-fid = fopen('../config/dir_locs.txt');
-dirs = textscan(fid,'%s','delimiter','\n');
-dirs = dirs{:};
-for k1=1:length(dirs)
-    addpath(genpath(dirs{k1}),'-begin')
-end
-
-% add directory of this file to path
-addpath(genpath(pwd),'-begin');
+addpath(genpath("../bin"),'-begin')
+addpath(genpath(pwd),'-begin');% add directory of this file to path
 
 %% Simulation settings
 model_Favoreel1999 % loads model from Favoreel 1999 - original SPC paper
@@ -40,7 +29,7 @@ dRk= 10;
 
 % number of
 num_c = 2; % controllers
-num_e = 1; % noise realizations per value of p,f
+num_e = 100; % noise realizations per value of p,f
 
 % p & f values
 p_min = 20;
@@ -72,13 +61,13 @@ results.Cost  = cell(num_p,num_e,num_c); % cost of controller implementation
 % variances
 Re = 0.25*eye(ny); % noise
 Ru = 1*eye(nu);    % OL input
-Rdu= 0*sqrt(0.5);  % CL input disturbance variance
+Rdu= 0.01;  % CL input disturbance variance
 
 % OL-sim initial state
 x0 = zeros(nx,1);
 
 % number of CL simulation steps
-CL_sim_steps = 2000;
+CL_sim_steps = 1800;
 num_steps = Nbar + CL_sim_steps;  % total simulation length
 
 % define reference
@@ -87,7 +76,7 @@ ref = (-square((0:size(ref,2)-1)*2*pi/(200)))*50+1*50;
 
 %% Running Simulations
 temp_str = 'Varying_p_kp_';
-% parpool(10);
+parpool(10);
 for k_p = 1:num_p
     N_OL = N_OL_all(k_p);
     N_CL = N_CL_all(k_p);
@@ -95,7 +84,7 @@ for k_p = 1:num_p
     f = f_all(k_p);
     
     % loop over noise realizations
-    for k_e = 1:num_e
+    parfor k_e = 1:num_e
         loop_var(x0,N_OL,N_CL,p,f,k_p,k_e,plant,Ru,Re,ny,nu,nx,num_steps,Nbar,ref,Qk,Rk,dRk,num_c,Rdu,CL_sim_steps,temp_str);
     end
     
@@ -117,5 +106,7 @@ for k_p = 1:num_p
     end
 
     % save results structure
-    save(strcat('../data/raw/Varying_p/Varying_p_',num2str(p_min),'-',num2str(p_max),'-',num2str(num_p),'_Nbar_',num2str(Nbar),'_eVar_',num2str(Re),'_uPEVar_',num2str(Rdu),'_Q_',num2str(Qk),'_R_',num2str(Rk),'_dR_',num2str(dRk),'.mat'),'results');
+    save(strcat('../data/raw/Varying_p/Varying_p_',num2str(p_min),'-',num2str(p_max),'-',num2str(num_p),...
+    '_Nbar_',num2str(Nbar),'_eVar_',num2str(Re),'_uPEVar_',num2str(Rdu),...
+    '_Q_',num2str(Qk),'_R_',num2str(Rk),'_dR_',num2str(dRk),'.mat'),'results');
 end

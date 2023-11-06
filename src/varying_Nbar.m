@@ -5,7 +5,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 close all;
-yalmip('clear');
 clear;
 rng('default');
 clc;
@@ -15,18 +14,8 @@ clc;
 cd(mfilePath); % change cwd to folder containing this file
 
 addpath(genpath("../data"),'-begin')
-addpath(genpath("../config"),'-begin')
-
-% read directories to add to path
-fid = fopen('../config/dir_locs.txt');
-dirs = textscan(fid,'%s','delimiter','\n');
-dirs = dirs{:};
-for k1=1:length(dirs)
-    addpath(genpath(dirs{k1}),'-begin')
-end
-
-% add directory of this file to path
-addpath(genpath(pwd),'-begin');
+addpath(genpath("../bin"),'-begin')
+addpath(genpath(pwd),'-begin');% add directory of this file to path
 
 %% Simulation settings
 model_Favoreel1999 % loads model from Favoreel 1999 - original SPC paper
@@ -47,8 +36,8 @@ dRk= 10;
 
 % number of
 num_c = 2;   % controllers
-num_e = 4; % noise realizations per value of N
-num_N = 2;  % values for N
+num_e = 100; % noise realizations per value of N
+num_N = 50;  % values for N
 
 % N & Nbar values - same Nbar for DeePC & CL-DeePC
 N_all_OL = round(logspace(log10(Nmin),log10(Nmax),num_N));
@@ -65,7 +54,6 @@ results.y_OL  = cell(num_N,num_e);
 results.x_OL  = cell(num_N,num_e);
 % results.Cz    = cell(num_N,num_e,num_c); % controllers
 results.CzLabel = {'DeePC, IV','CL-DeePC, IV'};           % labels
-results.Color = {'#DC3220','#005AB5'};
 results.u_CL  = cell(num_N,num_e,num_c); % CL inputs
 results.y_CL  = cell(num_N,num_e,num_c); % CL outputs
 results.x_CL  = cell(num_N,num_e,num_c); % CL states
@@ -80,7 +68,7 @@ Rdu= 0.01;       % CL input disturbance
 x0 = zeros(nx,1);
 
 % number of CL simulation steps
-CL_sim_steps = 500;
+CL_sim_steps = 1800;
 
 % define reference
 ref = nan(ny,CL_sim_steps+f-1); % +f-1 needed for simulation end
@@ -88,7 +76,7 @@ ref = (-square((0:size(ref,2)-1)*2*pi/(200)))*50+1*50;
 
 %% Run Simulations
 temp_str = 'Varying_Nbar_kn_';
-% parpool(10);
+parpool(10);
 for k_N = 1:num_N
 Nbar = Nbar_all(k_N);
 N_OL = N_all_OL(k_N);
