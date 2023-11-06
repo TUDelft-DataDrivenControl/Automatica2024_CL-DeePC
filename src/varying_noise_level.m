@@ -19,7 +19,6 @@ addpath(genpath(pwd),'-begin');% add directory of this file to path
 
 %% Simulation settings
 model_Favoreel1999 % loads model from Favoreel 1999 - original SPC paper
-Plant = plant;
 
 rho_max = max(abs(eig(A-K*C)),[],'all');
 cond1_fac = -1/(2*log(rho_max)); % cond1_fac*log(N) < p

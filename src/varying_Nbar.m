@@ -47,13 +47,12 @@ Nbar_min = min(Nbar_all,[],'all');
 Nbar_max = max(Nbar_all,[],'all');
 
 results.Nbar  = Nbar_all;
+results.CzLabel = {'DeePC, IV','CL-DeePC, IV'};           % labels
 results.noise = cell(num_N,num_e);       % innovation noise
 results.du_CL = cell(num_N,num_e);
 results.u_OL  = cell(num_N,num_e);
 results.y_OL  = cell(num_N,num_e);
 results.x_OL  = cell(num_N,num_e);
-% results.Cz    = cell(num_N,num_e,num_c); % controllers
-results.CzLabel = {'DeePC, IV','CL-DeePC, IV'};           % labels
 results.u_CL  = cell(num_N,num_e,num_c); % CL inputs
 results.y_CL  = cell(num_N,num_e,num_c); % CL outputs
 results.x_CL  = cell(num_N,num_e,num_c); % CL states

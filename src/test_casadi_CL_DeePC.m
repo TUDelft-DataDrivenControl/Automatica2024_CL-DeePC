@@ -26,11 +26,11 @@ num_c = 1;
 
 % simulation length
 OL_sim_steps = 1200;
-CL_sim_steps = 1800;
+CL_sim_steps = 500;
 num_steps = OL_sim_steps + CL_sim_steps;
 
 r = nan(ny,CL_sim_steps+f-1); % +f-1 needed for simulation end
-r = (-square((0:size(r,2)-1)*2*pi/(500)))*50+1*50;
+r = (-square((0:size(r,2)-1)*2*pi/(200)))*50+1*50;
 
 % noise
 Re = 0.5*eye(ny);                       % variance
@@ -79,29 +79,24 @@ du(abs(du)>du_max) = sign(du(abs(du)>du_max))*du_max; % prevent infeasibility
 du = du./u_fac;
 
 % create user-defined constraints
-% con = struct();
-% con.Opti = casadi.Opti();
-% con.uf   = con.Opti.variable(nu,f);
-% con.u0   = con.Opti.parameter(nu,1);
-% con.expr = {con.uf <=  15./u_fac,...
-%             con.uf >= -15./u_fac,...
-%             con.u0 - con.uf(:,1) <=  du_max./u_fac,...
-%             con.u0 - con.uf(:,1) >= -du_max./u_fac,...
-%             con.uf(:,1:end-1)-con.uf(:,2:end) <=  du_max./u_fac,...
-%             con.uf(:,1:end-1)-con.uf(:,2:end) >= -du_max./u_fac};
-uf   = sym('uf',[nu,f]);
-u0   = sym('u0',[nu 1]);
-con.expr = [uf ==  15./u_fac,... %<=
-            u0 - uf(:,1) ==  du_max./u_fac,... <=
-            uf(:,1:end-1)-uf(:,2:end) ==  du_max./u_fac]; % <=
-[Au,b] = equationsToMatrix(con.expr,reshape([u0,uf],[],1));
-
+con = struct('Opti',cell(1,2));
+for k = 1
+con(k).Opti = casadi.Opti('conic');
+con(k).uf   = con(k).Opti.variable(nu,f);
+con(k).u0   = con(k).Opti.parameter(nu,1);
+con(k).expr = {con(k).uf <=  15./u_fac,...
+            con(k).uf >= -15./u_fac,...
+            con(k).u0 - con(k).uf(:,1) <=  du_max./u_fac,...
+            con(k).u0 - con(k).uf(:,1) >= -du_max./u_fac,...
+            con(k).uf(:,1:end-1)-con(k).uf(:,2:end) <=  du_max./u_fac,...
+            con(k).uf(:,1:end-1)-con(k).uf(:,2:end) >= -du_max./u_fac};
+end
 
 % initialize controllers
 % 1) CL-DeePC, with IV
 u1 = u_ol(:,end-Nbar_CL+1:end);
 y1 = y_ol(:,end-Nbar_CL+1:end);
-c1(1).controller = CL_DeePC(u1,y1,p,f,N_CL,Qk,Rk,dRk,constr=con);%ExplicitPredictor=true,use_IV=true,UseOptimizer=true,
+c1(1).controller = CL_DeePC(u1,y1,p,f,N_CL,Qk,Rk,dRk,constr=con(1));%ExplicitPredictor=true,use_IV=true,UseOptimizer=true,
 c1(1).label = 'CL-DeePC, IV';
 c1(1).color = '#005AB5';%'#1D3E23';
 
