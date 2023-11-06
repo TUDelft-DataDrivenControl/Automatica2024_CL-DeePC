@@ -62,7 +62,7 @@ du = du./u_fac;
 du_max = 3.75;
 con = struct('Opti',cell(1,2));
 for k_con = 1:num_c
-con(k_con).Opti = casadi.Opti();
+con(k_con).Opti = casadi.Opti('conic');
 con(k_con).uf   = con(k_con).Opti.variable(nu,f);
 con(k_con).u0   = con(k_con).Opti.parameter(nu,1);
 con(k_con).expr = {con(k_con).uf <=  15./u_fac;
