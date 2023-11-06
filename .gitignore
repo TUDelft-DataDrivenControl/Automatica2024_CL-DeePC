@@ -3,6 +3,7 @@ autosam.*
 !autosam.bib
 data/raw/
 data/temp/
+bin/external/
 docs/manuscript/feedback/
 docs/manuscript/unused/
 *.asv
