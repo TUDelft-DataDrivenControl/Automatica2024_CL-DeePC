@@ -32,6 +32,11 @@ u_ol = u_ol./u_fac;
 y_ol = y_ol./y_fac;
 r    = ref./y_fac;
 
+% truncate data
+u_ol = u_ol(:,end-Nbar+1:end);
+y_ol = y_ol(:,end-Nbar+1:end);
+x_ol = x_ol(:,end-Nbar+1:end);
+
 % plant normalization
 % x+ = A x + B u + K e
 % y  = C x + D u + e
@@ -54,31 +59,31 @@ Qk_n = y_fac.'*Qk*y_fac;
 Rk_n = u_fac.'*Rk*u_fac;
 dRk_n= u_fac.'*dRk*u_fac.';
 
+% user defined constraints
+u_max = 15;     u_max =  u_max./u_fac;
+du_max = 3.75; du_max = du_max./u_fac;
+con = struct('Opti',cell(1,2));
+for k_con = 1:num_c
+con(k_con).Opti = casadi.Opti('conic');
+con(k_con).uf   = con(k_con).Opti.variable(nu,f);
+con(k_con).u0   = con(k_con).Opti.parameter(nu,1);
+con(k_con).expr = {con(k_con).uf <=  u_max;
+            con(k_con).uf >= -u_max;
+            con(k_con).u0 - con(k_con).uf(:,1) <=  du_max;
+            con(k_con).u0 - con(k_con).uf(:,1) >= -du_max;
+            con(k_con).uf(:,1:end-1)-con(k_con).uf(:,2:end) <=  du_max;
+            con(k_con).uf(:,1:end-1)-con(k_con).uf(:,2:end) >= -du_max};
+end
+
+% input disturbance
+du = du_CL./u_fac;
+
 % initialize arrays
 Cz = cell(num_c,1);
 u_CL = Cz;
 y_CL = Cz;
 x_CL = Cz;
 Cost = Cz;
-
-% input disturbance
-du = mvnrnd(zeros(nu,1),Rdu,CL_sim_steps).';
-du_CL = du;
-du = du./u_fac;
-
-du_max = 3.75;
-con = struct('Opti',cell(1,2));
-for k_con = 1:num_c
-con(k_con).Opti = casadi.Opti('conic');
-con(k_con).uf   = con(k_con).Opti.variable(nu,f);
-con(k_con).u0   = con(k_con).Opti.parameter(nu,1);
-con(k_con).expr = {con(k_con).uf <=  15./u_fac;
-            con(k_con).uf >= -15./u_fac;
-            con(k_con).u0 - con(k_con).uf(:,1) <=  du_max./u_fac;
-            con(k_con).u0 - con(k_con).uf(:,1) >= -du_max./u_fac;
-            con(k_con).uf(:,1:end-1)-con(k_con).uf(:,2:end) <=  du_max./u_fac;
-            con(k_con).uf(:,1:end-1)-con(k_con).uf(:,2:end) >= -du_max./u_fac};
-end
 
 % 1) DeePC with IV
 Cz{1} =    DeePC(u_ol,y_ol,p,f,N_OL,Qk_n,Rk_n,dRk_n,constr=con(1),UseOptimizer=true);
@@ -92,9 +97,9 @@ for k_c = 1:num_c
     u_last = u_ol(:,end);
 
     % initialize u, y, x
-    u_run = nan(nu,num_steps); u_run(:,1:Nbar)   =  u_ol;
-    y_run = nan(nu,num_steps); y_run(:,1:Nbar)   =  y_ol;
-    x_run = nan(nx,num_steps); x_run(:,1:Nbar+1) = [x_ol x_k];
+    u_run = nan(nu,Nbar+CL_sim_steps); u_run(:,1:Nbar)   =  u_ol;
+    y_run = nan(nu,Nbar+CL_sim_steps); y_run(:,1:Nbar)   =  y_ol;
+    x_run = nan(nx,Nbar+CL_sim_steps); x_run(:,1:Nbar+1) = [x_ol x_k];
 
     % set counters
     k1 = Nbar + 1;
@@ -103,7 +108,8 @@ for k_c = 1:num_c
     
     % first computed input
     [uf_k,~] = Cz{k_c}.solve(rf=r(:,k2:k3));
-    u_k = uf_k(:,1)+du(:,1);
+    u_k = limiter(uf_k(:,1),u_last,u_max,du_max);
+    u_k = u_k+du(:,1);
     u_run(:,k1) = u_k;
     
     % step plant
@@ -118,7 +124,7 @@ for k_c = 1:num_c
     du_k = u_k-u_last;
     cost = cost + er_k.'*Qk_n*er_k + du_k.'*dRk_n*du_k + u_k.'*Rk_n*u_k;
     
-    for k1 = Nbar+2:num_steps
+    for k1 = Nbar+2:Nbar+CL_sim_steps
         k2 = k2 + 1;
         k3 = k3 + 1;
         
@@ -130,8 +136,14 @@ for k_c = 1:num_c
         x_run(:,k1) = x_k;
 
         % compute input
-        [uf_k,~] = Cz{k_c}.step(u_k, y_k, rf=r(:,k2:k3)); 
-        u_k = uf_k(:,1)+du(:,k2);
+        try
+            [uf_k,~] = Cz{k_c}.step(u_k, y_k, rf=r(:,k2:k3));
+        catch Error
+            disp(['k_var =',num2str(k_var),'; k_e = ',num2str(k_e),' k1 = ',num2str(k2)]);
+            error(Error.message)
+        end
+        u_k = limiter(uf_k(:,1),u_last,u_max,du_max);
+        u_k = u_k+du(:,k2);
         u_run(:,k1) = u_k;
         
         % step plant
@@ -157,4 +169,13 @@ for k_c = 1:num_c
 
 end % end for k_c
 
-save(strcat('../data/temp/',temp_str,num2str(k_var),'_ke_',num2str(k_e),'.mat'),'u_OL','y_OL','x_OL','e','du_CL','u_CL','y_CL','x_CL','Cost')
+save(save_str,'y_OL','x_OL','u_CL','y_CL','x_CL','Cost','-append')
+end
+
+function u_k = limiter(u_k,u_last,u_max,du_max)
+    if any(abs(u_k) > u_max) || any(abs(u_k-u_last) > du_max)
+        u_max = min([u_max,u_last+du_max],[],2);
+        u_min = max([-u_max,u_last-du_max],[],2);
+        u_k = min([max([u_k,u_min],[],2),u_max],[],2);
+    end
+end
