@@ -67,7 +67,9 @@ Rdu= 0.01;       % CL input disturbance
 x0 = zeros(nx,1);
 
 % number of CL simulation steps
+OL_sim_steps = 1200; %>=Nbar_max
 CL_sim_steps = 1800;
+num_steps = OL_sim_steps + CL_sim_steps;  % total simulation length
 
 % define reference
 ref = nan(ny,CL_sim_steps+f-1); % +f-1 needed for simulation end
@@ -80,7 +82,6 @@ for k_N = 1:num_N
 Nbar = Nbar_all(k_N);
 N_OL = N_all_OL(k_N);
 N_CL = N_all_CL(k_N);
-num_steps = Nbar + CL_sim_steps;  % total simulation length
 
     parfor k_e = 1:num_e
         loop_var(x0,N_OL,N_CL,p,f,k_N,k_e,plant,Ru,Re,ny,nu,nx,num_steps,Nbar,ref,Qk,Rk,dRk,num_c,Rdu,CL_sim_steps,temp_str);
