@@ -1,24 +1,31 @@
 function loop_var(x0,N_OL,N_CL,p,f,k_var,k_e,plant,Ru,Re,ny,nu,nx,num_steps,Nbar,ref,Qk,Rk,dRk,num_c,Rdu,CL_sim_steps,temp_str)
 
+%% make used stochastic data
+% -> save now s.t. if there is an error this data is available for debugging
+OL_sim_steps = num_steps-CL_sim_steps;
+e  = mvnrnd(zeros(ny,1),Re,num_steps).';        % noise realization
+u_OL = mvnrnd(zeros(nu,1),Ru,OL_sim_steps).';           % OL input
+du_CL = mvnrnd(zeros(nu,1),Rdu,CL_sim_steps).'; % CL input
+
+% saving data
+save_str = strcat('../data/temp/',temp_str,num2str(k_var),'_ke_',num2str(k_e),'.mat');
+save(save_str,'e','u_OL','du_CL');
+
 %% initial open loop simulation
 
-% noise realization
-e  = mvnrnd(zeros(ny,1),Re,num_steps).';
-u_ol = mvnrnd(zeros(nu,1),Ru,Nbar).';
-
 % simulate system
-[y_ol,~,x_ol] = lsim(plant,[u_ol;e(:,1:Nbar)],[],x0);
+[y_ol,~,x_ol] = lsim(plant,[u_OL;e(:,1:OL_sim_steps)],[],x0);
 y_ol = y_ol.'; x_ol = x_ol.';
-x0_CL = plant.A*x_ol(:,end) + plant.B*[u_ol(:,end); e(:,Nbar)];
+x0_CL = plant.A*x_ol(:,end) + plant.B*[u_OL(:,end); e(:,OL_sim_steps)];
 
-% saving data - OL
-u_OL = u_ol;
+% differentiate between normalized & original OL data
+u_ol = u_OL;
 y_OL = y_ol;
 x_OL = x_ol;
 
 % normalization factors
-u_fac = max(abs(u_ol),[],2);
-y_fac = max(abs(y_ol),[],2);
+u_fac = max([max(abs(u_ol),[],2),15]);
+y_fac = max([max(abs(y_ol),[],2),100]);
 
 % normalize data
 u_ol = u_ol./u_fac;
