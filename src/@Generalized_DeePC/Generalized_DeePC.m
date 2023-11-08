@@ -26,8 +26,9 @@ classdef Generalized_DeePC < handle
                       'Hf_',[],'LHS_',[],...
                       'con_usr',[],'con_dyn',[],...
                       'sdp_opts',struct('solver','mosek','verbose',0),...
-                      'cas_opts',struct('solver', 'osqp',...
-                                        'options', struct('print_time',0)));
+                      'cas_opts',...
+                                    struct('solver', 'osqp',...
+                                    'options', struct('print_time',0)));
 %                                   struct('solver', 'ipopt',...
 %                                         'options', struct('print_time',1, ...
 %                                                           'ipopt',struct('print_level',0,'nlp_scaling_method','none','warm_start_init_point','no'))));
@@ -422,7 +423,7 @@ classdef Generalized_DeePC < handle
                     end
                     [uf, yf_hat] = deal(sol{:});
                 catch Error
-                    error(Error)
+                    error(Error.message)
                 end
             else % using CasADi
                 try
@@ -435,7 +436,7 @@ classdef Generalized_DeePC < handle
                     uf = full(uf);
                     yf_hat = full(yf_hat);
                 catch Error
-                    error(Error)
+                    error(Error.message)
                 end
             end
         end
