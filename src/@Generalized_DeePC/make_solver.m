@@ -1,4 +1,4 @@
-function make_usr_con(obj,usr_con)
+function make_solver(obj,usr_con)
 
 %% parsing usr_con fields
 % -> renames fields & checks dimensions & checks possible classes
@@ -159,27 +159,28 @@ end
 %% create flags for expr, str1, Opti
 
 % ------------------------ expr handling and flag -------------------------
+% possible flags: none, SX, MX, YALMIP cell, YALMIP
 if isfield(usr_con,'expr')
     if isa(usr_con.expr,'cell')
         if ~isvector(usr_con.expr) && ismatrix(usr_con.expr)
-            LHS  = usr_con.expr(:,1);
-            gleq = usr_con.expr(:,2);
+            con_LHS  = usr_con.expr(:,1);
+            con_gleq = usr_con.expr(:,2);
         elseif isvector(usr_con.expr)
-            LHS  = usr_con.expr(1:2:end); LHS = LHS(:);
-            gleq = usr_con.expr(2:2:end); gleq= gleq(:);
+            con_LHS  = usr_con.expr(1:2:end); con_LHS = con_LHS(:);
+            con_gleq = usr_con.expr(2:2:end); con_gleq= con_gleq(:);
         else
             error('Incorrect cell array structure specified for the expr field.')
         end
-        if length(LHS) ~= length(gleq)
+        if length(con_LHS) ~= length(con_gleq)
             error('Incorrect cell array structure specified for the expr field.')
-        elseif ~all(cellfun(@(x) isa(x,'char'),gleq))
+        elseif ~all(cellfun(@(x) isa(x,'char'),con_gleq))
             error('Incorrect cell array structure specified for the expr field.')
         end
-        if     all(cellfun(@(x) isa(x,'casadi.SX'),LHS))
+        if     all(cellfun(@(x) isa(x,'casadi.SX'),con_LHS))
             expr_flag = 'SX';
-        elseif all(cellfun(@(x) isa(x,'casadi.MX'),LHS))
+        elseif all(cellfun(@(x) isa(x,'casadi.MX'),con_LHS))
             expr_flag = 'MX';
-        elseif all(cellfun(@(x) isa(x,'sdpvar'),LHS))
+        elseif all(cellfun(@(x) isa(x,'sdpvar'),con_LHS))
             expr_flag = 'YALMIP cell';
         else
             error('Incorrect cell array structure specified for the expr field.')
@@ -194,6 +195,7 @@ else
 end
 
 % ---------------------------------- str1 flag ----------------------------
+% possible flags: none, SX, MX, YALMIP
 usr_str1 = intersect(fns,str1); % -> cell array with fields that are both in usr_con & str1
 if isempty(usr_str1)
     str1_flag = 'none';
@@ -221,6 +223,7 @@ else
 end
 
 % ---------------------------------- Opti flag ----------------------------
+% possible flags: none, make, present
 if ~isfield(usr_con,'Opti')
     opti_flag = 'none';
 elseif isempty(usr_con.Opti)
@@ -228,11 +231,9 @@ elseif isempty(usr_con.Opti)
     obj.Prob.Opti = casadi.Opti('conic'); % to solve a QP problem
 else
     opti_flag = 'present';
+    obj.Prob.Opti = usr_con.Opti;
 end
 
-expr_flag
-str1_flag
-opti_flag
 if ~contains(expr_flag,str1_flag)
     error('Inconsistent use of specified parameter/variable type and expression.');
 end
@@ -302,7 +303,7 @@ if contains(str1_flag,'YALMIP')
     obj.options.Framework = 1;
     make_parvar_method = 1;
 elseif strcmp(str1_flag,'MX') && strcmp(opti_flag,'present')
-    obj.options.Framework = 2;
+    obj.options.Framework = 2; % note: cannot distinguish between Opti.variable/parameter and MX.sym
     make_parvar_method = 2;
 elseif strcmp(str1_flag,'MX')
     obj.options.Framework = 3;
@@ -341,12 +342,12 @@ end
 if isfield(usr_con,'u0')
     obj.Prob.up_ = [obj.make_par(obj.nu,obj.p-1,'up_endmin1'),usr_con.u0];
 else
-    obj.Prob.up_ = obj.make_par(obj.nu,obj.p-1,'up');
+    obj.Prob.up_ = obj.make_par(obj.nu,obj.p,'up');
 end
 if isfield(usr_con,'y0')
     obj.Prob.yp_ = [obj.make_par(obj.ny,obj.p-1,'yp_endmin1'),usr_con.y0];
 else
-    obj.Prob.yp_ = obj.make_par(obj.nu,obj.p-1,'yp');
+    obj.Prob.yp_ = obj.make_par(obj.nu,obj.p,'yp');
 end
 if isfield(usr_con,'rf')
     obj.Prob.rf_ = usr_con.rf;
@@ -364,144 +365,210 @@ else
     obj.Prob.yf_ = obj.make_var(obj.ny,obj.f,'yf');
 end
 
-%% optimization variables - uf, yf, G -> x
-if obj.options.ExplicitPredictor
-    obj.Prob.x_ = [obj.Prob.uf_(:); obj.Prob.yf_(:)];
+% %% optimization variables - uf, yf, G -> x
+% if obj.options.ExplicitPredictor
+%     obj.Prob.x_ = [obj.Prob.uf_(:); obj.Prob.yf_(:)];
+% else
+%     if obj.options.use_IV
+%         m1 = obj.pfid*obj.nu + obj.p*obj.ny;
+%     else
+%         m1 = obj.N;
+%     end
+%     obj.Prob.G_ = obj.make_par(m1,obj.nGcols,'G');
+%     obj.Prob.x_ = [obj.Prob.uf_(:); obj.Prob.yf_(:); obj.Prob.G_(:)];
+%     
+%     % make functions to get results
+%     obj.Prob.x2G = @(x) reshape(x(end-m1*obj.nGcols+1:end),m1,obj.nGcols);
+% end
+% obj.Prob.x2uf = @(x) reshape(x(1:obj.nu*obj.f),obj.nu,obj.f);
+% obj.Prob.x2yf = @(x) reshape(x(obj.nu*obj.f+1:(obj.nu+obj.ny)*obj.f),obj.ny,obj.f);
+% zero_x = zeros(size(obj.Prob.x_));
+% 
+% %% parameters - up, yp, rf, Lu, Ly, Gu -> p
+% if obj.options.ExplicitPredictor
+%     obj.Prob.Lu_ = obj.make_par(obj.f*obj.ny, obj.p*obj.nu,'Lu');
+%     obj.Prob.Ly_ = obj.make_par(obj.f*obj.ny, obj.p*obj.ny,'Ly');
+%     obj.Prob.Gu_ = obj.make_par(obj.f*obj.ny, obj.f*obj.nu,'Gu');
+%     obj.Prob.p_ = [obj.Prob.up_(:); obj.Prob.yp_(:); obj.Prob.rf_(:); obj.Prob.Lu_(:); obj.Prob.Ly_(:); obj.Prob.Gu_(:)];
+%     if obj.options.Framework > 1
+%         obj.Prob.get_p = casadi.Function('get_p',... function to optain parameters
+%                     {obj.Prob.up_,obj.Prob.yp_,obj.Prob.rf_,obj.Prob.Lu_,obj.Prob.Ly_,obj.Prob.Gu_},... parameters
+%                     {obj.Prob.p_},... vector with parameters
+%                     {'up','yp','rf','Lu','Ly','Gu'},{'p'}); % naming
+%     end
+% else
+%     m2 = m1 + obj.fid*obj.ny;
+%     obj.Prob.LHS_ = obj.make_par(m2,m1,'LHS');
+%     obj.Prob.p_ = [obj.Prob.up_(:); obj.Prob.yp_(:); obj.Prob.rf_(:); obj.Prob.LHS_(:)];
+%     if obj.options.Framework > 1
+%         obj.Prob.get_p = casadi.Function('get_p',... function to optain parameters
+%                         {obj.Prob.up_,obj.Prob.yp_,obj.Prob.rf_,obj.Prob.LHS_},... parameters
+%                         {obj.Prob.p_},... vector with parameters
+%                         {'up','yp','rf','LHS'},{'p'}); % naming
+%     end
+% end
+% zero_p = zeros(size(obj.Prob.p_));
+
+%% Cost
+er_ = obj.Prob.yf_ - obj.Prob.rf_; % error w.r.t. reference
+du_ = horzcat(obj.Prob.uf_(:,1)    -obj.Prob.up_(:,end), ...
+              obj.Prob.uf_(:,2:end)-obj.Prob.uf_(:,1:end-1)); % u_{k+1}-u_k
+obj.Prob.cost =   er_(:).'*obj.Prob.Q *er_(:) ...
+       + obj.Prob.uf_(:).'*obj.Prob.R *obj.Prob.uf_(:) ...
+                + du_(:).'*obj.Prob.dR*du_(:);
+
+%% Construct solver
+
+if obj.options.Framework == 1
+    obj.make_YALMIP_solver(usr_con,expr_flag)
+elseif obj.options.Framework == 2
+    obj.make_CasADi_Opti_solver(usr_con)
 else
-    if obj.options.use_IV
-        m1 = obj.pfid*obj.nu + obj.p*obj.ny;
-    else
-        m1 = obj.N;
-    end
-    obj.Prob.G_ = obj.make_par(m1,obj.nGcols,'G');
-    obj.Prob.x_ = [obj.Prob.uf_(:); obj.Prob.yf_(:); obj.Prob.G_(:)];
-    
-    % make functions to get results
-    obj.Prob.x2G = @(x) reshape(x(end-m1*obj.nGcols+1:end),m1,obj.nGcols);
+    obj.make_CasADi_solver(usr_con)
 end
-obj.Prob.x2uf = @(x) reshape(x(1:obj.nu*obj.f),obj.nu,obj.f);
-obj.Prob.x2yf = @(x) reshape(x(obj.nu*obj.f+1:(obj.nu+obj.ny)*obj.f),obj.ny,obj.f);
-
-%% parameters - up, yp, rf, Lu, Ly, Gu -> p
-if obj.options.ExplicitPredictor
-    obj.Prob.Lu_ = obj.make_par(obj.f*obj.ny, obj.p*obj.nu,'Lu');
-    obj.Prob.Ly_ = obj.make_par(obj.f*obj.ny, obj.p*obj.ny,'Ly');
-    obj.Prob.Gu_ = obj.make_par(obj.f*obj.ny, obj.f*obj.nu,'Gu');
-    obj.Prob.p_ = [obj.Prob.up_(:); obj.Prob.yp_(:); obj.Prob.rf_(:); obj.Prob.Lu_(:); obj.Prob.Ly_(:); obj.Prob.Gu_(:)];
-    if obj.options.Framework > 1
-        obj.Prob.get_p = casadi.Function('get_p',... function to optain parameters
-                    {obj.Prob.up_,obj.Prob.yp_,obj.Prob.rf_,obj.Prob.Lu_,obj.Prob.Ly_,obj.Prob.Gu_},... parameters
-                    {obj.Prob.p_},... vector with parameters
-                    {'up','yp','rf','Lu','Ly','Gu'},{'p'}); % naming
-    end
-else
-    m2 = m1 + obj.fid*obj.ny;
-    obj.Prob.LHS_ = obj.make_par(m2,m1,'LHS');
-    obj.Prob.p_ = [obj.Prob.up_(:); obj.Prob.yp_(:); obj.Prob.rf_(:); obj.Prob.LHS_(:)];
-    if obj.options.Framework > 1
-        obj.Prob.get_p = casadi.Function('get_p',... function to optain parameters
-                        {obj.Prob.up_,obj.Prob.yp_,obj.Prob.rf_,obj.Prob.LHS_},... parameters
-                        {obj.Prob.p_},... vector with parameters
-                        {'up','yp','rf','LHS'},{'p'}); % naming
-    end
-end
-
-%% constraints specified as in str1
-
-% initialize matrices
-uba = []; lba = []; A = []; lbx = []; ubx = [];
-
-% ---------------------- form YALMIP constraints --------------------------
-% -> if they are still inside cell array (expr_flag = 'YALMIP cell')
-if contains(expr_flag,'YALMIP')
-    if contains(expr_flag,'cell')
-        usr_con.expr = [];
-        for k = 1:numel(LHS)
-            if strcmp(gleq{k},'==')
-                usr_con.expr = [usr_con.expr;LHS{k}==0];
-            elseif strcmp(gleq{k},'<=') || strcmp(gleq{k},'=<')
-                usr_con.expr = [usr_con.expr;LHS{k}<=0];
-            elseif strcmp(gleq{k},'>=') || strcmp(gleq{k},'=>')
-                usr_con.expr = [usr_con.expr;LHS{k}>=0];
-            else
-                error('Constraint specified incorrectly.')
-            end
-        end
-    end
-
-% ---------------------- form CasADi constraints --------------------------
-elseif strcmp(expr_flag,'MX') || strcmp(expr_flag,'SX')
-    zero_x = zeros(size(obj.Prob.x_));
-    zero_p = zeros(size(obj.Prob.p_));
-    for k = 1:numel(LHS)
-        Ax_jac =  casadi.DM(jacobian(LHS{k},obj.Prob.x_));
-        Ap_jac =  casadi.DM(jacobian(LHS{k},obj.Prob.p_));
-        p_terms= Ap_jac*obj.Prob.p_;
-        Ac     =  casadi.substitute(LHS{k}, obj.Prob.x_, zero_x);
-        Ac     =  casadi.DM(casadi.substitute(Ac, obj.Prob.p_, zero_p));
-        rhs    = -p_terms-Ac;
-        num_rows = size(LHS{k},1);
-        A = [A;Ax_jac];
-        if strcmp(gleq{k},'==')
-            uba = [uba;rhs];
-            lba = [lba;rhs];
-        elseif strcmp(gleq{k},'<=') || strcmp(gleq{k},'=<')
-            uba = [uba;rhs];
-            lba = [lba;-inf(num_rows,1)];
-        elseif strcmp(gleq{k},'>=') || strcmp(gleq{k},'=>')
-            uba = [uba;inf(num_rows,1)];
-            lba = [lba;rhs];
-        else
-            error('Constraint specified incorrectly.')
-        end
-    end
-end
-%% constraints specified as in str2
-
-% add missing fields with -inf/inf
-for k=1:length(str2)
-    fn = str2{k};
-    fn1 = regexp(fn,'^(d{0,1})(u|y).*(min|max)$','tokens');
-    if ~isfield(usr_con,fn)
-        fn1 = fn1{1};
-        if isempty(fn1{1}) %no du or dy => set to -inf or inf
-            if strcmp(fn1{3},'min')
-                Sign = -1;
-            else
-                Sign = 1;
-            end
-            if strcmp(fn1{2},'u')
-                ndim = obj.nu;
-            else
-                ndim = obj.ny;
-            end
-            usr_con.(fn) = Sign*inf(ndim,1);
-        else % lba <= Ax <= uba not necessarily specified
-            usr_con.(fn) = [];
-        end
-    end
-end
-
-if obj.options.ExplicitPredictor
-    lbx = [lbx;repmat(usr_con.u_min,obj.f,1);repmat(usr_con.y_min,obj.f,1)];
-    ubx = [ubx;repmat(usr_con.u_max,obj.f,1);repmat(usr_con.y_max,obj.f,1)];
-else
-    lbx = [lbx;repmat(usr_con.u_min,obj.f,1);repmat(usr_con.y_min,obj.f,1);-inf(numel(obj.Prob.G_),1)];
-    ubx = [ubx;repmat(usr_con.u_max,obj.f,1);repmat(usr_con.y_max,obj.f,1); inf(numel(obj.Prob.G_),1)];
-end
-
-% construct lba, uba, A
-if ~isempty(usr_con.du_max)
-    lba = [lba;-usr_con.du_max+obj.Prob.up_(:,end); -repmat(usr_con.du_max,obj.f-1,1)];
-    uba = [uba; usr_con.du_max+obj.Prob.up_(:,end);  repmat(usr_con.du_max,obj.f-1,1)];
-    du_ = [obj.Prob.uf_(:,1)-obj.Prob.up_(:,end) obj.Prob.uf_(:,2:end)-obj.Prob.uf_(:,1:end-1)];
-    A   = [A;casadi.DM(jacobian(du_(:),obj.Prob.x_))];
-end
-if ~isempty(usr_con.dy_max)
-    lba = [lba;-usr_con.dy_max+obj.Prob.yp_(:,end); -repmat(usr_con.dy_max,obj.f-1,1)];
-    uba = [uba; usr_con.dy_max+obj.Prob.yp_(:,end);  repmat(usr_con.dy_max,obj.f-1,1)];
-    dy_ = [obj.Prob.yf_(:,1)-obj.Prob.yp_(:,end) obj.Prob.yf_(:,2:end)-obj.Prob.yf_(:,1:end-1)];
-    A   = [A;casadi.DM(jacobian(dy_(:),obj.Prob.x_))];
-end
+% %% constraints specified as in str1
+% 
+% % initialize matrices
+% uba = []; lba = []; A = []; lbx = []; ubx = [];
+% 
+% % ---------------------- form YALMIP constraints --------------------------
+% % -> if they are still inside cell array (expr_flag = 'YALMIP cell')
+% if contains(expr_flag,'YALMIP')
+%     if contains(expr_flag,'cell')
+%         usr_con.expr = [];
+%         for k = 1:numel(con_LHS)
+%             if strcmp(con_gleq{k},'==')
+%                 usr_con.expr = [usr_con.expr;con_LHS{k}==0];
+%             elseif strcmp(con_gleq{k},'<=') || strcmp(con_gleq{k},'=<')
+%                 usr_con.expr = [usr_con.expr;con_LHS{k}<=0];
+%             elseif strcmp(con_gleq{k},'>=') || strcmp(con_gleq{k},'=>')
+%                 usr_con.expr = [usr_con.expr;con_LHS{k}>=0];
+%             else
+%                 error('Constraint specified incorrectly.')
+%             end
+%         end
+%     end
+% 
+% % ---------------------- form CasADi constraints --------------------------
+% elseif strcmp(expr_flag,'MX') || strcmp(expr_flag,'SX')
+%     for k = 1:numel(con_LHS)
+%         Ax_jac =  casadi.DM(jacobian(con_LHS{k},obj.Prob.x_));
+%         Ap_jac =  casadi.DM(jacobian(con_LHS{k},obj.Prob.p_));
+%         p_terms= Ap_jac*obj.Prob.p_;
+%         Ac     =  casadi.substitute(con_LHS{k}, obj.Prob.x_, zero_x);
+%         Ac     =  casadi.DM(casadi.substitute(Ac, obj.Prob.p_, zero_p));
+%         rhs    = -p_terms-Ac;
+%         num_rows = size(con_LHS{k},1);
+%         A = [A;Ax_jac];
+%         if strcmp(con_gleq{k},'==')
+%             uba = [uba;rhs];
+%             lba = [lba;rhs];
+%         elseif strcmp(con_gleq{k},'<=') || strcmp(con_gleq{k},'=<')
+%             uba = [uba;rhs];
+%             lba = [lba;-inf(num_rows,1)];
+%         elseif strcmp(con_gleq{k},'>=') || strcmp(con_gleq{k},'=>')
+%             uba = [uba;inf(num_rows,1)];
+%             lba = [lba;rhs];
+%         else
+%             error('Constraint specified incorrectly.')
+%         end
+%     end
+% end
+% %% constraints specified as in str2
+% 
+% % add missing fields with -inf/inf
+% for k=1:length(str2)
+%     fn = str2{k};
+%     fn1 = regexp(fn,'^(d{0,1})(u|y).*(min|max)$','tokens');
+%     if ~isfield(usr_con,fn)
+%         fn1 = fn1{1};
+%         if isempty(fn1{1}) %no du or dy => set to -inf or inf
+%             if strcmp(fn1{3},'min')
+%                 Sign = -1;
+%             else
+%                 Sign = 1;
+%             end
+%             if strcmp(fn1{2},'u')
+%                 ndim = obj.nu;
+%             else
+%                 ndim = obj.ny;
+%             end
+%             usr_con.(fn) = Sign*inf(ndim,1);
+%         else % lba <= Ax <= uba not necessarily specified
+%             usr_con.(fn) = [];
+%         end
+%     end
+% end
+% 
+% if obj.options.ExplicitPredictor
+%     lbx = [lbx;repmat(usr_con.u_min,obj.f,1);repmat(usr_con.y_min,obj.f,1)];
+%     ubx = [ubx;repmat(usr_con.u_max,obj.f,1);repmat(usr_con.y_max,obj.f,1)];
+% else
+%     lbx = [lbx;repmat(usr_con.u_min,obj.f,1);repmat(usr_con.y_min,obj.f,1);-inf(numel(obj.Prob.G_),1)];
+%     ubx = [ubx;repmat(usr_con.u_max,obj.f,1);repmat(usr_con.y_max,obj.f,1); inf(numel(obj.Prob.G_),1)];
+% end
+% 
+% % construct lba, uba, A
+% if ~isempty(usr_con.du_max)
+%     lba = [lba;-usr_con.du_max+obj.Prob.up_(:,end); -repmat(usr_con.du_max,obj.f-1,1)];
+%     uba = [uba; usr_con.du_max+obj.Prob.up_(:,end);  repmat(usr_con.du_max,obj.f-1,1)];
+%     du_ = [obj.Prob.uf_(:,1)-obj.Prob.up_(:,end) obj.Prob.uf_(:,2:end)-obj.Prob.uf_(:,1:end-1)];
+%     A   = [A;jacobian(du_(:),obj.Prob.x_)];
+% end
+% if ~isempty(usr_con.dy_max)
+%     lba = [lba;-usr_con.dy_max+obj.Prob.yp_(:,end); -repmat(usr_con.dy_max,obj.f-1,1)];
+%     uba = [uba; usr_con.dy_max+obj.Prob.yp_(:,end);  repmat(usr_con.dy_max,obj.f-1,1)];
+%     dy_ = [obj.Prob.yf_(:,1)-obj.Prob.yp_(:,end) obj.Prob.yf_(:,2:end)-obj.Prob.yf_(:,1:end-1)];
+%     A   = [A;jacobian(dy_(:),obj.Prob.x_)];
+% end
+% 
+% %% Constraints - Dynamics
+% if obj.options.ExplicitPredictor
+%     ulba = obj.Prob.Lu_*obj.Prob.up_(:)+obj.Prob.Ly_*obj.Prob.yp_(:);
+%     lba = [lba;ulba];
+%     uba = [uba;ulba];
+%     A = [A;[-obj.Prob.Gu_ speye(obj.ny*obj.f)]];
+% else
+%     Hf_= [obj.make_CasADi_Hankel([obj.Prob.up_ obj.Prob.uf_],obj.pfid,obj.nGcols,'u');...
+%           obj.make_CasADi_Hankel([obj.Prob.yp_ obj.Prob.yf_],obj.pfid,obj.nGcols,'y')];
+%     x_small = [obj.Prob.uf_(:);obj.Prob.yf_(:)]; % x_ without G
+%     A = [A;[-jacobian(Hf_(:),x_small),kron(speye(obj.nGcols),obj.Prob.LHS_)]];
+%     la_new = casadi.substitute(Hf_(:),x_small,casadi.DM(zeros(size(x_small))));
+%     lba = [lba;la_new];
+%     uba = [uba;la_new];
+% end
+% 
+% %% Cost function
+% 
+% H = hessian(cost,obj.Prob.x_);
+% c = jacobian(cost-casadi.DM(1/2)*obj.Prob.x_.'*H*obj.Prob.x_,obj.Prob.x_).';
+% c = casadi.substitute(c,obj.Prob.x_,zero_x);
+% H = casadi.DM(H);
+% obj.Prob.H = H;
+% obj.Prob.c = c;
+% 
+% %%
+% qp = struct();
+% opts = obj.Prob.cas_opts.options;
+% % if ~UseOptimizer
+% qp.h = obj.Prob.H.sparsity();
+% qp.a = A.sparsity();
+% obj.Prob.conic = casadi.conic('S',obj.Prob.cas_opts.solver,qp,opts);
+% % make get functions
+% obj.Prob.get_c   = casadi.Function('get_c',  {obj.Prob.p_},{c});
+% obj.Prob.get_a   = casadi.Function('get_a',  {obj.Prob.p_},{A});
+% obj.Prob.get_lba = casadi.Function('get_lba',{obj.Prob.p_},{lba});
+% obj.Prob.get_uba = casadi.Function('get_uba',{obj.Prob.p_},{uba});
+% obj.Prob.get_lbx = casadi.Function('get_lbx',{obj.Prob.p_},{lbx});
+% obj.Prob.get_ubx = casadi.Function('get_ubx',{obj.Prob.p_},{ubx});
+% obj.Prob.p2x = @(p) obj.Prob.conic('h',obj.Prob.H,...
+%                        'g',  obj.Prob.get_c(p)  ,'a',  obj.Prob.get_a(p),...
+%                        'lba',obj.Prob.get_lba(p),'uba',obj.Prob.get_uba(p),...
+%                        'lbx',obj.Prob.get_lbx(p),'ubx',obj.Prob.get_ubx(p));
+% if obj.options.ExplicitPredictor
+%     obj.Prob.Optimizer = @(Lu,Ly,Gu) obj.Prob.p2x(obj.Prob.get_p(obj.up,obj.yp,obj.rf,Lu,Ly,Gu));
+% else
+%     obj.Prob.Optimizer = @() obj.Prob.p2x(obj.Prob.get_p(obj.up,obj.yp,obj.rf,obj.LHS));
+% end
 
 end

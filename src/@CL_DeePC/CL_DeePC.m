@@ -2,7 +2,7 @@ classdef CL_DeePC < Generalized_DeePC
     %CL_DEEPC Summary of this class goes here
     %   Detailed explanation goes here
     methods
-        function obj = CL_DeePC(u,y,p,f,N,Q,R,dR,options,con_user,solve_type)
+        function obj = CL_DeePC(u,y,p,f,N,Q,R,dR,options,con_user)
             arguments
                 u (:,:) double
                 y (:,:) double
@@ -16,26 +16,25 @@ classdef CL_DeePC < Generalized_DeePC
                 options.adaptive logical = true
                 options.useAnalytic logical = true  % use analytic solution if there are no constraints
                 options.ExplicitPredictor logical = true;
+                options.UseOptimizer logical = true
+                options.opts = []
                 con_user.constr struct = struct('expr',[],'u0',[],'uf',[],'y0',[],'yf',[]);
-                solve_type.UseOptimizer logical = true
-                solve_type.opts = []
             end
             fid = 1;
             options = namedargs2cell(options);
             con_user= namedargs2cell(con_user);
-            solve_type = namedargs2cell(solve_type);
-            obj = obj@Generalized_DeePC(u,y,p,f,fid,N,Q,R,dR,options{:}, con_user{:}, solve_type{:});
+            obj = obj@Generalized_DeePC(u,y,p,f,fid,N,Q,R,dR,options{:}, con_user{:});
         end
         
         % ============ make constraints governing dynamics ================
-        % using an explicit predictor: parameterized by 1st block-column of Gu
+        % using an explicit predictor: parameterized by 1st block-column of Gu      
         function make_con_dyn_ExplicitPredictor(obj)
-            obj.Prob.Lu_ = obj.make_par(obj.f*obj.ny,obj.p*obj.nu);
-            obj.Prob.Ly_ = obj.make_par(obj.f*obj.ny,obj.p*obj.ny);
-            obj.Prob.Gu_ = obj.make_par(obj.f*obj.ny,obj.nu); %only 1st block-column
+            obj.Prob.Lu_ = obj.make_par(obj.f*obj.ny,obj.p*obj.nu,'Lu_');
+            obj.Prob.Ly_ = obj.make_par(obj.f*obj.ny,obj.p*obj.ny,'Ly_');
+            obj.Prob.Gu_ = obj.make_par(obj.f*obj.ny,obj.nu,'Gu_'); %only 1st block-column
 
             % make complete Gu
-            if obj.options.SolverFramework == 1 % using YALMIP
+            if obj.options.Framework == 1 % using YALMIP
                 Gu_all_ = sdpvar(obj.f*obj.ny,obj.f*obj.nu,'full');
                 shape_Gu = kron(tril(toeplitz(ones(1,obj.f),1:obj.f)),ones(obj.ny,obj.nu));
                 Gu_all_ = Gu_all_.*shape_Gu;
@@ -63,17 +62,19 @@ classdef CL_DeePC < Generalized_DeePC
             obj.Prob.con_dyn = obj.Prob.yf_(:) == obj.Prob.Lu_*obj.Prob.up_(:) + ...
                                                obj.Prob.Ly_*obj.Prob.yp_(:) +...
                                                Gu_all_*obj.Prob.uf_(:);
-            if obj.options.SolverFramework == 2
+            if obj.options.Framework == 2
                 obj.Prob.con_dyn = {obj.Prob.con_dyn};
             end
         end
 
         % ================ get explicit predictor matrices ================
-        function [Lu,Ly,Gu] = getPredictorMatrices(obj,options)
-            arguments
-                obj
-                options.EntireGu = false; %default: only 1st block-column of Gu
+        function [Lu,Ly,Gu] = getPredictorMatrices(obj,varargin)
+            narginchk(1,2)
+            EntireGu = false; %default: only 1st block-column of Gu
+            if nargin == 2
+                EntireGu = varargin{1};
             end
+
             LHS_temp = obj.LHS;
             % implicit estimation of Predictor Markov Parameters
             At = LHS_temp(1:end-obj.ny,:);
@@ -128,7 +129,7 @@ classdef CL_DeePC < Generalized_DeePC
             Gu = LuGuLy(:,obj.nu*obj.p+1:n_uchan); %only first block column of Gu
             Ly = LuGuLy(:,n_uchan+1:end);
             
-            if options.EntireGu
+            if EntireGu
                 % reconstruct entire Gu from first block column
                 GuCol2 = mat2cell([Gu;zeros(obj.ny,obj.nu)],obj.ny*ones(1,obj.f+1),obj.nu);
                 shape_Gu = toeplitz(1:obj.f,[1 (obj.f+1)*ones(1,obj.f-1)]);

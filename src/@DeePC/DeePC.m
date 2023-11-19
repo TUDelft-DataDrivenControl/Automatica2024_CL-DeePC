@@ -2,7 +2,7 @@ classdef DeePC < Generalized_DeePC
     %CL_DEEPC Summary of this class goes here
     %   Detailed explanation goes here
     methods
-        function obj = DeePC(u,y,p,f,N,Q,R,dR,options,con_user,solve_type)
+        function obj = DeePC(u,y,p,f,N,Q,R,dR,options,con_user)
             arguments
                 u (:,:) double
                 y (:,:) double
@@ -16,15 +16,14 @@ classdef DeePC < Generalized_DeePC
                 options.adaptive logical = true
                 options.useAnalytic logical = true  % use analytic solution if there are no constraints
                 options.ExplicitPredictor logical = true;
+                options.UseOptimizer logical = true
+                options.opts = []
                 con_user.constr struct = struct('expr',[],'u0',[],'uf',[],'y0',[],'yf',[]);
-                solve_type.UseOptimizer logical = true
-                solve_type.opts = []
             end
             fid = f;
             options = namedargs2cell(options);
             con_user= namedargs2cell(con_user);
-            solve_type = namedargs2cell(solve_type);
-            obj = obj@Generalized_DeePC(u,y,p,f,fid,N,Q,R,dR,options{:}, con_user{:}, solve_type{:});
+            obj = obj@Generalized_DeePC(u,y,p,f,fid,N,Q,R,dR,options{:}, con_user{:});
         end
         
         % ============ make constraints governing dynamics ================
@@ -36,13 +35,13 @@ classdef DeePC < Generalized_DeePC
             obj.Prob.con_dyn = obj.Prob.yf_(:) == obj.Prob.Lu_*obj.Prob.up_(:) + ...
                                                obj.Prob.Ly_*obj.Prob.yp_(:) + ...
                                                obj.Prob.Gu_*obj.Prob.uf_(:);
-            if obj.options.SolverFramework == 2
+            if obj.options.Framework == 2
                 obj.Prob.con_dyn = {obj.Prob.con_dyn};
             end
         end
 
         % ================ get explicit predictor matrices ================
-        function [Lu,Ly,Gu] = getPredictorMatrices(obj)
+        function [Lu,Ly,Gu] = getPredictorMatrices(obj,varargin)
             LHS_temp = obj.LHS;
             % implicit estimation of Predictor Markov Parameters
             At = LHS_temp(1:end-obj.ny*obj.f,:);
