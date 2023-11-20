@@ -17,7 +17,7 @@ else
     obj.Prob.x_ = [obj.Prob.uf_(:); obj.Prob.yf_(:); obj.Prob.G_(:)];
     
     % make functions to get results
-    obj.Prob.x2G = @(x) reshape(x(end-m1*obj.nGcols+1:end),m1,obj.nGcols);
+    obj.Prob.x2G = @(x) reshape(x((obj.nu+obj.ny)*obj.f+1:(obj.nu+obj.ny)*obj.f+m1*obj.nGcols),m1,obj.nGcols);
 end
 obj.Prob.x2uf = @(x) reshape(x(1:obj.nu*obj.f),obj.nu,obj.f);
 obj.Prob.x2yf = @(x) reshape(x(obj.nu*obj.f+1:(obj.nu+obj.ny)*obj.f),obj.ny,obj.f);
@@ -141,6 +141,25 @@ if ~isempty(usr_con.dy_max)
     A   = [A;casadi.DM(jacobian(dy_(:),obj.Prob.x_))];
 end
 
+%% making constraints soft
+% % number of non-inf bounds
+% mask_ulbx = ~isinf(lbx) | ~isinf(ubx); row_nums = 1:length(lbx); row_nums = row_nums(mask_ulbx);
+% num_Sbx = sum(mask_ulbx);
+% num_Sba = length(lba);
+% num_S   = num_Sbx + num_Sba;
+% lba = [lbx(mask_ulbx);lba];
+% uba = [ubx(mask_ulbx);uba];
+% Seye = speye(size(obj.Prob.x_,1),size(obj.Prob.x_,1));
+% A = [Seye(row_nums,:) speye(num_Sbx,num_S); A speye(num_Sba,num_S)];
+% lbx(mask_ulbx) = -Inf(num_Sbx,1); lbx = [lbx;-Inf(num_S,1)];
+% ubx(mask_ulbx) =  Inf(num_Sbx,1); ubx = [ubx; Inf(num_S,1)];
+% 
+% obj.Prob.sigma_ = obj.make_var(num_S,1,'sigma');
+% obj.Prob.x_    = vertcat(obj.Prob.x_,obj.Prob.sigma_);
+% zero_x = zeros(size(obj.Prob.x_));
+% 
+% obj.Prob.cost = obj.Prob.cost+1e6*obj.Prob.sigma_.'*obj.Prob.sigma_;
+
 %% QP cost function components
 
 % casadi symbols
@@ -156,12 +175,13 @@ if obj.options.ExplicitPredictor
     ulba = obj.Prob.Lu_*obj.Prob.up_(:)+obj.Prob.Ly_*obj.Prob.yp_(:);
     lba = [lba;ulba];
     uba = [uba;ulba];
-    A = [A;[-obj.Prob.Gu_ speye(obj.ny*obj.f)]];
+    A = [A;[-obj.Prob.Gu_ speye(obj.ny*obj.f)]];% zeros(obj.ny*obj.f,num_S)]];
 else
     Hf_= [obj.make_CasADi_Hankel([obj.Prob.up_ obj.Prob.uf_],obj.pfid,obj.nGcols,'u');...
           obj.make_CasADi_Hankel([obj.Prob.yp_ obj.Prob.yf_],obj.pfid,obj.nGcols,'y')];
     x_small = [obj.Prob.uf_(:);obj.Prob.yf_(:)]; % x_ without G
-    A = [A;[casadi.DM(-jacobian(Hf_(:),x_small)),kron(speye(obj.nGcols),obj.Prob.LHS_)]];
+    Anew = [casadi.DM(-jacobian(Hf_(:),x_small)),kron(speye(obj.nGcols),obj.Prob.LHS_)];%,zeros(numel(Hf_),num_S)];
+    A = [A;Anew];
     la_new = casadi.substitute(Hf_(:),x_small,zeros(size(x_small)));
     lba = [lba;la_new];
     uba = [uba;la_new];
