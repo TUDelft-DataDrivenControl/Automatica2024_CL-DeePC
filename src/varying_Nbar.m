@@ -60,8 +60,8 @@ results.Cost  = cell(num_N,num_e,num_c);
 
 % variances
 Re = 0.25*eye(ny); % noise
-Ru = 1*eye(nu);   % OL input
-Rdu= 0.01;       % CL input disturbance
+Ru = 0.1*eye(nu);   % OL input
+Rdu= Ru/4;       % CL input disturbance
 
 % OL-sim initial state
 x0 = zeros(nx,1);
@@ -72,8 +72,7 @@ CL_sim_steps = 1800;
 num_steps = OL_sim_steps + CL_sim_steps;  % total simulation length
 
 % define reference
-ref = nan(ny,CL_sim_steps+f-1); % +f-1 needed for simulation end
-ref = (-square((0:size(ref,2)-1)*2*pi/(200)))*50+1*50;
+ref = 50*[-sign(sin(2*pi/2*0.01*(0:num_steps-1))) ones(1,f)]+50;
 
 %% Run Simulations
 temp_str = 'Varying_Nbar_kn_';
@@ -84,7 +83,8 @@ N_OL = N_all_OL(k_N);
 N_CL = N_all_CL(k_N);
 
     parfor k_e = 1:num_e
-        loop_var(x0,N_OL,N_CL,p,f,k_N,k_e,plant,Ru,Re,ny,nu,nx,num_steps,Nbar,ref,Qk,Rk,dRk,num_c,Rdu,CL_sim_steps,temp_str);
+        seed_num = (num_N-1)*num_e+k_e;
+        loop_var(x0,N_OL,N_CL,p,f,k_N,k_e,plant,Ru,Re,ny,nu,nx,num_steps,Nbar,ref,Qk,Rk,dRk,num_c,Rdu,CL_sim_steps,temp_str,seed_num);
     end
 
         % put saved temporary data into results structure

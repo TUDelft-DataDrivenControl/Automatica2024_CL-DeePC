@@ -44,8 +44,8 @@ num_e = 100; % number of noise realizations
 eVar = logspace(-4,0,num_n);
 Re_min = min(eVar,[],'all');
 Re_max = max(eVar,[],'all');
-Ru = 1*eye(nu);   % OL input
-Rdu= 0.01;       % CL input disturbance
+Ru = 0.1*eye(nu);   % OL input
+Rdu= Ru/4;       % CL input disturbance
 
 % N & Nbar values - same Nbar for DeePC & CL-DeePC
 
@@ -70,17 +70,17 @@ CL_sim_steps = 1800;
 num_steps = Nbar + CL_sim_steps;  % total simulation length
 
 % define reference
-ref = nan(ny,CL_sim_steps+f-1); % +f-1 needed for simulation end
-ref = (-square((0:size(ref,2)-1)*2*pi/(200)))*50+1*50;
-
+ref = 50*[-sign(sin(2*pi/2*0.01*(0:num_steps-1))) ones(1,f)]+50;
 
 %% running simulations
 temp_str = 'Varying_eVar_kn_';
 parpool(10);
 for k_n = 1:num_n % loop over noise levels
     Re = eVar(k_n)*eye(ny);
+
     parfor k_e = 1:num_e % loop over noise realizations
-        loop_var(x0,N_OL,N_CL,p,f,k_n,k_e,plant,Ru,Re,ny,nu,nx,num_steps,Nbar,ref,Qk,Rk,dRk,num_c,Rdu,CL_sim_steps,temp_str);
+        seed_num = (num_n-1)*num_e+k_e;
+        loop_var(x0,N_OL,N_CL,p,f,k_n,k_e,plant,Ru,Re,ny,nu,nx,num_steps,Nbar,ref,Qk,Rk,dRk,num_c,Rdu,CL_sim_steps,temp_str,seed_num);
     end
 
     % put saved temporary data into results structure
