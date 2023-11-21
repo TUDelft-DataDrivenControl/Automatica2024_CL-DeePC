@@ -45,10 +45,10 @@ x_CL = Cz;
 Cost = Cz;
 
 % 1) DeePC with IV
-Cz{1} =    DeePC(u_ol,y_ol,p,f,N_OL,Qk,Rk,dRk,constr=con,UseOptimizer=true);
+Cz{1} =    DeePC(u_ol,y_ol,p,f,N_OL,Qk,Rk,dRk,constr=con);
 
 % 2) CL-DeePC with IV
-Cz{2} = CL_DeePC(u_ol,y_ol,p,f,N_CL,Qk,Rk,dRk,constr=con,UseOptimizer=true);
+Cz{2} = CL_DeePC(u_ol,y_ol,p,f,N_CL,Qk,Rk,dRk,constr=con);
 
 for k_c = 1:num_c
     cost = 0;
@@ -62,11 +62,11 @@ for k_c = 1:num_c
 
     % set counters
     k1 = Nbar + 1;
-    k2 = 1;
-    k3 = k2+f-1;
+    k2 = k1+f-1;
+    k3 = 1;
     
     % first computed input
-    [uf_k,~] = Cz{k_c}.solve(rf=ref(:,k1:k1+f-1));
+    [uf_k,~] = Cz{k_c}.solve(rf=ref(:,k1:k2));
     u_k = limiter(uf_k(:,1),u_last,u_max,du_max);
     u_k = u_k+du_CL(:,1);
     u_run(:,k1) = u_k;
@@ -79,7 +79,7 @@ for k_c = 1:num_c
     y_run(:,k1) = y_k;
 
     % update cost
-    er_k = y_k-ref(:,k2);
+    er_k = y_k-ref(:,k3);
     du_k = u_k-u_last;
     cost = cost + er_k.'*Qk*er_k + du_k.'*dRk*du_k + u_k.'*Rk*u_k;
     
@@ -96,13 +96,13 @@ for k_c = 1:num_c
 
         % compute input
         try
-            [uf_k,~] = Cz{k_c}.step(u_k, y_k, rf=ref(:,k1:k1+f-1));
+            [uf_k,~] = Cz{k_c}.step(u_k, y_k, rf=ref(:,k1:k2));
         catch Error
-            disp(['k_var =',num2str(k_var),'; k_e = ',num2str(k_e),' k1 = ',num2str(k2)]);
+            disp(['k_var =',num2str(k_var),'; k_e = ',num2str(k_e),' k1 = ',num2str(k3)]);
             error(Error.message)
         end
         u_k = limiter(uf_k(:,1),u_last,u_max,du_max);
-        u_k = u_k+du_CL(:,k2);
+        u_k = u_k+du_CL(:,k3);
         u_run(:,k1) = u_k;
         
         % step plant
@@ -112,12 +112,12 @@ for k_c = 1:num_c
         y_run(:,k1) = y_k;
     
         % update cost
-        er_k = y_k-ref(:,k2);
+        er_k = y_k-ref(:,k3);
         du_k = u_k-u_last;
         cost = cost + er_k.'*Qk*er_k + du_k.'*dRk*du_k + u_k.'*Rk*u_k;
 
-%         if rem(k2,100) == 0
-%             disp(strcat('ke',num2str(k_e),' progress: ',num2str(k2/CL_sim_steps*100),'%'))
+%         if rem(k3,100) == 0
+%             disp(strcat('ke',num2str(k_e),' progress: ',num2str(k3/CL_sim_steps*100),'%'))
 %         end
     end
     % saving data - CL
