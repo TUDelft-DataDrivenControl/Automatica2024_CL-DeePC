@@ -26,9 +26,9 @@ classdef Generalized_DeePC < handle
                       'Hf_',[],'LHS_',[],...
                       'con_usr',[],'con_dyn',[],...
                       'sdp_opts',struct('solver','mosek','verbose',0),...
-                      'cas_opts',...
-                                    struct('solver', 'osqp',...
-                                    'options', struct('print_time',0)));
+                      'cas_opts',struct('solver','qpoases','options',struct('printLevel','none')));
+%                                     struct('solver', 'osqp',...
+%                                     'options', struct('print_time',0)));
 %                                   struct('solver', 'ipopt',...
 %                                         'options', struct('print_time',1, ...
 %                                                           'ipopt',struct('print_level',0,'nlp_scaling_method','none','warm_start_init_point','no'))));
@@ -338,16 +338,48 @@ classdef Generalized_DeePC < handle
                         else
                             par_vec = obj.Prob.get_p(obj.up,obj.yp,obj.rf,obj.LHS);
                         end
+                        
+%                         A = obj.Prob.get_a(par_vec);
+%                         cost = casadi.substitute(obj.Prob.cost,obj.Prob.p_,par_vec);
+%                         prob    = struct('f', cost, 'x', obj.Prob.x_, 'g', A*obj.Prob.x_);
+%                         obj.Prob.QPsolver = casadi.qpsol('solver',obj.Prob.cas_opts.solver,prob,obj.Prob.cas_opts.options);
+%                         
+%                         [str_out,res] = evalc(strcat("obj.Prob.QPsolver('x0',obj.Prob.get_x0(),",...
+%                             "'lam_x0',obj.Prob.get_lam_x0(),'lam_g0',obj.Prob.get_lam_a0(),",...
+%                             "'lbg',obj.Prob.get_lba(par_vec),'ubg',obj.Prob.get_uba(par_vec),",...
+%                             "'lbx',obj.Prob.get_lbx(par_vec),'ubx',obj.Prob.get_ubx(par_vec));"));
+%                         fprintf(repmat('\b',1,length(str_out)))
+
                         % solve problem
                         res = obj.Prob.p2res(par_vec);
+                        obj.Prob.res = res; % saving result
 
                         % get uf, yf_hat
                         [uf, yf_hat] = obj.Prob.res2ufyf(res);
                         uf = full(uf);
                         yf_hat = full(yf_hat);
+                        
+                        % saving data for analysis
+%                         if ~isfield(obj.Prob,'q')
+%                             obj.Prob.q = [];
+%                         end
+%                         obj.Prob.q = [obj.Prob.q yf_hat(:)-Lu*obj.up(:)-Ly*obj.yp(:)-Gu*uf(:)];
+%                         if ~isfield(obj.Prob,'yf')
+%                             obj.Prob.yf = [];
+%                         end
+                        obj.Prob.yf = yf_hat;
+%                         if ~isfield(obj.Prob,'uf')
+%                             obj.Prob.uf = [];
+%                         end
+                        obj.Prob.uf = uf;
                 end
             catch Error
-                error(Error.message)
+                % use previous solution
+                uf = circshift(obj.Prob.uf(:,end),[0,-1]);     uf(:,end) = uf(:,end-1);
+                yf_hat = circshift(obj.Prob.yf(:,end),[0,-1]); yf_hat(:,end) = yf_hat(:,end-1);
+                obj.Prob.uf = uf;
+                obj.Prob.yf = yf_hat;
+%                 error(Error.message)
             end
         end
         

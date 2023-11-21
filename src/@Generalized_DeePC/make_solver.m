@@ -279,14 +279,6 @@ else
     obj.Prob.yf_ = obj.make_var(obj.ny,obj.f,'yf');
 end
 
-%% Cost
-er_ = obj.Prob.yf_ - obj.Prob.rf_; % error w.r.t. reference
-du_ = horzcat(obj.Prob.uf_(:,1)    -obj.Prob.up_(:,end), ...
-              obj.Prob.uf_(:,2:end)-obj.Prob.uf_(:,1:end-1)); % u_{k+1}-u_k
-obj.Prob.cost =   er_(:).'*obj.Prob.Q *er_(:) ...
-       + obj.Prob.uf_(:).'*obj.Prob.R *obj.Prob.uf_(:) ...
-                + du_(:).'*obj.Prob.dR*du_(:);
-
 %% Construct solver
 
 if obj.options.Framework == 1
