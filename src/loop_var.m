@@ -94,11 +94,11 @@ for k_c = 1:num_c
         % calculate cost
         cost(k) = stage_cost(u_CLr(:,k-1:k),y_CLr(:,k));      % stage cost
         [eObX_r(k),eLu_r(k), eLy_r(k), eGu_r(k)] = error_ID(Cz{k_c},x_CLr(:,k),Obsv_f,Lu_act,Ly_act,Gu_act); % ID errors
-        if k==2 || k/CL_sim_steps*100>=k2
-            if k==2; k2 = 10; else k2 = k2 + 5; end
-            clc
-            disp(strcat('Progress: k_e = ',sprintf('%d',k_e),', Controller #',num2str(k_c),' , ',num2str(k/CL_sim_steps*100),'%'));
-        end
+%         if k==2 || k/CL_sim_steps*100>=k2
+%             if k==2; k2 = 10; else k2 = k2 + 5; end
+%             clc
+%             disp(strcat('Progress: k_e = ',sprintf('%d',k_e),', Controller #',num2str(k_c),' , ',num2str(k/CL_sim_steps*100),'%'));
+%         end
     end
 
     % saving CL data from run with controller
