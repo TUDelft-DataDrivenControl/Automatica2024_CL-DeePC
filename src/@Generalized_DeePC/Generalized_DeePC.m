@@ -26,11 +26,11 @@ classdef Generalized_DeePC < handle
                       'Hf_',[],'LHS_',[],...
                       'con_usr',[],'con_dyn',[],...
                       'sdp_opts',struct('solver','mosek','verbose',0),...
-                      'cas_opts',struct('solver','qpoases','options',struct('printLevel','none')));
-%                                     struct('solver', 'osqp',...
-%                                     'options', struct('print_time',0)));
+                      'cas_opts',...
+                                    struct('solver','qpoases','options',struct('printLevel','none','sparse',true)));
+                                    ...struct('solver', 'osqp','options', struct('print_time',0)));
 %                                   struct('solver', 'ipopt',...
-%                                         'options', struct('print_time',1, ...
+%                                         'options', struct('print_time',0, ...
 %                                                           'ipopt',struct('print_level',0,'nlp_scaling_method','none','warm_start_init_point','no'))));
     end
     properties (Dependent)
@@ -308,78 +308,79 @@ classdef Generalized_DeePC < handle
             if ~isempty(opt.rf)
                 obj.rf = opt.rf;
             end
-            try
-                switch obj.options.Framework
-                    case 1 % using YALMIP
-                        if obj.options.ExplicitPredictor
-                            [Lu,Ly,Gu] = obj.getPredictorMatrices();
-                            [sol,errorcode] = obj.Prob.Optimizer(Lu,Ly,Gu,obj.up,obj.yp,obj.rf);
-                        else
-                            [sol,errorcode] = obj.Prob.Optimizer(obj.LHS,obj.up,obj.yp,obj.rf);
-                        end
-                        if errorcode~=0 && (any(isnan(sol{1})) || any(isnan(sol{2})))
-                            error(yalmiperror(errorcode))
-                        end
-                        [uf, yf_hat] = deal(sol{:});
-                    case 2 % using CasADi with Opti
-                        if obj.options.ExplicitPredictor
-                            [Lu,Ly,Gu] = obj.getPredictorMatrices(true);
-                            [uf, yf_hat] = obj.Prob.Optimizer(Lu,Ly,Gu,obj.up,obj.yp,obj.rf);
-                        else
-                            [uf,yf_hat] = obj.Prob.Optimizer(obj.LHS,obj.up,obj.yp,obj.rf);
-                        end
-                        uf = full(uf);
-                        yf_hat = full(yf_hat);
-                    case 3 % using CasADi without Opti
-                        % get parameter vector
-                        if obj.options.ExplicitPredictor
-                            [Lu,Ly,Gu] = obj.getPredictorMatrices(true); % true to ensure full Gu
-                            par_vec = obj.Prob.get_p(obj.up,obj.yp,obj.rf,Lu,Ly,Gu);
-                        else
-                            par_vec = obj.Prob.get_p(obj.up,obj.yp,obj.rf,obj.LHS);
-                        end
-                        
-%                         A = obj.Prob.get_a(par_vec);
-%                         cost = casadi.substitute(obj.Prob.cost,obj.Prob.p_,par_vec);
-%                         prob    = struct('f', cost, 'x', obj.Prob.x_, 'g', A*obj.Prob.x_);
-%                         obj.Prob.QPsolver = casadi.qpsol('solver',obj.Prob.cas_opts.solver,prob,obj.Prob.cas_opts.options);
-%                         
-%                         [str_out,res] = evalc(strcat("obj.Prob.QPsolver('x0',obj.Prob.get_x0(),",...
-%                             "'lam_x0',obj.Prob.get_lam_x0(),'lam_g0',obj.Prob.get_lam_a0(),",...
-%                             "'lbg',obj.Prob.get_lba(par_vec),'ubg',obj.Prob.get_uba(par_vec),",...
-%                             "'lbx',obj.Prob.get_lbx(par_vec),'ubx',obj.Prob.get_ubx(par_vec));"));
-%                         fprintf(repmat('\b',1,length(str_out)))
+            switch obj.options.Framework
+                case 1 % using YALMIP
+                    if obj.options.ExplicitPredictor
+                        [Lu,Ly,Gu] = obj.getPredictorMatrices();
+                        [sol,errorcode] = obj.Prob.Optimizer(Lu,Ly,Gu,obj.up,obj.yp,obj.rf);
+                    else
+                        [sol,errorcode] = obj.Prob.Optimizer(obj.LHS,obj.up,obj.yp,obj.rf);
+                    end
+                    if errorcode~=0 && (any(isnan(sol{1})) || any(isnan(sol{2})))
+                        error(yalmiperror(errorcode))
+                    end
+                    [uf, yf_hat] = deal(sol{:});
+                case 2 % using CasADi with Opti
+                    if obj.options.ExplicitPredictor
+                        [Lu,Ly,Gu] = obj.getPredictorMatrices(true);
+                        [uf, yf_hat] = obj.Prob.Optimizer(Lu,Ly,Gu,obj.up,obj.yp,obj.rf);
+                    else
+                        [uf,yf_hat] = obj.Prob.Optimizer(obj.LHS,obj.up,obj.yp,obj.rf);
+                    end
+                    uf     = full(uf);
+                    yf_hat = full(yf_hat);
+                case 3 % using CasADi without Opti
+                    % get parameter vector
+                    if obj.options.ExplicitPredictor
+                        [obj.Prob.Lu,obj.Prob.Ly,obj.Prob.Gu] = obj.getPredictorMatrices(true); % true to ensure full Gu
+                        par_vec = obj.Prob.get_p(obj.up,obj.yp,obj.rf,obj.Prob.Lu,obj.Prob.Ly,obj.Prob.Gu);
+                    else
+                        par_vec = obj.Prob.get_p(obj.up,obj.yp,obj.rf,obj.LHS);
+                    end
 
-                        % solve problem
+                    try % solve regular problem w/o soft constraints
                         res = obj.Prob.p2res(par_vec);
                         obj.Prob.res = res; % saving result
 
-                        % get uf, yf_hat
-                        [uf, yf_hat] = obj.Prob.res2ufyf(res);
-                        uf = full(uf);
-                        yf_hat = full(yf_hat);
-                        
-                        % saving data for analysis
-%                         if ~isfield(obj.Prob,'q')
-%                             obj.Prob.q = [];
-%                         end
-%                         obj.Prob.q = [obj.Prob.q yf_hat(:)-Lu*obj.up(:)-Ly*obj.yp(:)-Gu*uf(:)];
-%                         if ~isfield(obj.Prob,'yf')
-%                             obj.Prob.yf = [];
-%                         end
-                        obj.Prob.yf = yf_hat;
-%                         if ~isfield(obj.Prob,'uf')
-%                             obj.Prob.uf = [];
-%                         end
-                        obj.Prob.uf = uf;
-                end
-            catch Error
-                % use previous solution
-                uf = circshift(obj.Prob.uf(:,end),[0,-1]);     uf(:,end) = uf(:,end-1);
-                yf_hat = circshift(obj.Prob.yf(:,end),[0,-1]); yf_hat(:,end) = yf_hat(:,end-1);
-                obj.Prob.uf = uf;
-                obj.Prob.yf = yf_hat;
-%                 error(Error.message)
+                        obj.Prob.backup.prev_was = false;
+                    catch Error
+                        % use previous solution
+                        %                 uf = circshift(obj.Prob.uf,[0,-1]);     uf(:,end) = uf(:,end-1);
+                        %                 yf_hat = circshift(obj.Prob.yf,[0,-1]); yf_hat(:,end) = yf_hat(:,end-1);
+                        %                 obj.Prob.uf = uf;
+                        %                 obj.Prob.yf = yf_hat;
+                        %                 error(Error.message)
+                        len_x = size(obj.Prob.x_,1);
+                        if obj.Prob.backup.prev_was % previous used backup
+                            x0     = obj.Prob.backup.get_x0();
+                            lam_x0 = obj.Prob.backup.get_lam_x0();
+                            lam_g0 = obj.Prob.backup.get_lam_a0();
+                        else
+                            num_slacks = size(obj.Prob.backup.x_,1)-len_x;
+                            x0     = [obj.Prob.res.x;zeros(num_slacks,1)];
+                            lam_x0 = zeros(size(obj.Prob.backup.res.lam_x));
+                            lam_g0 = zeros(size(obj.Prob.backup.res.lam_g));
+                        end
+                        res = obj.Prob.backup.QPsolver('p',par_vec,...
+                            'x0',x0,'lam_x0',lam_x0,'lam_g0',lam_g0,...
+                            'lbg',obj.Prob.backup.get_lba(par_vec),'ubg',obj.Prob.backup.get_uba(par_vec),...
+                            'lbx',obj.Prob.backup.get_lbx(par_vec),'ubx',obj.Prob.backup.get_ubx(par_vec));
+
+                        obj.Prob.backup.res = res; % saving result
+
+                        % update regular result for initialization
+                        obj.Prob.res.x = res.x(1:len_x);
+                        obj.Prob.res.lam_g = zeros(size(obj.Prob.res.lam_g));
+                        obj.Prob.res.lam_x = zeros(size(obj.Prob.res.lam_x));
+
+                        obj.Prob.backup.prev_was = true;
+                    end
+                    % get uf, yf_hat
+                    [uf, yf_hat] = obj.Prob.res2ufyf(res);
+
+                    % saving
+                    obj.Prob.yf = yf_hat;
+                    obj.Prob.uf = uf;
             end
         end
         

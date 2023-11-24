@@ -144,23 +144,6 @@ if ~isempty(usr_con.dy_max)
     A   = [A;casadi.DM(jacobian(dy_(:),obj.Prob.x_))];
 end
 
-%% making constraints soft
-% number of non-inf bounds
-% mask_ulbx = ~isinf(lbx) | ~isinf(ubx); row_nums = 1:length(lbx); row_nums = row_nums(mask_ulbx);
-% num_Sbx = sum(mask_ulbx);
-% num_Sba = length(lba);
-% num_S   = num_Sbx + num_Sba;
-% lba = [lbx(mask_ulbx);lba];
-% uba = [ubx(mask_ulbx);uba];
-% Seye = speye(size(obj.Prob.x_,1),size(obj.Prob.x_,1));
-% A = [Seye(row_nums,:) speye(num_Sbx,num_S); A speye(num_Sba,num_S)];
-% lbx(mask_ulbx) = -Inf(num_Sbx,1); lbx = [lbx;-Inf(num_S,1)];
-% ubx(mask_ulbx) =  Inf(num_Sbx,1); ubx = [ubx; Inf(num_S,1)];
-% 
-% obj.Prob.sigma_ = obj.make_var(num_S,1,'sigma');
-% obj.Prob.x_    = vertcat(obj.Prob.x_,obj.Prob.sigma_);
-% zero_x = zeros(size(obj.Prob.x_));
-
 %% remove yf from optimization variable -> integrate into cost, constraints
 % clear obj.Prob.yf_
 % yf_past = obj.Prob.Lu_*obj.Prob.up_(:)+obj.Prob.Ly_*obj.Prob.yp_(:);
@@ -205,35 +188,29 @@ obj.Prob.cost =   er_(:).'*obj.Prob.Q *er_(:) ...
        + obj.Prob.uf_(:).'*obj.Prob.R *obj.Prob.uf_(:) ...
                 + du_(:).'*obj.Prob.dR*du_(:);
 
-% obj.Prob.cost = obj.Prob.cost+1e12*obj.Prob.sigma_.'*obj.Prob.sigma_;
 %% QP cost function components
-
-% casadi symbols
-H = hessian(obj.Prob.cost,obj.Prob.x_);
-c = jacobian(obj.Prob.cost-1/2*obj.Prob.x_.'*H*obj.Prob.x_,obj.Prob.x_).';
-c = casadi.substitute(c,obj.Prob.x_,zero_x);
-H = casadi.DM(H);
-obj.Prob.H = H;
-obj.Prob.c = c;
+% 
+% % casadi symbols
+% H = hessian(obj.Prob.cost,obj.Prob.x_);
+% c = jacobian(obj.Prob.cost-1/2*obj.Prob.x_.'*H*obj.Prob.x_,obj.Prob.x_).';
+% c = casadi.substitute(c,obj.Prob.x_,zero_x);
+% H = casadi.DM(H);
+% obj.Prob.H = H;
+% obj.Prob.c = c;
 
 %% Constraints - Dynamics
 if obj.options.ExplicitPredictor
-    ulba = obj.Prob.Lu_*obj.Prob.up_(:)+obj.Prob.Ly_*obj.Prob.yp_(:);
-    lba = [lba;ulba];
-    uba = [uba;ulba];
-    A = [A;[-obj.Prob.Gu_ speye(obj.ny*obj.f)]];% zeros(obj.ny*obj.f,num_S)]];
+    ulba_dyn = obj.Prob.Lu_*obj.Prob.up_(:)+obj.Prob.Ly_*obj.Prob.yp_(:);
+    Adyn = [-obj.Prob.Gu_ speye(obj.ny*obj.f)];
 else
     Hf_= [obj.make_CasADi_Hankel([obj.Prob.up_ obj.Prob.uf_],obj.pfid,obj.nGcols,'u');...
           obj.make_CasADi_Hankel([obj.Prob.yp_ obj.Prob.yf_],obj.pfid,obj.nGcols,'y')];
     x_small = [obj.Prob.uf_(:);obj.Prob.yf_(:)]; % x_ without G
-    Anew = [casadi.DM(-jacobian(Hf_(:),x_small)),kron(speye(obj.nGcols),obj.Prob.LHS_)];% zeros(numel(Hf_),num_S)];
-    A = [A;Anew];
-    la_new = casadi.substitute(Hf_(:),x_small,zeros(size(x_small)));
-    lba = [lba;la_new];
-    uba = [uba;la_new];
+    Adyn = [casadi.DM(-jacobian(Hf_(:),x_small)),kron(speye(obj.nGcols),obj.Prob.LHS_) zeros(numel(Hf_),num_S)];
+    ulba_dyn = casadi.substitute(Hf_(:),x_small,zeros(size(x_small)));
 end
 
-%% make functions for solver
+%% make functions for regular solver
 % solver options
 opts = obj.options.opts;
 if isempty(opts)
@@ -251,26 +228,18 @@ if ~isfield(obj.Prob.cas_opts,'options')
     obj.Prob.cas_opts.options = struct();
 end
 
-% Make QP solver
-% qp = struct();
-% qp.h = obj.Prob.H.sparsity();
-% qp.a = A.sparsity();
-% obj.Prob.QPsolver = casadi.conic('S',obj.Prob.cas_opts.solver,qp,obj.Prob.cas_opts.options);
-
-prob    = struct('f', obj.Prob.cost, 'x', obj.Prob.x_, 'g', A*obj.Prob.x_,'p',obj.Prob.p_);
+% regular problem
+prob    = struct('f', obj.Prob.cost, 'x', obj.Prob.x_, 'g', [A;Adyn]*obj.Prob.x_,'p',obj.Prob.p_);
 obj.Prob.QPsolver = casadi.qpsol('solver',obj.Prob.cas_opts.solver,prob,obj.Prob.cas_opts.options);
 
-
 % make get functions
-obj.Prob.get_c   = casadi.Function('get_c',  {obj.Prob.p_},{c});
-obj.Prob.get_a   = casadi.Function('get_a',  {obj.Prob.p_},{A});
-obj.Prob.get_lba = casadi.Function('get_lba',{obj.Prob.p_},{lba});
-obj.Prob.get_uba = casadi.Function('get_uba',{obj.Prob.p_},{uba});
+obj.Prob.get_lba = casadi.Function('get_lba',{obj.Prob.p_},{[lba;ulba_dyn]});
+obj.Prob.get_uba = casadi.Function('get_uba',{obj.Prob.p_},{[uba;ulba_dyn]});
 obj.Prob.get_lbx = casadi.Function('get_lbx',{obj.Prob.p_},{lbx});
 obj.Prob.get_ubx = casadi.Function('get_ubx',{obj.Prob.p_},{ubx});
 
 % initializing result structure
-zero_g = zeros(size(A,1),1);
+zero_g = zeros(size(A,1)+size(Adyn,1),1);
 obj.Prob.res = struct;
 obj.Prob.res.x     = zero_x;
 obj.Prob.res.lam_x = zero_x;
@@ -284,14 +253,63 @@ obj.Prob.p2res = @(p) obj.Prob.QPsolver('p',p,...
     'x0',obj.Prob.get_x0(),...
     'lam_x0',obj.Prob.get_lam_x0(),'lam_g0',obj.Prob.get_lam_a0(),...
     'lbg',obj.Prob.get_lba(p),'ubg',obj.Prob.get_uba(p),...
-    'lbx',obj.Prob.get_lbx(p),'ubx',obj.Prob.get_ubx(p));%,...
+    'lbx',obj.Prob.get_lbx(p),'ubx',obj.Prob.get_ubx(p));
 
-% obj.Prob.p2res = @(p) obj.Prob.QPsolver('h',obj.Prob.H,...
-%     'g',  obj.Prob.get_c(p)  ,'a',  obj.Prob.get_a(p),...
-%     'lba',obj.Prob.get_lba(p),'uba',obj.Prob.get_uba(p),...
-%     'lbx',obj.Prob.get_lbx(p),'ubx',obj.Prob.get_ubx(p));%,...
-% obj.Prob.res2ufyf = @(res,p) deal(obj.Prob.x2uf(res.x),obj.Prob.x2yf(res.x,p));
-obj.Prob.res2ufyf = @(res) deal(obj.Prob.x2uf(res.x),obj.Prob.x2yf(res.x));
+obj.Prob.res2ufyf = @(res) deal(full(obj.Prob.x2uf(res.x)),full(obj.Prob.x2yf(res.x)));
 
 % specify solver method
 obj.solve = @obj.optimizer_solve;
+
+%% create backup solver for when QP is infeasible
+obj.Prob.backup = struct;
+
+% turning constraints soft (except for dynamics)
+mask_ulbx = ~isinf(lbx) | ~isinf(ubx);
+nxLarge = size(obj.Prob.x_,1);
+P = speye(nxLarge,nxLarge); P = P(mask_ulbx,:);
+na = size(A,1);
+np = sum(mask_ulbx);
+npa= na+np;
+A = [[P;A] speye(npa,npa)];
+lba = [lbx(mask_ulbx);lba];
+uba = [ubx(mask_ulbx);uba];
+ubx(mask_ulbx) =  Inf(np,1); ubx = [ubx; Inf(npa,1)];
+lbx(mask_ulbx) = -Inf(np,1); lbx = [lbx;-Inf(npa,1)];
+
+obj.Prob.backup.sigma_ = obj.make_var(npa,1,'sigma');
+obj.Prob.backup.x_     = vertcat(obj.Prob.x_,obj.Prob.backup.sigma_);
+zero_x = zeros(size(obj.Prob.backup.x_));
+
+if obj.options.ExplicitPredictor
+    Adyn = [Adyn,sparse(obj.ny*obj.f,npa)];
+else
+    %TODO
+end
+
+obj.Prob.backup.cost = obj.Prob.cost+1e15*obj.Prob.backup.sigma_.'*obj.Prob.backup.sigma_;
+
+prob2    = struct('f', obj.Prob.backup.cost, 'x', obj.Prob.backup.x_, 'g', [A;Adyn]*obj.Prob.backup.x_,'p',obj.Prob.p_);
+obj.Prob.backup.QPsolver = casadi.qpsol('solver',obj.Prob.cas_opts.solver,prob2,obj.Prob.cas_opts.options);
+
+% make get functions
+obj.Prob.backup.get_lba = casadi.Function('get_lba',{obj.Prob.p_},{[lba;ulba_dyn]});
+obj.Prob.backup.get_uba = casadi.Function('get_uba',{obj.Prob.p_},{[uba;ulba_dyn]});
+obj.Prob.backup.get_lbx = casadi.Function('get_lbx',{obj.Prob.p_},{lbx});
+obj.Prob.backup.get_ubx = casadi.Function('get_ubx',{obj.Prob.p_},{ubx});
+
+% initializing result structure
+zero_g = zeros(size(A,1)+size(Adyn,1),1);
+obj.Prob.backup.res = struct;
+obj.Prob.backup.res.x     = zero_x;
+obj.Prob.backup.res.lam_x = zero_x;
+obj.Prob.backup.res.g     = zero_g;
+obj.Prob.backup.res.lam_g = zero_g;
+obj.Prob.backup.get_x0     = @() obj.Prob.backup.res.x;
+obj.Prob.backup.get_lam_x0 = @() obj.Prob.backup.res.lam_x;
+obj.Prob.backup.get_lam_a0 = @() obj.Prob.backup.res.lam_g;
+
+obj.Prob.backup.p2res = @(p) obj.Prob.backup.QPsolver('p',p,...
+    'x0',obj.Prob.backup.get_x0(),...
+    'lam_x0',obj.Prob.backup.get_lam_x0(),'lam_g0',obj.Prob.backup.get_lam_a0(),...
+    'lbg',obj.Prob.backup.get_lba(p),'ubg',obj.Prob.backup.get_uba(p),...
+    'lbx',obj.Prob.backup.get_lbx(p),'ubx',obj.Prob.backup.get_ubx(p));

@@ -38,11 +38,11 @@ dRk= 10;
 
 % number of
 num_c = 2;   % controllers
-num_e = 141; % noise realizations per value of N
-num_N = 50;  % values for N
+num_e = 4; % noise realizations per value of N
+num_N = 1;  % values for N
 
 % N & Nbar values - same Nbar for DeePC & CL-DeePC
-N_all_OL = round(logspace(log10(Nmin),log10(Nmax),num_N));
+N_all_OL = 500;%round(logspace(log10(Nmin),log10(Nmax),num_N));
 N_all_CL = N_all_OL + f-1;
 Nbar_all = N_all_OL+p+f-1;
 Nbar_min = min(Nbar_all,[],'all');
@@ -65,7 +65,7 @@ num_steps = OL_sim_steps + CL_sim_steps;  % total simulation length
 ref = 50*[-sign(sin(2*pi/2*0.01*(0:CL_sim_steps-1))) ones(1,f-1)]+50;
 
 %% Run Simulations
-parpool(48)
+parpool(4)
 descr = strcat('Varying_Nbar_',num2str(Nbar_min),'-',num2str(Nbar_max),'-',num2str(num_N),...
     '_p_',num2str(p), '_f_',num2str(f), '_Re_',num2str(Re),'_Ru_',num2str(Ru),'_Rdu_',num2str(Rdu),...
     '_Q_',num2str(Qk),'_R_',num2str(Rk),'_dR_',num2str(dRk));

@@ -1,0 +1,13 @@
+qpOASES:
+Varying Nbar - Nbar=1000, num_e=4   num_cores=4,   1800 steps  time passed = 104.7s                            size: 1687 kB
+             - x50        num_e=141 num_cores=47   x1	       time passed = 104.7s*50*ceil(141/47)= 4:21:45   size: 1687 kB *50*141/4 = 2.97 GB
+
+Varying p=f  - p=f=100   num_e=4    num_cores=4,   1800  steps  time passed = 918.4s			       size: 1688 kB
+             - x41	 num_e=141  num_cores=47   x1           time passed = 918.4s*41*3=112,960s= 31:22:43   size: 1688 kB *41*141/4 = 2.44 GB
+	     - p=f=20    num_e=4    num_cores=4,   1800  steps  time passed =  92.1s			       size: 1686 kB
+             - x41	 num_e=141  num_cores=47   x1           time passed =  92.1s*41*3= 11,328s=  3:08:48   size: 1686 kB *41*141/4 = 2.44 GB
+	     - p=f=60    num_e=4    num_cores=4,   1800  steps  time passed = 389.4s			       size: 1687 kB
+             - x41	 num_e=141  num_cores=47   x1           time passed = 389.4s*41*3= 47,898s= 13:18:18   size: 1687 kB *41*141/4 = 2.44 GB
+						interpolated duration: 15:19:54			interpolated size: 2.44 GB
+Varying Re   - Re=1      num_e=4    num_cores=4	   1800  steps  time passed =  95.4s			       size: 1530 kB
+     	     - x50       num_e=141  num_cores=47   x1	 	time passed =  95.4s*50*3= 14,306s=  3:58:26   size: 1530 kB *50*141/4 = 2.70 GB

@@ -11,8 +11,8 @@ Nmax = 10^3;                      % maximum number of columns
 pmin = ceil(cond1_fac*log(Nmax)); % such that above always true
 
 % controller settings
-p = 100; % > pmin with Nmax
-f = 100;
+p = 20; % > pmin with Nmax
+f = 20;
 Nmin = p*(nu+ny)+f*nu; % minimum N is determined by regular DeePC
 Qk = 10;
 Rk = 0.1;
@@ -44,8 +44,8 @@ results.Cost  = cell(num_N,num_e,num_c);
 
 % variances
 Re = 0.25*eye(ny); % noise
-Ru = 1*eye(nu);   % OL input
-Rdu= Ru/4;%0.01;       % CL input disturbance
+Ru = 1*eye(nu);    % OL input
+Rdu= Ru/4;         % CL input disturbance
 
 % OL-sim initial state
 x0 = zeros(nx,1);
@@ -58,7 +58,7 @@ num_steps = OL_sim_steps + CL_sim_steps;  % total simulation length
 % define reference
 % ref = nan(ny,CL_sim_steps+f-1); % +f-1 needed for simulation end
 % ref = (-square((0:size(ref,2)-1)*2*pi/(200)))*50+1*50;
-ref        = 50*[-sign(sin(2*pi/2*0.01*(0:num_steps-1))) ones(1,f)]+50;
+ref        = 50*[-sign(sin(2*pi/2*0.01*(0:CL_sim_steps-1))) ones(1,f-1)]+500;
 
 %%
 k_N = 1;
@@ -132,48 +132,21 @@ du_max = 3.75; du_max = du_max./u_fac;
 qpoases_opts = struct('solver','qpoases','options',struct('printLevel','none'));
 nlpsol_opts  = struct('solver','nlpsol','options',struct('nlpsol','ipopt','nlpsol_options',struct('ipopt',struct('print_level',0,'warm_start_init_point','yes','nlp_scaling_method','none'),'print_time',0)));
 ipopt_opts   = struct('solver','ipopt','options',struct('ipopt',struct('print_level',0,'warm_start_init_point','no','nlp_scaling_method','none','fixed_variable_treatment','make_constraint'),'print_time',0));
-% no Opti specified, use YALMIP / CasADi [default]
-con = struct();%,casadi.Opti('conic'));
-% con.y0   = sdpvar(ny,1,'full');
-% con.y__f = sdpvar(ny,f,'full');
-% con.y0   = casadi.MX.sym('y0',ny,1);
-% con.y__f = casadi.MX.sym('yf',ny,f);
-% con.y0   = casadi.SX.sym('y0',ny,1);
-% con.y__f = casadi.SX.sym('yf',ny,f);
-% con.expr = {con.y__f(:,1)-1000,'<='};
-% con.yf = casadi.SX.sym('yf',ny,f);
-% con.rf = casadi.SX.sym('rf',ny,f);
-% con.expr = {con.yf(:,end)-con.rf(:,end),'=='};
+
+con = struct();
 con.u_min  = -u_max;
 con.u_max  =  u_max;
 con.y_max  =  1000./y_fac;
 con.y_min  = -1000./y_fac;
 con.du_max = du_max;
-Cz{1} =    DeePC(u2_ol,y2_ol,p,f,N_OL,Qk_n,Rk_n,dRk_n,constr=con,opts=qpoases_opts,ExplicitPredictor=true);
-Cz{2} = CL_DeePC(u2_ol,y2_ol,p,f,N_CL,Qk_n,Rk_n,dRk_n,constr=con,opts=qpoases_opts,ExplicitPredictor=true);
-% 
-% con = struct('Opti',cell(1,2));
-% for k = 1:2
-%     con(k).Opti = casadi.Opti('conic');
-%     con(k).y__f = con(k).Opti.variable(ny,f);  
-%     con(k).expr = {con(k).y__f(:,1)-1000,'<='};
-%     con(k).u_max  = u_max;
-%     con(k).du_max = du_max;
-% end
-% Cz{1} =    DeePC(u_ol,y_ol,p,f,N_OL,Qk_n,Rk_n,dRk_n,constr=con(1),opts=qpoases_opts,ExplicitPredictor=true);
-% Cz{2} = CL_DeePC(u_ol,y_ol,p,f,N_CL,Qk_n,Rk_n,dRk_n,constr=con(2),opts=qpoases_opts,ExplicitPredictor=true);
+Cz{1} =    DeePC(u2_ol,y2_ol,p,f,N_OL,Qk_n,Rk_n,dRk_n,constr=con);%opts=nlpsol_opts);
+Cz{2} = CL_DeePC(u2_ol,y2_ol,p,f,N_CL,Qk_n,Rk_n,dRk_n,constr=con);%opts=nlpsol_opts);
 
 % input disturbance
 du = du_CL./u_fac;
 
-% 1) DeePC with IV
-% Cz{1} =    DeePC(u_ol,y_ol,p,f,N_OL,Qk_n,Rk_n,dRk_n,constr=con(1),UseOptimizer=false,ExplicitPredictor=true);
-
-% 2) CL-DeePC with IV
-% Cz{2} = CL_DeePC(u_ol,y_ol,p,f,N_CL,Qk_n,Rk_n,dRk_n,constr=con(2),UseOptimizer=true,ExplicitPredictor=false);
-
 for k_c = 1:num_c
-    cost = 0;
+    cost1 = 0;
     x_k = x0_CL;
     u_last = u_ol(:,end);
 
@@ -203,7 +176,7 @@ for k_c = 1:num_c
     % update cost
     er_k = y_k-r(:,k2);
     du_k = u_k-u_last;
-    cost = cost + er_k.'*Qk_n*er_k + du_k.'*dRk_n*du_k + u_k.'*Rk_n*u_k;
+    cost1 = cost1 + er_k.'*Qk_n*er_k + du_k.'*dRk_n*du_k + u_k.'*Rk_n*u_k;
     
     for k1 = OL_sim_steps+2:OL_sim_steps+CL_sim_steps
         k2 = k2 + 1;
@@ -218,16 +191,13 @@ for k_c = 1:num_c
 
         % compute input
         try
-            tic
-            [uf_k,~] = Cz{k_c}.step(u_k, y_k, rf=r(:,k1:k1+f-1));
-            toc
+            [uf_k,~] = Cz{k_c}.step(u_k, y_k, rf=r(:,k2:k3));
         catch Error
             figure()
             ax1 = subplot(2,1,1);
             plot(y_fac.*y_run);
             hold on; grid on;
-            plot(...Nbar+1:Nbar+length(ref),
-                ref);
+            plot(OL_sim_steps+1:OL_sim_steps+length(ref),ref);
             ax2 = subplot(2,1,2);
             plot(u_fac.*u_run);
             grid on
@@ -249,7 +219,7 @@ for k_c = 1:num_c
         % update cost
         er_k = y_k-r(:,k2);
         du_k = u_k-u_last;
-        cost = cost + er_k.'*Qk_n*er_k + du_k.'*dRk_n*du_k + u_k.'*Rk_n*u_k;
+        cost1 = cost1 + er_k.'*Qk_n*er_k + du_k.'*dRk_n*du_k + u_k.'*Rk_n*u_k;
 
         if rem(k2,100) == 0
             disp(strcat('progress: ',num2str(k2/CL_sim_steps*100),'%'))
@@ -259,14 +229,13 @@ for k_c = 1:num_c
     u_CL{k_c} = u_fac.*u_run(:,end-CL_sim_steps+1:end);
     y_CL{k_c} = y_fac.*y_run(:,end-CL_sim_steps+1:end);
     x_CL{k_c} =        x_run(:,end-CL_sim_steps+1:end);
-    Cost{k_c} = cost;
+    Cost{k_c} = cost1;
       
     figure()
     ax1 = subplot(2,1,1);
     plot(y_fac.*y_run);
     hold on; grid on;
-    plot(...Nbar+1:Nbar+length(ref),
-        ref);
+    plot(OL_sim_steps+1:OL_sim_steps+length(ref),ref);
     ax2 = subplot(2,1,2);
     plot(u_fac.*u_run);
     grid on
