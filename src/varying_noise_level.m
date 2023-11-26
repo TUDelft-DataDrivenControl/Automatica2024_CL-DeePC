@@ -75,7 +75,8 @@ num_steps = Nbar + CL_sim_steps;  % total simulation length
 ref = 50*[-sign(sin(2*pi/2*0.01*(0:CL_sim_steps-1))) ones(1,f-1)]+50;
 
 %% running simulations
-parpool(48);
+myCluster = parcluster('local');
+parpool(myCluster, 48);
 descr = strcat('Varying_Re_',num2str(Re_min),'-',num2str(Re_max),'-',num2str(num_n),...
     '_Nbar_',num2str(Nbar),'_p_',num2str(p),'_f_',num2str(f),'_Ru_',num2str(Ru),'_Rdu_',num2str(Rdu),...
     '_Q_',num2str(Qk),'_R_',num2str(Rk),'_dR_',num2str(dRk));
