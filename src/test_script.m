@@ -16,6 +16,7 @@ cd(mfilePath); % change cwd to folder containing this file
 addpath(genpath("../data"),'-begin')
 addpath(genpath("../bin"),'-begin')
 addpath(genpath(pwd),'-begin');% add directory of this file to path
+path
 
 %% Simulation settings
 model_Favoreel1999 % loads model from Favoreel 1999 - original SPC paper

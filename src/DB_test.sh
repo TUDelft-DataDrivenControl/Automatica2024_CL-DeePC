@@ -1,16 +1,20 @@
 #!/bin/sh
 #
-#SBATCH --job-name="d_Nbar"
+#SBATCH --job-name="DB_test"
 #SBATCH --partition=compute
-#SBATCH --time=00:05:00
-#SBATCH --ntasks=1
+#SBATCH --time=00:30:00
+#SBATCH --ntasks=4
 #SBATCH --cpus-per-task=1
-#SBATCH --mem-per-cpu=1G
+#SBATCH --mem-per-cpu=4G
 #SBATCH --account=research-3me-dcsc
-#SBATCH --output=d_Nbar.%j.out
-#SBATCH --error=d_Nbar.%j.err
+#SBATCH --output=DB_test.%j.out
+#SBATCH --error=DB_test.%j.err
 
 module load matlab
+module list
+
+dir
+cd ${HOME}/../../scratch/rogierdinkla/"Automatica 2023"/src/
 
 matlab -r test_script
 echo "Finished MATLAB calculations."

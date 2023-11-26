@@ -7,3 +7,5 @@ bin/external/
 docs/manuscript/feedback/
 docs/manuscript/unused/
 *.asv
+*.err
+*.out
