@@ -17,6 +17,17 @@ addpath(genpath("../data"),'-begin')
 addpath(genpath("../bin"),'-begin')
 addpath(genpath(pwd),'-begin');% add directory of this file to path
 
+% cluster settings
+myCluster = parcluster('local');
+parpool(myCluster, 41);
+%nworker = 48;
+%myCluster = parcluster('SlurmProfile1')
+%myCluster.ResourceTemplate = strjoin({'--job-name=d_Re', '--partition=compute',...
+%    '--time=08:00:00 --account=research-3mE-dcsc --nodes=4 --ntasks=48',...
+%    '--cpus-per-task=1 --mem-per-cpu=4GB --output=d_Re.%j.out --error=d_Re.%j.err',...
+%    '--mail-user=r.t.o.dinkla@tudelft.nl --mail-type=ALL'})
+%parpool(myCluster, nworker)
+
 %% Simulation settings
 model_Favoreel1999 % loads model from Favoreel 1999 - original SPC paper
 
@@ -49,21 +60,6 @@ Re_max = max(Re_all,[],'all');
 Ru = 1*eye(nu);   % OL input
 Rdu= Ru/4;       % CL input disturbance
 
-% N & Nbar values - same Nbar for DeePC & CL-DeePC
-
-% initialize data cells
-results.eVar  = Re_all;
-results.noise = cell(num_n,num_e);       % innovation noise
-results.du_CL = cell(num_n,num_e);
-results.u_OL  = cell(num_n,num_e);
-results.y_OL  = cell(num_n,num_e);
-results.x_OL  = cell(num_n,num_e);
-results.u_CL  = cell(num_n,num_e,num_c); % CL inputs
-results.y_CL  = cell(num_n,num_e,num_c); % CL outputs
-results.x_CL  = cell(num_n,num_e,num_c); % CL states
-results.Cost  = cell(num_n,num_e,num_c);
-results.CzLabel = {'DeePC, IV','CL-DeePC, IV'};           % labels
-
 % OL-sim initial state
 x0 = zeros(nx,1);
 
@@ -80,10 +76,6 @@ files = dir(fullfile(pwd, 'd_Re.*.out'));
 fileNumbers = cellfun(@(x) str2double(regexp(x, 'd_Re\.(\d+)\.out', 'tokens', 'once')), {files.name});
 [~, maxIndex] = max(fileNumbers);
 outfile = files(maxIndex).name;
-
-% cluster settings
-myCluster = parcluster('local');
-parpool(myCluster, 41);
 
 % description of data set
 descr = strcat('Varying_Re_',num2str(Re_min),'-',num2str(Re_max),'-',num2str(num_n),...

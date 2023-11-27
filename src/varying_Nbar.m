@@ -17,6 +17,17 @@ addpath(genpath("../data"),'-begin')
 addpath(genpath("../bin"),'-begin')
 addpath(genpath(pwd),'-begin');% add directory of this file to path
 
+% cluster settings
+myCluster = parcluster('local');
+parpool(myCluster, 41);
+%nworker = 48;
+%myCluster = parcluster('SlurmProfile1')
+%myCluster.ResourceTemplate = strjoin({'--job-name=d_Nbar', '--partition=compute',...
+%    '--time=08:00:00 --account=research-3mE-dcsc --nodes=4 --ntasks=48',...
+%    '--cpus-per-task=1 --mem-per-cpu=4GB --output=d_Nbar.%j.out --error=d_Nbar.%j.err',...
+%    '--mail-user=r.t.o.dinkla@tudelft.nl --mail-type=ALL'})
+%parpool(myCluster, nworker)
+
 %% Simulation settings
 model_Favoreel1999 % loads model from Favoreel 1999 - original SPC paper
 
@@ -70,10 +81,6 @@ files = dir(fullfile(pwd, 'd_Nbar.*.out'));
 fileNumbers = cellfun(@(x) str2double(regexp(x, 'd_Nbar\.(\d+)\.out', 'tokens', 'once')), {files.name});
 [~, maxIndex] = max(fileNumbers);
 outfile = files(maxIndex).name;
-
-% cluster settings
-myCluster = parcluster('local');
-parpool(myCluster, 41);
 
 % description of data set
 descr = strcat('Varying_Nbar_',num2str(Nbar_min),'-',num2str(Nbar_max),'-',num2str(num_N),...

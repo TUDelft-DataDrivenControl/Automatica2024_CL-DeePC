@@ -13,7 +13,7 @@
 #SBATCH --mail-user=r.t.o.dinkla@tudelft.nl
 #SBATCH --mail-type=ALL
 
-cd ${HOME}/../../scratch/${USER}/"Automatica 2023"/src/
+cd ${HOME}/../../scratch/${USER}/Automatica_2023/src/
 module load matlab
 
 matlab -r varying_noise_level
