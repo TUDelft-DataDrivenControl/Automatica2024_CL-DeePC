@@ -11,6 +11,7 @@
 #SBATCH --output=d_pf.%j.out
 #SBATCH --error=d_pf.%j.err
 
+cd ${HOME}/../../scratch/${USER}/"Automatica 2023"/src/
 module load matlab
 
 matlab -r varying_p_and_f

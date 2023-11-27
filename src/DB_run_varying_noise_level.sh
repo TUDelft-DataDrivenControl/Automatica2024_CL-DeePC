@@ -11,6 +11,7 @@
 #SBATCH --output=d_Re.%j.out
 #SBATCH --error=d_Re.%j.err
 
+cd ${HOME}/../../scratch/${USER}/"Automatica 2023"/src/
 module load matlab
 
 matlab -r varying_noise_level
