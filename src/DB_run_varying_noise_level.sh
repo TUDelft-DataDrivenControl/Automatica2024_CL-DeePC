@@ -10,6 +10,8 @@
 #SBATCH --account=research-3me-dcsc
 #SBATCH --output=d_Re.%j.out
 #SBATCH --error=d_Re.%j.err
+#SBATCH --mail-user=r.t.o.dinkla@tudelft.nl
+#SBATCH --mail-type=ALL
 
 cd ${HOME}/../../scratch/${USER}/"Automatica 2023"/src/
 module load matlab
