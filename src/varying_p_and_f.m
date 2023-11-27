@@ -63,8 +63,8 @@ ref = 50*[-sign(sin(2*pi/2*0.01*(0:CL_sim_steps-1))) ones(1,f_all(end)-1)]+50;
 
 %% Running Simulations
 % get output file name
-files = dir(fullfile(pwd, 'DB_test.*.out'));
-fileNumbers = cellfun(@(x) str2double(regexp(x, 'DB_test\.(\d+)\.out', 'tokens', 'once')), {files.name});
+files = dir(fullfile(pwd, 'd_pf.*.out'));
+fileNumbers = cellfun(@(x) str2double(regexp(x, 'd_pf\.(\d+)\.out', 'tokens', 'once')), {files.name});
 [~, maxIndex] = max(fileNumbers);
 outfile = files(maxIndex).name;
 
