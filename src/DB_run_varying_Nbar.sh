@@ -6,7 +6,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks=41
 #SBATCH --cpus-per-task=1
-#SBATCH --mem-per-cpu=2G
+#SBATCH --mem-per-cpu=4G
 #SBATCH --account=research-3me-dcsc
 #SBATCH --output=d_Nbar.%j.out
 #SBATCH --error=d_Nbar.%j.err
