@@ -62,6 +62,12 @@ num_steps = Nbar + CL_sim_steps;  % total simulation length
 ref = 50*[-sign(sin(2*pi/2*0.01*(0:CL_sim_steps-1))) ones(1,f_all(end)-1)]+50;
 
 %% Running Simulations
+% get output file name
+files = dir(fullfile(pwd, 'DB_test.*.out'));
+fileNumbers = cellfun(@(x) str2double(regexp(x, 'DB_test\.(\d+)\.out', 'tokens', 'once')), {files.name});
+[~, maxIndex] = max(fileNumbers);
+outfile = files(maxIndex).name;
+
 myCluster = parcluster('local');
 parpool(myCluster, 48);
 descr = strcat('Varying_pf_',num2str(p_min),'-',num2str(p_max),'-',num2str(num_p),...
@@ -91,6 +97,10 @@ for k_p = 1:num_p
         seed_num = (num_p-1)*num_e+k_e;
         loop_var(x0,N_OL,N_CL,p,f,k_p,k_e,plant,Ru,Re,ny,nu,nx,num_steps,Nbar,ref,Qk,Rk,dRk,num_c,Rdu,CL_sim_steps,temp_dir2,seed_num,Obsv_pf,Lu_pf,Ly_pf,Gu_pf);
     end
+
+    % clear output file contents
+    fid = fopen(outfile,'w');
+    fclose(fid);
     
     % put saved temporary data into results structure
     temp2raw(num_e,num_c,temp_dir1,temp_dir2,raw_dir,desc_runs,p,f);

@@ -75,6 +75,12 @@ num_steps = Nbar + CL_sim_steps;  % total simulation length
 ref = 50*[-sign(sin(2*pi/2*0.01*(0:CL_sim_steps-1))) ones(1,f-1)]+50;
 
 %% running simulations
+% get output file name
+files = dir(fullfile(pwd, 'DB_test.*.out'));
+fileNumbers = cellfun(@(x) str2double(regexp(x, 'DB_test\.(\d+)\.out', 'tokens', 'once')), {files.name});
+[~, maxIndex] = max(fileNumbers);
+outfile = files(maxIndex).name;
+
 myCluster = parcluster('local');
 parpool(myCluster, 48);
 descr = strcat('Varying_Re_',num2str(Re_min),'-',num2str(Re_max),'-',num2str(num_n),...
@@ -96,6 +102,10 @@ for k_n = 1:num_n % loop over noise levels
         seed_num = (num_n-1)*num_e+k_e;
         loop_var(x0,N_OL,N_CL,p,f,k_n,k_e,plant,Ru,Re,ny,nu,nx,num_steps,Nbar,ref,Qk,Rk,dRk,num_c,Rdu,CL_sim_steps,temp_dir2,seed_num,Obsv_f,Lu_act,Ly_act,Gu_act);
     end
+
+    % clear output file contents
+    fid = fopen(outfile,'w');
+    fclose(fid);
     
     % put saved temporary data into results structure
     temp2raw(num_e,num_c,temp_dir1,temp_dir2,raw_dir,desc_runs,Re);
