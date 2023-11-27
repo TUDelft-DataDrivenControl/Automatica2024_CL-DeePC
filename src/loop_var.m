@@ -18,7 +18,8 @@ du_CL(du_CL<-du_max) = -du_max; % shouldn't affect many instances -> otherwise c
 du_CL(du_CL>du_max)  =  du_max;
 
 % saving data
-save_str = fullfile(dir_name,strcat('ke_',num2str(k_e),'.mat'));
+name_kvar = inputname(6);
+save_str = fullfile(dir_name, sprintf('%s_%d_ke_%d_ks_%d.mat',name_kvar([1 3]),k_var,k_e,seed_num));
 save(save_str,'e','u_OL','du_CL');
 
 % splitting e into OL & CL parts

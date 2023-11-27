@@ -71,11 +71,19 @@ fileNumbers = cellfun(@(x) str2double(regexp(x, 'd_Nbar\.(\d+)\.out', 'tokens', 
 [~, maxIndex] = max(fileNumbers);
 outfile = files(maxIndex).name;
 
+% cluster settings
 myCluster = parcluster('local');
 parpool(myCluster, 41);
+
+% description of data set
 descr = strcat('Varying_Nbar_',num2str(Nbar_min),'-',num2str(Nbar_max),'-',num2str(num_N),...
     '_p_',num2str(p), '_f_',num2str(f), '_Re_',num2str(Re),'_Ru_',num2str(Ru),'_Rdu_',num2str(Rdu),...
     '_Q_',num2str(Qk),'_R_',num2str(Rk),'_dR_',num2str(dRk));
+
+% make directory for raw data files
+raw_dir   = fullfile('..','data','raw' ,descr);
+mkdir(raw_dir);
+
 for k_N = 1:num_N
     Nbar = Nbar_all(k_N);
     N_OL = N_all_OL(k_N);
@@ -83,22 +91,16 @@ for k_N = 1:num_N
     
     % make directories to save data in
     desc_runs = strcat('Nbar_',num2str(Nbar));
-    temp_dir1 = fullfile('..','data','temp',descr);
-    temp_dir2 = fullfile(temp_dir1,desc_runs);
-    raw_dir   = fullfile('..','data','raw' ,descr);
-    mkdir(temp_dir2);
-    mkdir(raw_dir)
+    run_dir   = fullfile(raw_dir,desc_runs);
+    mkdir(run_dir);
     
     % loop over noise realizations
     parfor k_e = 1:num_e
         seed_num = (k_N-1)*num_e+k_e;
-        loop_var(x0,N_OL,N_CL,p,f,k_N,k_e,plant,Ru,Re,ny,nu,nx,num_steps,Nbar,ref,Qk,Rk,dRk,num_c,Rdu,CL_sim_steps,temp_dir2,seed_num,Obsv_f,Lu_act,Ly_act,Gu_act);
+        loop_var(x0,N_OL,N_CL,p,f,k_N,k_e,plant,Ru,Re,ny,nu,nx,num_steps,Nbar,ref,Qk,Rk,dRk,num_c,Rdu,CL_sim_steps,run_dir,seed_num,Obsv_f,Lu_act,Ly_act,Gu_act);
     end
 
     % clear output file contents
     fid = fopen(outfile,'w');
     fclose(fid);
-
-    % saved temp data into results structure and save in raw data folder
-    temp2raw(num_e,num_c,temp_dir1,temp_dir2,raw_dir,desc_runs,Nbar);
 end
