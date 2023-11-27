@@ -43,7 +43,7 @@ num_e = 4; % noise realizations per value of N
 num_N = 1;  % values for N
 
 % N & Nbar values - same Nbar for DeePC & CL-DeePC
-N_all_OL = 500;%round(logspace(log10(Nmin),log10(Nmax),num_N));
+N_all_OL = 200;%round(logspace(log10(Nmin),log10(Nmax),num_N));
 N_all_CL = N_all_OL + f-1;
 Nbar_all = N_all_OL+p+f-1;
 Nbar_min = min(Nbar_all,[],'all');
@@ -66,6 +66,12 @@ num_steps = OL_sim_steps + CL_sim_steps;  % total simulation length
 ref = 50*[-sign(sin(2*pi/2*0.01*(0:CL_sim_steps-1))) ones(1,f-1)]+50;
 
 %% Run Simulations
+% get output file name
+files = dir(fullfile(pwd, 'DB_test.*.out'));
+fileNumbers = cellfun(@(x) str2double(regexp(x, 'DB_test\.(\d+)\.out', 'tokens', 'once')), {files.name});
+[~, maxIndex] = max(fileNumbers);
+outfile = files(maxIndex).name;
+
 myCluster = parcluster('local');
 parpool(myCluster, 4);
 descr = strcat('Varying_Nbar_',num2str(Nbar_min),'-',num2str(Nbar_max),'-',num2str(num_N),...
@@ -89,6 +95,10 @@ for k_N = 1:num_N
         seed_num = (k_N-1)*num_e+k_e;
         loop_var(x0,N_OL,N_CL,p,f,k_N,k_e,plant,Ru,Re,ny,nu,nx,num_steps,Nbar,ref,Qk,Rk,dRk,num_c,Rdu,CL_sim_steps,temp_dir2,seed_num,Obsv_f,Lu_act,Ly_act,Gu_act);
     end
+
+    % clear output file contents
+    fid = fopen(outfile,'w');
+    fclose(fid);
 
     % saved temp data into results structure and save in raw data folder
     temp2raw(num_e,num_c,temp_dir1,temp_dir2,raw_dir,desc_runs,Nbar);
