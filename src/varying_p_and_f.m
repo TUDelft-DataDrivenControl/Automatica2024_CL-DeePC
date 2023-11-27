@@ -29,7 +29,7 @@ dRk= 10;
 
 % number of
 num_c = 2; % controllers
-num_e = 100; % noise realizations per value of p,f
+num_e = 120; % noise realizations per value of p,f
 
 % p & f values
 p_min = 20;
@@ -69,7 +69,7 @@ fileNumbers = cellfun(@(x) str2double(regexp(x, 'd_pf\.(\d+)\.out', 'tokens', 'o
 outfile = files(maxIndex).name;
 
 myCluster = parcluster('local');
-parpool(myCluster, 48);
+parpool(myCluster, 41);
 descr = strcat('Varying_pf_',num2str(p_min),'-',num2str(p_max),'-',num2str(num_p),...
     '_Nbar_',num2str(Nbar),'_Re_',num2str(Re),'_Ru_',num2str(Ru),'_Rdu_',num2str(Rdu),...
     '_Q_',num2str(Qk),'_R_',num2str(Rk),'_dR_',num2str(dRk));

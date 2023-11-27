@@ -40,7 +40,7 @@ dRk= 10;
 % number of
 num_c = 2;     % controllers
 num_n = 50;     % number of noise levels
-num_e = 141; % number of noise realizations
+num_e = 120; % number of noise realizations
 
 % variances
 Re_all = logspace(-4,0,num_n);
@@ -82,7 +82,7 @@ fileNumbers = cellfun(@(x) str2double(regexp(x, 'd_Re\.(\d+)\.out', 'tokens', 'o
 outfile = files(maxIndex).name;
 
 myCluster = parcluster('local');
-parpool(myCluster, 48);
+parpool(myCluster, 41);
 descr = strcat('Varying_Re_',num2str(Re_min),'-',num2str(Re_max),'-',num2str(num_n),...
     '_Nbar_',num2str(Nbar),'_p_',num2str(p),'_f_',num2str(f),'_Ru_',num2str(Ru),'_Rdu_',num2str(Rdu),...
     '_Q_',num2str(Qk),'_R_',num2str(Rk),'_dR_',num2str(dRk));

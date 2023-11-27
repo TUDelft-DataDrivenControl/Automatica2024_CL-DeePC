@@ -5,7 +5,7 @@
 #SBATCH --time=00:30:00
 #SBATCH --ntasks=4
 #SBATCH --cpus-per-task=1
-#SBATCH --mem-per-cpu=4G
+#SBATCH --mem-per-cpu=2G
 #SBATCH --account=research-3me-dcsc
 #SBATCH --output=DB_test.%j.out
 #SBATCH --error=DB_test.%j.err

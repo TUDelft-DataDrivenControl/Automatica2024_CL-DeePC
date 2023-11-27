@@ -38,7 +38,7 @@ dRk= 10;
 
 % number of
 num_c = 2;   % controllers
-num_e = 141; % noise realizations per value of N
+num_e = 120; % noise realizations per value of N
 num_N = 50;  % values for N
 
 % N & Nbar values - same Nbar for DeePC & CL-DeePC
@@ -72,7 +72,7 @@ fileNumbers = cellfun(@(x) str2double(regexp(x, 'd_Nbar\.(\d+)\.out', 'tokens', 
 outfile = files(maxIndex).name;
 
 myCluster = parcluster('local');
-parpool(myCluster, 48);
+parpool(myCluster, 41);
 descr = strcat('Varying_Nbar_',num2str(Nbar_min),'-',num2str(Nbar_max),'-',num2str(num_N),...
     '_p_',num2str(p), '_f_',num2str(f), '_Re_',num2str(Re),'_Ru_',num2str(Ru),'_Rdu_',num2str(Rdu),...
     '_Q_',num2str(Qk),'_R_',num2str(Rk),'_dR_',num2str(dRk));
