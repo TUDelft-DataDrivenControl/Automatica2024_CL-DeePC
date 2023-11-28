@@ -96,7 +96,7 @@ for k_n = 1:num_n % loop over noise levels
 
     % loop over noise realizations
     parfor k_e = 1:num_e
-        seed_num = (num_n-1)*num_e+k_e;
+        seed_num = (k_n-1)*num_e+k_e;
         loop_var(x0,N_OL,N_CL,p,f,k_n,k_e,plant,Ru,Re,ny,nu,nx,num_steps,Nbar,ref,Qk,Rk,dRk,num_c,Rdu,CL_sim_steps,run_dir,seed_num,Obsv_f,Lu_act,Ly_act,Gu_act);
     end
 
