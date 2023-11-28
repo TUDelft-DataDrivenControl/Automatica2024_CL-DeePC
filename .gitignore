@@ -9,3 +9,5 @@ docs/manuscript/unused/
 *.asv
 *.err
 *.out
+*.e[0-9]*
+*.o[0-9]*
