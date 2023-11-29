@@ -54,7 +54,7 @@ con.du_max = du_max;
 
 % initialize data arrays
 Cz = cell(num_c,1);
-[u_CL,y_CL,x_CL,Cost,eLu,eLy,eGu,eObX] = deal(Cz);
+[u_CL,y_CL,x_CL,Cost,eLu,eLy,eGu,eObX,stat] = deal(Cz);
 
 % 1) DeePC with IV
 Cz{1} =    DeePC(u_ol,y_ol,p,f,N_OL,Qk,Rk,dRk,constr=con);
@@ -66,10 +66,10 @@ for k_c = 1:num_c
 
     % initialize data for run with controller
     x_CLr = nan(nx,CL_sim_steps+1); x_CLr(:,1) = x0_CL;
-    [u_CLr,y_CLr,cost,eLu_r,eLy_r,eGu_r,eObX_r] = deal( nan(nu,CL_sim_steps) );
+    [u_CLr,y_CLr,cost,eLu_r,eLy_r,eGu_r,eObX_r,stat_r] = deal( nan(nu,CL_sim_steps) );
     
     % get first CL input
-    [uf_k,~] = Cz{k_c}.solve(rf=ref(:,1:f));
+    [uf_k,~,stat_r(1)] = Cz{k_c}.solve(rf=ref(:,1:f));
     % add disturbance input
     u_CLr(:,1) = uf_k(:,1)+du_CL(:,1);
     % simulate step
@@ -83,7 +83,7 @@ for k_c = 1:num_c
     for k = 2:CL_sim_steps
         % get input
         try
-            [uf_k,~] = Cz{k_c}.step(u_CLr(:,k-1), y_CLr(:,k-1), rf=ref(:,k:k+f-1));
+            [uf_k,~,stat_r(k)] = Cz{k_c}.step(u_CLr(:,k-1), y_CLr(:,k-1), rf=ref(:,k:k+f-1));
         catch Error
             disp(['k_var =',num2str(k_var),'; k_e = ',num2str(k_e),' k1 = ',num2str(k)]);
             error(Error.message)
@@ -111,10 +111,11 @@ for k_c = 1:num_c
     eLy{k_c}  = eLy_r;
     eGu{k_c}  = eGu_r;
     eObX{k_c} = eObX_r;
+    stat{k_c} = stat_r;
 
 end % end for k_c
 
-save(save_str,'y_OL','x_OL','u_CL','y_CL','x_CL','Cost','eLu','eLy','eGu','eObX','-append')
+save(save_str,'y_OL','x_OL','u_CL','y_CL','x_CL','Cost','eLu','eLy','eGu','eObX','stat','-append')
 end
 
 %% Helper functions

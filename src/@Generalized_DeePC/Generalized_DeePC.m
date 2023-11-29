@@ -325,7 +325,7 @@ classdef Generalized_DeePC < handle
         end
         
         % ==================== solve using 'optimizer' ====================
-        function [uf, yf_hat] = optimizer_solve(obj,opt)
+        function [uf, yf_hat,varargout] = optimizer_solve(obj,opt)
             % solve problem using call to yalmip Optimizer object
             arguments
                 obj
@@ -407,6 +407,9 @@ classdef Generalized_DeePC < handle
                     % saving
                     obj.Prob.yf = yf_hat;
                     obj.Prob.uf = uf;
+
+                    % indicate whether initial solution was success
+                    varargout{1} = ~obj.Prob.backup.prev_was; % true -> OK, false -> used relaxed version
             end
         end
         
