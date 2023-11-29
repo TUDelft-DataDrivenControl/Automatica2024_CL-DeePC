@@ -13,8 +13,8 @@ clc;
 [mfilePath,~,~] = fileparts(mfilename('fullpath')); % get dir of this file
 cd(mfilePath); % change cwd to folder containing this file
 
-addpath(genpath("../data"),'-begin')
-addpath(genpath("../bin"),'-begin')
+addpath(genpath("../../data"),'-begin')
+addpath(genpath("../../bin"),'-begin')
 addpath(genpath(pwd),'-begin');% add directory of this file to path
 
 % cluster settings
@@ -83,7 +83,7 @@ descr = strcat('Varying_Re_',num2str(Re_min),'-',num2str(Re_max),'-',num2str(num
     '_Q_',num2str(Qk),'_R_',num2str(Rk),'_dR_',num2str(dRk));
 
 % make directory for raw data files
-raw_dir   = fullfile('..','data','raw' ,descr);
+raw_dir   = fullfile('..','..','data','raw' ,descr);
 mkdir(raw_dir);
 
 for k_n = 1:num_n % loop over noise levels
