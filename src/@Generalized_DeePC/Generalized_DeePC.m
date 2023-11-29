@@ -34,6 +34,12 @@ classdef Generalized_DeePC < handle
 %                                                           'ipopt',struct('print_level',0,'nlp_scaling_method','none','warm_start_init_point','no'))));
     end
     properties (Dependent)
+        Up
+        Yp
+        Uf
+        Yf
+        Upf
+        Ypf
         LHS
         up
         yp
@@ -169,14 +175,34 @@ classdef Generalized_DeePC < handle
         function set.yp(obj,value)
             obj.Ypast(:,end-obj.p+1:end) = value;
         end
-
-        function a = get.LHS(obj)
+        
+        function value = get.Up(obj)
+            H_u = mat2cell(obj.Upast(:,1:obj.N+obj.p-1),obj.nu,ones(1,obj.N+obj.p-1));
+            H_u = H_u(hankel(1:obj.p,obj.p:obj.N+obj.p-1));
+            value = cel2mat(H_u);
+        end
+        function value = get.Yp(obj)
+            H_y = mat2cell(obj.Ypast(:,1:obj.N+obj.p-1),obj.ny,ones(1,obj.N+obj.p-1));
+            H_y = H_y(hankel(1:obj.p,obj.p:obj.N+obj.p-1));
+            value = cel2mat(H_y);
+        end
+        function value = get.Upf(obj)
             % use first range 1:Nbar for compatibility with non-adaptive case
             H_u = mat2cell(obj.Upast(:,1:obj.Nbar),obj.nu,ones(1,obj.Nbar));
             H_u = H_u(hankel(1:obj.pfid,obj.pfid:obj.Nbar));
+            value = cel2mat(H_u);
+        end
+        function value = get.Ypf(obj)
+            % use first range 1:Nbar for compatibility with non-adaptive case
             H_y = mat2cell(obj.Ypast(:,1:obj.Nbar),obj.ny,ones(1,obj.Nbar));
             H_y = H_y(hankel(1:obj.pfid,obj.pfid:obj.Nbar));
-            a = [cell2mat(H_u);cell2mat(H_y)];
+            value = cel2mat(H_y);
+        end
+
+        function a = get.LHS(obj)
+            Upf2 = obj.Upf;
+            Ypf2 = obj.Ypf;
+            a = [Upf2;Ypf2];
             a = a/sqrt(size(a,2));
             if obj.options.use_IV
                 a = a*a(1:end-obj.fid*obj.ny,:).';

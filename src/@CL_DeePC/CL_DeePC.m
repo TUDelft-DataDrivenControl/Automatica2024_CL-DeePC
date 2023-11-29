@@ -2,7 +2,7 @@ classdef CL_DeePC < Generalized_DeePC
     %CL_DEEPC Summary of this class goes here
     %   Detailed explanation goes here
     methods
-        function obj = CL_DeePC(u,y,p,f,N,Q,R,dR,options,con_user)
+        function obj = CL_DeePC(u,y,p,f,N,Q,R,dR,options,con_user,CL_opts)
             arguments
                 u (:,:) double
                 y (:,:) double
@@ -19,11 +19,15 @@ classdef CL_DeePC < Generalized_DeePC
                 options.UseOptimizer logical = true
                 options.opts = []
                 con_user.constr struct = struct('expr',[],'u0',[],'uf',[],'y0',[],'yf',[]);
+                CL_opts.EstimateD logical = true;
             end
             fid = 1;
             options = namedargs2cell(options);
             con_user= namedargs2cell(con_user);
             obj = obj@Generalized_DeePC(u,y,p,f,fid,N,Q,R,dR,options{:}, con_user{:});
+            
+            % extra options for CL DeePC
+            obj.options.EstimateD = CL_opts.EstimateD;
         end
         
         % ============ make constraints governing dynamics ================
@@ -74,19 +78,35 @@ classdef CL_DeePC < Generalized_DeePC
             if nargin == 2
                 EntireGu = varargin{1};
             end
-
-            LHS_temp = obj.LHS;
-            % implicit estimation of Predictor Markov Parameters
-            At = LHS_temp(1:end-obj.ny,:);
-            Bt = LHS_temp(end-obj.ny+1:end,:);
-            tBetaTheta = Bt*pinv(At);
+            
+            % Estimate Markov Parameters
+            Up = obj.Up;
+            Uf = obj.Uf;
+            Yp = obj.Yp;
+            Yf = obj.Yf;
+            if obj.options.EstimateD % <- D also estmated implicitly
+                Z = [Up;Uf;Yp];
+                PredMarkov = Yf*pinv(Z); % if IV is used, same result if PE s.t. Z is full row rank
+            else
+                Z = [Up;Yp];
+%                 if obj.options.use_IV
+%                     Ziv = [Up;Uf;Yp];
+%                     PredMarkov = Yf*Ziv.'*pinv(Z*Ziv.'); % Z ~= Ziv
+%                 else
+%                     PredMarkov = Yf*pinv(Z);
+%                 end
+                PredMarkov = Yf*pinv(Z);
+                % add D = 0 ---> PredMarkov = [C*tKpu D C*tKpy]
+                PredMarkov = [PredMarkov(:,1:obj.nu*obj.p) zeros(obj.ny,obj.nu) PredMarkov(:,obj.nu*obj.p+1:end)];
+            end
+            
             %             cond(At)
             %             tBetaTheta = Bt/At;
             %             tBetaTheta = lsqr(At.',Bt.').';
             %             tBetaTheta = lsqminnorm(At.',Bt.','nowarn').';
             %             [tBetaTheta,~] = linsolve(At.',Bt.'); tBetaTheta = tBetaTheta.';
-            tBeta  = tBetaTheta(:,1:obj.nu*(obj.p+1));
-            tTheta = tBetaTheta(:,obj.nu*(obj.p+1)+1:end);
+            tBeta  = PredMarkov(:,1:obj.nu*(obj.p+1));      % input  predictor Markov Parameters (including D)
+            tTheta = PredMarkov(:,obj.nu*(obj.p+1)+1:end);  % output predictor Markov Parameters
     
             % make tHf
             shape_tHf = toeplitz(obj.p+1:-1:obj.p+2-obj.f,[obj.p+1,(obj.p+2)*ones(1,obj.f-1)]);
