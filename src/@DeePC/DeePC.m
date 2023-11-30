@@ -42,20 +42,23 @@ classdef DeePC < Generalized_DeePC
 
         % ================ get explicit predictor matrices ================
         function [Lu,Ly,Gu] = getPredictorMatrices(obj,varargin)
-%             LHS_temp = obj.LHS;
-%             implicit estimation of Predictor Markov Parameters
-%             At = LHS_temp(1:end-obj.ny*obj.f,:);
-%             Bt = LHS_temp(end-obj.ny*obj.f+1:end,:);
-            
+                        
             % Estimate Markov Parameters
             Up = obj.Up;
             Uf = obj.Uf;
             Yp = obj.Yp;
             Yf = obj.Yf;
             Z = [Up;Uf;Yp];
-            LuGuLy = Yf*pinv(Z);
-            
-            %             LuGuLy = Bt*pinv(At);
+            if obj.options.use_IV
+                LuGuLy = Yf*Z.'*pinv(Z*Z.');
+            else
+                LuGuLy = Yf*pinv(Z);
+            end
+%             LHS_temp = obj.LHS;
+% %             implicit estimation of Predictor Markov Parameters
+%             At = LHS_temp(1:end-obj.ny*obj.f,:);
+%             Bt = LHS_temp(end-obj.ny*obj.f+1:end,:);
+%                         LuGuLy = Bt*pinv(At);
             %             cond(Z)
             %             tBetaTheta = Bt/At;
             %             tBetaTheta = lsqr(At.',Bt.').';

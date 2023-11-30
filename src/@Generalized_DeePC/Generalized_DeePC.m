@@ -179,24 +179,34 @@ classdef Generalized_DeePC < handle
         function value = get.Up(obj)
             H_u = mat2cell(obj.Upast(:,1:obj.N+obj.p-1),obj.nu,ones(1,obj.N+obj.p-1));
             H_u = H_u(hankel(1:obj.p,obj.p:obj.N+obj.p-1));
-            value = cel2mat(H_u);
+            value = cell2mat(H_u);
         end
         function value = get.Yp(obj)
             H_y = mat2cell(obj.Ypast(:,1:obj.N+obj.p-1),obj.ny,ones(1,obj.N+obj.p-1));
             H_y = H_y(hankel(1:obj.p,obj.p:obj.N+obj.p-1));
-            value = cel2mat(H_y);
+            value = cell2mat(H_y);
+        end
+        function value = get.Uf(obj)
+            H_u = mat2cell(obj.Upast(:,obj.p+1:obj.Nbar),obj.nu,ones(1,obj.N+obj.fid-1));
+            H_u = H_u(hankel(1:obj.fid,obj.fid:obj.N+obj.fid-1));
+            value = cell2mat(H_u);
+        end
+        function value = get.Yf(obj)
+            H_y = mat2cell(obj.Ypast(:,obj.p+1:obj.Nbar),obj.ny,ones(1,obj.N+obj.fid-1));
+            H_y = H_y(hankel(1:obj.fid,obj.fid:obj.N+obj.fid-1));
+            value = cell2mat(H_y);
         end
         function value = get.Upf(obj)
             % use first range 1:Nbar for compatibility with non-adaptive case
             H_u = mat2cell(obj.Upast(:,1:obj.Nbar),obj.nu,ones(1,obj.Nbar));
             H_u = H_u(hankel(1:obj.pfid,obj.pfid:obj.Nbar));
-            value = cel2mat(H_u);
+            value = cell2mat(H_u);
         end
         function value = get.Ypf(obj)
             % use first range 1:Nbar for compatibility with non-adaptive case
             H_y = mat2cell(obj.Ypast(:,1:obj.Nbar),obj.ny,ones(1,obj.Nbar));
             H_y = H_y(hankel(1:obj.pfid,obj.pfid:obj.Nbar));
-            value = cel2mat(H_y);
+            value = cell2mat(H_y);
         end
 
         function a = get.LHS(obj)

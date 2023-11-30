@@ -99,14 +99,21 @@ classdef CL_DeePC < Generalized_DeePC
                 % add D = 0 ---> PredMarkov = [C*tKpu D C*tKpy]
                 PredMarkov = [PredMarkov(:,1:obj.nu*obj.p) zeros(obj.ny,obj.nu) PredMarkov(:,obj.nu*obj.p+1:end)];
             end
-            
-            %             cond(At)
-            %             tBetaTheta = Bt/At;
-            %             tBetaTheta = lsqr(At.',Bt.').';
-            %             tBetaTheta = lsqminnorm(At.',Bt.','nowarn').';
-            %             [tBetaTheta,~] = linsolve(At.',Bt.'); tBetaTheta = tBetaTheta.';
             tBeta  = PredMarkov(:,1:obj.nu*(obj.p+1));      % input  predictor Markov Parameters (including D)
             tTheta = PredMarkov(:,obj.nu*(obj.p+1)+1:end);  % output predictor Markov Parameters
+
+%             LHS_temp = obj.LHS;
+%             % implicit estimation of Predictor Markov Parameters
+%             At = LHS_temp(1:end-obj.ny,:);
+%             Bt = LHS_temp(end-obj.ny+1:end,:);
+%             tBetaTheta = Bt*pinv(At);
+%             %             cond(At)
+%             %             tBetaTheta = Bt/At;
+%             %             tBetaTheta = lsqr(At.',Bt.').';
+%             %             tBetaTheta = lsqminnorm(At.',Bt.','nowarn').';
+%             %             [tBetaTheta,~] = linsolve(At.',Bt.'); tBetaTheta = tBetaTheta.';
+%             tBeta  = tBetaTheta(:,1:obj.nu*(obj.p+1));      % input  predictor Markov Parameters (including D)
+%             tTheta = tBetaTheta(:,obj.nu*(obj.p+1)+1:end);  % output predictor Markov Parameters
     
             % make tHf
             shape_tHf = toeplitz(obj.p+1:-1:obj.p+2-obj.f,[obj.p+1,(obj.p+2)*ones(1,obj.f-1)]);
