@@ -27,11 +27,11 @@ classdef Generalized_DeePC < handle
                       'con_usr',[],'con_dyn',[],...
                       'sdp_opts',struct('solver','mosek','verbose',0),...
                       'cas_opts',...
-                                    struct('solver','qpoases','options',struct('printLevel','none','sparse',true)));
+                                    ...struct('solver','qpoases','options',struct('printLevel','none','sparse',true)));
                                     ...struct('solver', 'osqp','options', struct('print_time',0)));
-%                                   struct('solver', 'ipopt',...
-%                                         'options', struct('print_time',0, ...
-%                                                           'ipopt',struct('print_level',0,'nlp_scaling_method','none','warm_start_init_point','no'))));
+                                  struct('solver', 'ipopt',...
+                                        'options', struct('print_time',0, ...
+                                                          'ipopt',struct('print_level',0,'nlp_scaling_method','none','warm_start_init_point','yes'))));
     end
     properties (Dependent)
         Up
@@ -73,13 +73,12 @@ classdef Generalized_DeePC < handle
                 options.opts = []
                 con_user.constr  = [] %struct = struct('expr',[],'u0',[],'uf',[],'y0',[],'yf',[]);
             end
-
             obj.nu = min(size(u)); if size(u,2) < size(u,1); u=u.'; end
             obj.ny = min(size(y)); if size(y,2) < size(y,1); y=y.'; end
-            
+
             obj.p = p;
             obj.f = f;
-            
+
             obj.fid    = fid;
             obj.pfid   = obj.p + obj.fid;
             obj.nGcols = obj.f + 1 - obj.fid;
@@ -93,14 +92,14 @@ classdef Generalized_DeePC < handle
                 obj.N = N;
             end
             obj.Nbar = obj.N+obj.pfid-1;
-            
+
             % parse options
             options_fn = fieldnames(options);
             for k = 1:length(options_fn)
                 fn = options_fn{k};
                 obj.options.(fn) = options.(fn);
             end
-            
+
             % initialize data
             validateattributes(u, 'double',{'nrows',obj.nu,'ncols',obj.Nbar})
             validateattributes(y, 'double',{'nrows',obj.ny,'ncols',obj.Nbar})
@@ -112,7 +111,7 @@ classdef Generalized_DeePC < handle
                 obj.Upast = [u u(:,end-obj.p+1:end)];
                 obj.Ypast = [y y(:,end-obj.p+1:end)];
             end
-            
+
             % size cost function weighting matrices
             if size(Q,1)==obj.ny && size(Q,2)==size(Q,1)
                 Q = kron(eye(obj.f),Q);
@@ -129,7 +128,7 @@ classdef Generalized_DeePC < handle
             elseif ~(size(dR,1)==obj.nu*obj.f && size(dR,2)==size(dR,1))
                 error('Input weighting matrix dR of incompatible dimensions.')
             end
-                % make all weighting matrices symmetric
+            % make all weighting matrices symmetric
             [Q,R,dR] = deal((Q+Q.')/2,(R+R.')/2,(dR+dR.')/2);
             [obj.Prob.Q,obj.Prob.R,obj.Prob.dR] = deal(Q,R,dR);
 
@@ -145,11 +144,11 @@ classdef Generalized_DeePC < handle
                 Sdel = toeplitz(col1,row1);
 
                 % cost function: J = 0.5 uf.'*H*uf + c.'*uf
-                    % c = c_u0*u0 + Gu.'*Q*(Lu*up+Ly*yp-rf)
+                % c = c_u0*u0 + Gu.'*Q*(Lu*up+Ly*yp-rf)
                 obj.Prob.c_u0 = -Sdel.'*R(:,1:obj.nu);
-                    % H = H_const + Gu.'*Q*Gu
+                % H = H_const + Gu.'*Q*Gu
                 obj.Prob.H_const = R + Sdel.'*dR*Sdel;
-                
+
                 obj.solve = @obj.analytical_solve;
             end
 
@@ -159,7 +158,6 @@ classdef Generalized_DeePC < handle
             else
                 obj.step_data_update = @obj.step_data_update_non_adaptive;
             end
-
         end
         
         %% getter & setter functions
@@ -260,7 +258,7 @@ classdef Generalized_DeePC < handle
         end
         
         %% step
-        function [uf, yf_hat] = step(obj,u_k,y_k,opt)
+        function [uf, yf_hat,varargout] = step(obj,u_k,y_k,opt)
             arguments
                 obj
                 u_k (:,1) double
@@ -282,7 +280,10 @@ classdef Generalized_DeePC < handle
 %             end
 
             % solve optimization problem
-            [uf, yf_hat] = obj.solve();
+            [uf, yf_hat, stat] = obj.solve();
+            if nargout == 3
+                varargout{1} = stat;
+            end
         end
         
         %% updating data
@@ -335,94 +336,7 @@ classdef Generalized_DeePC < handle
         end
         
         % ==================== solve using 'optimizer' ====================
-        function [uf, yf_hat,varargout] = optimizer_solve(obj,opt)
-            % solve problem using call to yalmip Optimizer object
-            arguments
-                obj
-                opt.rf (:,:) double = []
-            end
-            if ~isempty(opt.rf)
-                obj.rf = opt.rf;
-            end
-            switch obj.options.Framework
-                case 1 % using YALMIP
-                    if obj.options.ExplicitPredictor
-                        [Lu,Ly,Gu] = obj.getPredictorMatrices();
-                        [sol,errorcode] = obj.Prob.Optimizer(Lu,Ly,Gu,obj.up,obj.yp,obj.rf);
-                    else
-                        [sol,errorcode] = obj.Prob.Optimizer(obj.LHS,obj.up,obj.yp,obj.rf);
-                    end
-                    if errorcode~=0 && (any(isnan(sol{1})) || any(isnan(sol{2})))
-                        error(yalmiperror(errorcode))
-                    end
-                    [uf, yf_hat] = deal(sol{:});
-                case 2 % using CasADi with Opti
-                    if obj.options.ExplicitPredictor
-                        [Lu,Ly,Gu] = obj.getPredictorMatrices(true);
-                        [uf, yf_hat] = obj.Prob.Optimizer(Lu,Ly,Gu,obj.up,obj.yp,obj.rf);
-                    else
-                        [uf,yf_hat] = obj.Prob.Optimizer(obj.LHS,obj.up,obj.yp,obj.rf);
-                    end
-                    uf     = full(uf);
-                    yf_hat = full(yf_hat);
-                case 3 % using CasADi without Opti
-                    % get parameter vector
-                    if obj.options.ExplicitPredictor
-                        [obj.Prob.Lu,obj.Prob.Ly,obj.Prob.Gu] = obj.getPredictorMatrices(true); % true to ensure full Gu
-                        par_vec = obj.Prob.get_p(obj.up,obj.yp,obj.rf,obj.Prob.Lu,obj.Prob.Ly,obj.Prob.Gu);
-                    else
-                        par_vec = obj.Prob.get_p(obj.up,obj.yp,obj.rf,obj.LHS);
-                    end
-
-                    try % solve regular problem w/o soft constraints
-                        res = obj.Prob.p2res(par_vec);
-                        obj.Prob.res = res; % saving result
-
-                        obj.Prob.backup.prev_was = false;
-                    catch Error
-                        % use previous solution
-                        %                 uf = circshift(obj.Prob.uf,[0,-1]);     uf(:,end) = uf(:,end-1);
-                        %                 yf_hat = circshift(obj.Prob.yf,[0,-1]); yf_hat(:,end) = yf_hat(:,end-1);
-                        %                 obj.Prob.uf = uf;
-                        %                 obj.Prob.yf = yf_hat;
-                        %                 error(Error.message)
-                        len_x = size(obj.Prob.x_,1);
-                        if obj.Prob.backup.prev_was % previous used backup
-                            x0     = obj.Prob.backup.get_x0();
-                            lam_x0 = obj.Prob.backup.get_lam_x0();
-                            lam_g0 = obj.Prob.backup.get_lam_a0();
-                        else
-                            num_slacks = size(obj.Prob.backup.x_,1)-len_x;
-                            x0     = [obj.Prob.res.x;zeros(num_slacks,1)];
-                            lam_x0 = zeros(size(obj.Prob.backup.res.lam_x));
-                            lam_g0 = zeros(size(obj.Prob.backup.res.lam_g));
-                        end
-                        res = obj.Prob.backup.QPsolver('p',par_vec,...
-                            'x0',x0,'lam_x0',lam_x0,'lam_g0',lam_g0,...
-                            'lbg',obj.Prob.backup.get_lba(par_vec),'ubg',obj.Prob.backup.get_uba(par_vec),...
-                            'lbx',obj.Prob.backup.get_lbx(par_vec),'ubx',obj.Prob.backup.get_ubx(par_vec));
-
-                        obj.Prob.backup.res = res; % saving result
-
-                        % update regular result for initialization
-                        obj.Prob.res.x = res.x(1:len_x);
-                        obj.Prob.res.lam_g = zeros(size(obj.Prob.res.lam_g));
-                        obj.Prob.res.lam_x = zeros(size(obj.Prob.res.lam_x));
-
-                        obj.Prob.backup.prev_was = true;
-                    end
-                    % get uf, yf_hat
-                    [uf, yf_hat] = obj.Prob.res2ufyf(res);
-
-                    % saving
-                    obj.Prob.yf = yf_hat;
-                    obj.Prob.uf = uf;
-
-                    % indicate whether initial solution was success
-                    varargout{1} = ~obj.Prob.backup.prev_was; % true -> OK, false -> used relaxed version
-            end
-        end
-        
+        [uf,yf_hat,varargout] = optimizer_solve(obj,opt);        
         % ===================== solve using 'optimize' ====================
         function [uf, yf_hat] = optimize_solve(obj,opt)
             % solve problem using regular yalmip call to 'optimize'
@@ -478,9 +392,9 @@ classdef Generalized_DeePC < handle
                 yf_hat = sol.value(obj.Prob.yf_);
             end
         end
-
-    end
-
+     end
+    
+    %% Static methods
     methods(Static)
         function Hankel = make_sdp_Hankel(sdp_var,dim1,dim2)
             % construct RHS for equality governing dynamics

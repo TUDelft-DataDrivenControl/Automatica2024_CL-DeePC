@@ -13,10 +13,20 @@ clc;
 [mfilePath,~,~] = fileparts(mfilename('fullpath')); % get dir of this file
 cd(mfilePath); % change cwd to folder containing this file
 
-addpath(genpath("../data"),'-begin')
-addpath(genpath("../bin"),'-begin')
+addpath(genpath("../../data"),'-begin')
+addpath(genpath("../../bin"),'-begin')
 addpath(genpath(pwd),'-begin');% add directory of this file to path
-path
+
+% cluster settings
+% myCluster = parcluster('local');
+% parpool(myCluster, 4);
+%nworker = 48;
+%myCluster = parcluster('SlurmProfile1')
+%myCluster.ResourceTemplate = strjoin({'--job-name=d_Nbar', '--partition=compute',...
+%    '--time=08:00:00 --account=research-3mE-dcsc --nodes=4 --ntasks=48',...
+%    '--cpus-per-task=1 --mem-per-cpu=4GB --output=d_Nbar.%j.out --error=d_Nbar.%j.err',...
+%    '--mail-user=r.t.o.dinkla@tudelft.nl --mail-type=ALL'})
+%parpool(myCluster, nworker)
 
 %% Simulation settings
 model_Favoreel1999 % loads model from Favoreel 1999 - original SPC paper
@@ -28,7 +38,7 @@ Nmax = 10^3;                      % maximum number of columns
 pmin = ceil(cond1_fac*log(Nmax)); % such that above always true
 
 % controller settings
-p = 20; % > pmin with Nmax
+p = 100; % > pmin with Nmax
 f = p;
 Nmin = p*(nu+ny)+f*nu; % minimum N is determined by regular DeePC
 Qk = 100;
@@ -39,11 +49,11 @@ dRk= 10;
 
 % number of
 num_c = 2;   % controllers
-num_e = 4; % noise realizations per value of N
-num_N = 1;  % values for N
+num_e = 1;%120; % noise realizations per value of N
+num_N = 1;%50;  % values for N
 
 % N & Nbar values - same Nbar for DeePC & CL-DeePC
-N_all_OL = 200;%round(logspace(log10(Nmin),log10(Nmax),num_N));
+N_all_OL = Nmin;%round(logspace(log10(Nmin),log10(Nmax),num_N));
 N_all_CL = N_all_OL + f-1;
 Nbar_all = N_all_OL+p+f-1;
 Nbar_min = min(Nbar_all,[],'all');
@@ -67,16 +77,21 @@ ref = 50*[-sign(sin(2*pi/2*0.01*(0:CL_sim_steps-1))) ones(1,f-1)]+50;
 
 %% Run Simulations
 % get output file name
-files = dir(fullfile(pwd, 'DB_test.*.out'));
-fileNumbers = cellfun(@(x) str2double(regexp(x, 'DB_test\.(\d+)\.out', 'tokens', 'once')), {files.name});
-[~, maxIndex] = max(fileNumbers);
-outfile = files(maxIndex).name;
+% files = dir(fullfile(pwd, 'd_Nbar.*.out'));
+% fileNumbers = cellfun(@(x) str2double(regexp(x, 'd_Nbar\.(\d+)\.out', 'tokens', 'once')), {files.name});
+% [~, maxIndex] = max(fileNumbers);
+% outfile = files(maxIndex).name;
 
-myCluster = parcluster('local');
-parpool(myCluster, 4);
+% description of data set
 descr = strcat('Varying_Nbar_',num2str(Nbar_min),'-',num2str(Nbar_max),'-',num2str(num_N),...
     '_p_',num2str(p), '_f_',num2str(f), '_Re_',num2str(Re),'_Ru_',num2str(Ru),'_Rdu_',num2str(Rdu),...
     '_Q_',num2str(Qk),'_R_',num2str(Rk),'_dR_',num2str(dRk));
+
+% make directory for raw data files
+raw_dir   = fullfile('..','..','data','raw' ,descr);
+mkdir(raw_dir);
+
+tic
 for k_N = 1:num_N
     Nbar = Nbar_all(k_N);
     N_OL = N_all_OL(k_N);
@@ -84,22 +99,20 @@ for k_N = 1:num_N
     
     % make directories to save data in
     desc_runs = strcat('Nbar_',num2str(Nbar));
-    temp_dir1 = fullfile('..','data','temp',descr);
-    temp_dir2 = fullfile(temp_dir1,desc_runs);
-    raw_dir   = fullfile('..','data','raw' ,descr);
-    mkdir(temp_dir2);
-    mkdir(raw_dir)
+    run_dir   = fullfile(raw_dir,desc_runs);
+    mkdir(run_dir);
     
     % loop over noise realizations
-    parfor k_e = 1:num_e
+    for k_e = 1:num_e
         seed_num = (k_N-1)*num_e+k_e;
-        loop_var(x0,N_OL,N_CL,p,f,k_N,k_e,plant,Ru,Re,ny,nu,nx,num_steps,Nbar,ref,Qk,Rk,dRk,num_c,Rdu,CL_sim_steps,temp_dir2,seed_num,Obsv_f,Lu_act,Ly_act,Gu_act);
+        loop_var(x0,N_OL,N_CL,p,f,k_N,k_e,plant,Ru,Re,ny,nu,nx,num_steps,Nbar,ref,Qk,Rk,dRk,num_c,Rdu,CL_sim_steps,run_dir,seed_num,Obsv_f,Lu_act,Ly_act,Gu_act);
     end
 
     % clear output file contents
-    fid = fopen(outfile,'w');
-    fclose(fid);
+%     fid = fopen(outfile,'w');
+%     fclose(fid);
 
     % saved temp data into results structure and save in raw data folder
-    temp2raw(num_e,num_c,temp_dir1,temp_dir2,raw_dir,desc_runs,Nbar);
+    temp2raw(num_e,num_c,run_dir,raw_dir,desc_runs,Nbar,ref);
 end
+toc

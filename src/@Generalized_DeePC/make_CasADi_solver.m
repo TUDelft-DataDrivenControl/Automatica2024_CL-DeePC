@@ -43,7 +43,7 @@ else
     % make functions to get results
     obj.Prob.x2G = @(x) reshape(x((obj.nu+obj.ny)*obj.f+1:(obj.nu+obj.ny)*obj.f+m1*obj.nGcols),m1,obj.nGcols);
 end
-obj.Prob.x2uf = @(x) reshape(x(1:obj.nu*obj.f),obj.nu,obj.f);
+obj.Prob.x2uf = @(x) reshape(x(1:obj.nu*obj.f),obj.nu,obj.f); % define in terms of beginning s.t. useable for result from QP3
 obj.Prob.x2yf = @(x) reshape(x(obj.nu*obj.f+1:(obj.nu+obj.ny)*obj.f),obj.ny,obj.f);
 zero_x = zeros(size(obj.Prob.x_));
 
@@ -228,9 +228,19 @@ if ~isfield(obj.Prob.cas_opts,'options')
     obj.Prob.cas_opts.options = struct();
 end
 
+% available solvers -> qpsol or nlpsol
+nlp_solvers = {'AmplInterface','blocksqp','bonmin','ipopt','knitro','snopt','worhp','scpgen','sqpmethod'};
+qp_solvers  = {'cplex','gurobi','ooqp','qpoases','sqic','nlpsol'};
+
 % regular problem
 prob    = struct('f', obj.Prob.cost, 'x', obj.Prob.x_, 'g', [A;Adyn]*obj.Prob.x_,'p',obj.Prob.p_);
-obj.Prob.QPsolver = casadi.qpsol('solver',obj.Prob.cas_opts.solver,prob,obj.Prob.cas_opts.options);
+if contains(obj.Prob.cas_opts.solver,qp_solvers)
+    obj.Prob.QP1 = casadi.qpsol( 'solver', obj.Prob.cas_opts.solver,prob,obj.Prob.cas_opts.options);
+elseif contains(obj.Prob.cas_opts.solver,nlp_solvers)
+    obj.Prob.QP1 = casadi.nlpsol('solver', obj.Prob.cas_opts.solver,prob,obj.Prob.cas_opts.options);
+else
+    error('Unrecognized solver specified');
+end
 
 % make get functions
 obj.Prob.get_lba = casadi.Function('get_lba',{obj.Prob.p_},{[lba;ulba_dyn]});
@@ -249,7 +259,7 @@ obj.Prob.get_x0     = @() obj.Prob.res.x;
 obj.Prob.get_lam_x0 = @() obj.Prob.res.lam_x;
 obj.Prob.get_lam_a0 = @() obj.Prob.res.lam_g;
 
-obj.Prob.p2res = @(p) obj.Prob.QPsolver('p',p,...
+obj.Prob.p2res = @(p) obj.Prob.QP1('p',p,...
     'x0',obj.Prob.get_x0(),...
     'lam_x0',obj.Prob.get_lam_x0(),'lam_g0',obj.Prob.get_lam_a0(),...
     'lbg',obj.Prob.get_lba(p),'ubg',obj.Prob.get_uba(p),...
@@ -259,6 +269,16 @@ obj.Prob.res2ufyf = @(res) deal(full(obj.Prob.x2uf(res.x)),full(obj.Prob.x2yf(re
 
 % specify solver method
 obj.solve = @obj.optimizer_solve;
+
+%% backup using IPOPT
+% ipopt_opts   = struct('solver','ipopt','options',struct('ipopt',struct('print_level',0,'warm_start_init_point','yes','nlp_scaling_method','none','max_iter',20),'print_time',0));
+% obj.Prob.QP2= casadi.nlpsol('solver',ipopt_opts.solver,prob,ipopt_opts.options);
+
+% obj.Prob.p2res2 = @(p) obj.Prob.QP2('p',p,...
+%     'x0',obj.Prob.get_x0(),...
+%     'lam_x0',obj.Prob.get_lam_x0(),'lam_g0',obj.Prob.get_lam_a0(),...
+%     'lbg',obj.Prob.get_lba(p),'ubg',obj.Prob.get_uba(p),...
+%     'lbx',obj.Prob.get_lbx(p),'ubx',obj.Prob.get_ubx(p));
 
 %% create backup solver for when QP is infeasible
 obj.Prob.backup = struct;
@@ -278,7 +298,7 @@ lbx(mask_ulbx) = -Inf(np,1); lbx = [lbx;-Inf(npa,1)];
 
 obj.Prob.backup.sigma_ = obj.make_var(npa,1,'sigma');
 obj.Prob.backup.x_     = vertcat(obj.Prob.x_,obj.Prob.backup.sigma_);
-zero_x = zeros(size(obj.Prob.backup.x_));
+% zero_x = zeros(size(obj.Prob.backup.x_));
 
 if obj.options.ExplicitPredictor
     Adyn = [Adyn,sparse(obj.ny*obj.f,npa)];
@@ -289,7 +309,13 @@ end
 obj.Prob.backup.cost = obj.Prob.cost+1e15*obj.Prob.backup.sigma_.'*obj.Prob.backup.sigma_;
 
 prob2    = struct('f', obj.Prob.backup.cost, 'x', obj.Prob.backup.x_, 'g', [A;Adyn]*obj.Prob.backup.x_,'p',obj.Prob.p_);
-obj.Prob.backup.QPsolver = casadi.qpsol('solver',obj.Prob.cas_opts.solver,prob2,obj.Prob.cas_opts.options);
+if contains(obj.Prob.cas_opts.solver,qp_solvers)
+    obj.Prob.backup.QP3 = casadi.qpsol( 'solver',obj.Prob.cas_opts.solver,prob2,obj.Prob.cas_opts.options);
+elseif contains(obj.Prob.cas_opts.solver,nlp_solvers)
+    obj.Prob.backup.QP3 = casadi.nlpsol('solver',obj.Prob.cas_opts.solver,prob2,obj.Prob.cas_opts.options);
+else
+    error('Unrecognized solver specified');
+end
 
 % make get functions
 obj.Prob.backup.get_lba = casadi.Function('get_lba',{obj.Prob.p_},{[lba;ulba_dyn]});
@@ -297,19 +323,6 @@ obj.Prob.backup.get_uba = casadi.Function('get_uba',{obj.Prob.p_},{[uba;ulba_dyn
 obj.Prob.backup.get_lbx = casadi.Function('get_lbx',{obj.Prob.p_},{lbx});
 obj.Prob.backup.get_ubx = casadi.Function('get_ubx',{obj.Prob.p_},{ubx});
 
-% initializing result structure
-zero_g = zeros(size(A,1)+size(Adyn,1),1);
-obj.Prob.backup.res = struct;
-obj.Prob.backup.res.x     = zero_x;
-obj.Prob.backup.res.lam_x = zero_x;
-obj.Prob.backup.res.g     = zero_g;
-obj.Prob.backup.res.lam_g = zero_g;
-obj.Prob.backup.get_x0     = @() obj.Prob.backup.res.x;
-obj.Prob.backup.get_lam_x0 = @() obj.Prob.backup.res.lam_x;
-obj.Prob.backup.get_lam_a0 = @() obj.Prob.backup.res.lam_g;
-
-obj.Prob.backup.p2res = @(p) obj.Prob.backup.QPsolver('p',p,...
-    'x0',obj.Prob.backup.get_x0(),...
-    'lam_x0',obj.Prob.backup.get_lam_x0(),'lam_g0',obj.Prob.backup.get_lam_a0(),...
+obj.Prob.backup.p2res = @(p) obj.Prob.backup.QP3('p',p,...
     'lbg',obj.Prob.backup.get_lba(p),'ubg',obj.Prob.backup.get_uba(p),...
     'lbx',obj.Prob.backup.get_lbx(p),'ubx',obj.Prob.backup.get_ubx(p));

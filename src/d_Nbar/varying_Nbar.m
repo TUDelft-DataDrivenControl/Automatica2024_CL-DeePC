@@ -110,4 +110,7 @@ for k_N = 1:num_N
     % clear output file contents
     fid = fopen(outfile,'w');
     fclose(fid);
+
+    % saved temp data into results structure and save in raw data folder
+    temp2raw(num_e,num_c,run_dir,raw_dir,desc_runs,Nbar);
 end

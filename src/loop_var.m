@@ -24,7 +24,7 @@ save(save_str,'e','u_OL','du_CL');
 
 % splitting e into OL & CL parts
 e_OL = e(:,1:OL_sim_steps);
-e_CL = e(:,OL_sim_steps:end);
+e_CL = e(:,OL_sim_steps+1:end);
 
 %% initial open loop simulation
 
@@ -60,7 +60,7 @@ Cz = cell(num_c,1);
 Cz{1} =    DeePC(u_ol,y_ol,p,f,N_OL,Qk,Rk,dRk,constr=con);
 
 % 2) CL-DeePC with IV
-Cz{2} = CL_DeePC(u_ol,y_ol,p,f,N_CL,Qk,Rk,dRk,constr=con);
+Cz{2} = CL_DeePC(u_ol,y_ol,p,f,N_CL,Qk,Rk,dRk,constr=con,EstimateD=false);
 
 for k_c = 1:num_c
 
