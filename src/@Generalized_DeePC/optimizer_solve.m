@@ -54,6 +54,10 @@ else
     par_vec = obj.Prob.get_p(obj.up,obj.yp,obj.rf,obj.LHS);
 end
 
+% -> initial guess: uf = 0, yf = Lu*up+Ly*yp
+yf0 = obj.Prob.Lu*obj.up(:)+obj.Prob.Ly*obj.yp(:);
+obj.Prob.res.x  = [zeros(obj.nu*obj.f,1);yf0];
+
 try
     % try to solve regular problem
     obj.Prob.stat = 0;  % <- indicates unsuccessful solve(s)
@@ -63,9 +67,6 @@ try
 catch
     try
         % try to solve original problem with softened constraints
-        % -> initial guess: uf = 0, yf = Lu*up+Ly*yp
-        yf0 = obj.Prob.Lu*obj.up(:)+obj.Prob.Ly*obj.yp(:);
-        obj.Prob.res.x  = [zeros(obj.nu*obj.f,1);yf0];
         % -> solve relaxed problem
         obj.Prob.stat = 2;
         res = obj.Prob.backup.p2res(par_vec);

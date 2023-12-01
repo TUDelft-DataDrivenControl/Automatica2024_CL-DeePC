@@ -31,7 +31,7 @@ classdef Generalized_DeePC < handle
                                     ...struct('solver', 'osqp','options', struct('print_time',0)));
                                   struct('solver', 'ipopt',...
                                         'options', struct('print_time',0, ...
-                                                          'ipopt',struct('print_level',0,'nlp_scaling_method','none','warm_start_init_point','yes'))));
+                                                          'ipopt',struct('print_level',0,'nlp_scaling_method','none','warm_start_init_point','yes','hessian_constant','yes','mehrotra_algorithm','yes'))));
     end
     properties (Dependent)
         Up
