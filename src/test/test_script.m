@@ -38,7 +38,7 @@ Nmax = 10^3;                      % maximum number of columns
 pmin = ceil(cond1_fac*log(Nmax)); % such that above always true
 
 % controller settings
-p = 100; % > pmin with Nmax
+p = 20; % > pmin with Nmax
 f = p;
 Nmin = p*(nu+ny)+f*nu; % minimum N is determined by regular DeePC
 Qk = 100;
@@ -49,11 +49,11 @@ dRk= 10;
 
 % number of
 num_c = 2;   % controllers
-num_e = 1;%120; % noise realizations per value of N
+num_e = 4;%120; % noise realizations per value of N
 num_N = 1;%50;  % values for N
 
 % N & Nbar values - same Nbar for DeePC & CL-DeePC
-N_all_OL = Nmin;%round(logspace(log10(Nmin),log10(Nmax),num_N));
+N_all_OL = Nmax;%round(logspace(log10(Nmin),log10(Nmax),num_N));
 N_all_CL = N_all_OL + f-1;
 Nbar_all = N_all_OL+p+f-1;
 Nbar_min = min(Nbar_all,[],'all');
@@ -103,7 +103,7 @@ for k_N = 1:num_N
     mkdir(run_dir);
     
     % loop over noise realizations
-    for k_e = 1:num_e
+    parfor k_e = 1:num_e
         seed_num = (k_N-1)*num_e+k_e;
         loop_var(x0,N_OL,N_CL,p,f,k_N,k_e,plant,Ru,Re,ny,nu,nx,num_steps,Nbar,ref,Qk,Rk,dRk,num_c,Rdu,CL_sim_steps,run_dir,seed_num,Obsv_f,Lu_act,Ly_act,Gu_act);
     end

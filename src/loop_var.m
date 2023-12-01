@@ -14,8 +14,8 @@ u_OL  = mvnrnd(zeros(nu,1),Ru, OL_sim_steps).'; % OL input
 du_CL = mvnrnd(zeros(nu,1),Rdu,CL_sim_steps).'; % CL input
 
 % maximize input disturbance so as not to cause infeasibility
-du_CL(du_CL<-du_max) = -du_max; % shouldn't affect many instances -> otherwise changes effective Rdu
-du_CL(du_CL>du_max)  =  du_max;
+%du_CL(du_CL<-du_max) = -du_max; % shouldn't affect many instances -> otherwise changes effective Rdu
+%du_CL(du_CL>du_max)  =  du_max;
 
 % saving data
 name_kvar = inputname(6);
@@ -63,7 +63,6 @@ Cz{1} =    DeePC(u_ol,y_ol,p,f,N_OL,Qk,Rk,dRk,constr=con);
 Cz{2} = CL_DeePC(u_ol,y_ol,p,f,N_CL,Qk,Rk,dRk,constr=con,EstimateD=false);
 
 for k_c = 1:num_c
-
     % initialize data for run with controller
     x_CLr = nan(nx,CL_sim_steps+1); x_CLr(:,1) = x0_CL;
     [u_CLr,y_CLr,cost,eLu_r,eLy_r,eGu_r,eObX_r,stat_r] = deal( nan(nu,CL_sim_steps) );
@@ -77,9 +76,7 @@ for k_c = 1:num_c
     
     % analysis
     cost(1) = stage_cost([u_OL(:,end) u_CLr(:,1)],y_CLr(:,1)); % stage cost
-    [eObX_r(1),eLu_r(1), eLy_r(1), eGu_r(1)] = error_ID(Cz{k_c},x_CLr(:,1),Obsv_f,Lu_act,Ly_act,Gu_act);      % ID errors
-
-
+    [eObX_r(1),eLu_r(1), eLy_r(1), eGu_r(1)] = error_ID(Cz{k_c},x_CLr(:,1),Obsv_f,Lu_act,Ly_act,Gu_act);      % ID errors    
     for k = 2:CL_sim_steps
         % get input
         try
