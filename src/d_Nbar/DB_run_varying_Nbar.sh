@@ -2,7 +2,7 @@
 #
 #SBATCH --job-name="d_Nbar"
 #SBATCH --partition=compute
-#SBATCH --time=08:00:00
+#SBATCH --time=03:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=41
 #SBATCH --cpus-per-task=1
@@ -13,7 +13,7 @@
 #SBATCH --mail-user=r.t.o.dinkla@tudelft.nl
 #SBATCH --mail-type=ALL
 
-cd ${HOME}/../../scratch/${USER}/Automatica_2023/src/
+cd ${HOME}/../../scratch/${USER}/Automatica_2023/src/d_Nbar/
 module load matlab
 
 matlab -r varying_Nbar

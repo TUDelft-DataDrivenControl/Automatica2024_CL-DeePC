@@ -15,6 +15,7 @@ cd(mfilePath); % change cwd to folder containing this file
 
 addpath(genpath("../../data"),'-begin')
 addpath(genpath("../../bin"),'-begin')
+addpath(genpath("../../src"),'-begin')
 addpath(genpath(pwd),'-begin');% add directory of this file to path
 
 % cluster settings
