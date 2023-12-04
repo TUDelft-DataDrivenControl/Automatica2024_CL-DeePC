@@ -11,3 +11,4 @@ docs/manuscript/unused/
 *.out
 *.e[0-9]*
 *.o[0-9]*
+Job[0-9]*

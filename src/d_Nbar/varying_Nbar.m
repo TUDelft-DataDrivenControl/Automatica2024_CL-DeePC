@@ -13,21 +13,28 @@ clc;
 [mfilePath,~,~] = fileparts(mfilename('fullpath')); % get dir of this file
 cd(mfilePath); % change cwd to folder containing this file
 
-addpath(genpath("../../data"),'-begin')
-addpath(genpath("../../bin"),'-begin')
-addpath(genpath("../../src"),'-begin')
+addpath("../../data/raw",'-begin');
+addpath(genpath("../../bin"),'-begin');
+addpath(genpath("../../src"),'-begin');
+rmpath(genpath("../../src/d_pf"));
+rmpath(genpath("../../src/d_Re"));
 addpath(genpath(pwd),'-begin');% add directory of this file to path
 
 % cluster settings
-myCluster = parcluster('local');
-parpool(myCluster, 41);
-%nworker = 48;
-%myCluster = parcluster('SlurmProfile1')
-%myCluster.ResourceTemplate = strjoin({'--job-name=d_Nbar', '--partition=compute',...
-%    '--time=08:00:00 --account=research-3mE-dcsc --nodes=4 --ntasks=48',...
-%    '--cpus-per-task=1 --mem-per-cpu=4GB --output=d_Nbar.%j.out --error=d_Nbar.%j.err',...
-%    '--mail-user=r.t.o.dinkla@tudelft.nl --mail-type=ALL'})
-%parpool(myCluster, nworker)
+cluster_flag = 2;
+switch cluster_flag
+    case 1 % single node
+        myCluster = parcluster('local');
+        parpool(myCluster, 41);
+    case 2 % multiple nodes
+        nworker = 120;
+        myCluster = parcluster('SlurmProfile1');
+        myCluster.ResourceTemplate = strjoin({'--job-name=d_Nbar', '--partition=compute',...
+            '--time=04:00:00 --account=research-3mE-dcsc --nodes=10 --ntasks-per-node=12',...
+            '--cpus-per-task=1 --mem-per-cpu=4GB --output=/dev/null --error=d_Nbar.%j.err',...
+            '--mail-user=r.t.o.dinkla@tudelft.nl --mail-type=ALL'});
+        parpool(myCluster, nworker);
+end
 
 %% Simulation settings
 model_Favoreel1999 % loads model from Favoreel 1999 - original SPC paper
@@ -78,10 +85,12 @@ ref = 50*[-sign(sin(2*pi/2*0.01*(0:CL_sim_steps-1))) ones(1,f-1)]+50;
 
 %% Run Simulations
 % get output file name
-files = dir(fullfile(pwd, 'd_Nbar.*.out'));
-fileNumbers = cellfun(@(x) str2double(regexp(x, 'd_Nbar\.(\d+)\.out', 'tokens', 'once')), {files.name});
-[~, maxIndex] = max(fileNumbers);
-outfile = files(maxIndex).name;
+if cluster_flag == 1
+    files = dir(fullfile(pwd, 'd_Nbar.*.out'));
+    fileNumbers = cellfun(@(x) str2double(regexp(x, 'd_Nbar\.(\d+)\.out', 'tokens', 'once')), {files.name});
+    [~, maxIndex] = max(fileNumbers);
+    outfile = files(maxIndex).name;
+end
 
 % description of data set
 descr = strcat('Varying_Nbar_',num2str(Nbar_min),'-',num2str(Nbar_max),'-',num2str(num_N),...
@@ -109,9 +118,11 @@ for k_N = 1:num_N
     end
 
     % clear output file contents
-    fid = fopen(outfile,'w');
-    fclose(fid);
+    if cluster_flag == 1
+        fid = fopen(outfile,'w');
+        fclose(fid);
+    end
 
     % saved temp data into results structure and save in raw data folder
-    temp2raw(num_e,num_c,run_dir,raw_dir,desc_runs,Nbar);
+    temp2raw(num_e,num_c,run_dir,raw_dir,desc_runs,Nbar,ref);
 end
