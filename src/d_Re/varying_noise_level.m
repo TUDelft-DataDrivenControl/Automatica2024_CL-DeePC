@@ -18,6 +18,7 @@ addpath(genpath("../../bin"),'-begin');
 addpath(genpath("../../src"),'-begin');
 rmpath(genpath("../../src/d_pf"));
 rmpath(genpath("../../src/d_Nbar"));
+rmpath(genpath("../../src/test"));
 addpath(genpath(pwd),'-begin');% add directory of this file to path
 
 % cluster settings
