@@ -1,5 +1,5 @@
 function loop_var(x0,N_OL,N_CL,p,f,k_var,k_e,plant,Ru,Re,ny,nu,nx,num_steps,Nbar,ref,Qk,Rk,dRk,num_c,Rdu,CL_sim_steps,dir_name,seed_num,Obsv_f,Lu_act,Ly_act,Gu_act)
-
+system("echo Start loop var");
 %% user defined constraints
 y_max = 1000;
 u_max = 15;

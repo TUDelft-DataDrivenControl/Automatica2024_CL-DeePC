@@ -28,13 +28,10 @@ switch cluster_flag
         myCluster = parcluster('local');
         Pool = parpool(myCluster, 4);
     case 2 % multiple nodes
-        nworker = 120;
+        % nworker = 120;
         myCluster = parcluster('SlurmProfile1')
-        myCluster.ResourceTemplate = strjoin({'--job-name=d_pf', '--partition=compute',...
-            '--time=17:00:00 --account=research-3mE-dcsc --nodes=10 --ntasks-per-node=12',... 17:00:00, 10, 12(/13?)
-            '--cpus-per-task=1 --mem-per-cpu=4GB --output=d_pf.%j_%t.out --error=d_pf.%j_%t.err',.../dev/null
-            '--mail-user=r.t.o.dinkla@tudelft.nl --mail-type=ALL'})
-        Pool = parpool(myCluster, nworker);
+        myCluster.NumWorkers = 4;
+        % Pool = parpool(myCluster, nworker);
 end
 
 %% Simulation settings
@@ -49,11 +46,11 @@ dRk= 10;
 
 % number of
 num_c = 2; % controllers
-num_e = 120; % noise realizations per value of p,f
+num_e = 4;%120; % noise realizations per value of p,f
 
 % p & f values
 p_min = 62;
-p_max = 100;
+p_max = 62;%100;
 p_all = p_min:2:p_max; % > pmin with Nmax
 num_p = length(p_all);  % number of values for p
 f_all = p_all; % p = f
@@ -83,12 +80,12 @@ ref = 50*[-sign(sin(2*pi/2*0.01*(0:CL_sim_steps-1))) ones(1,f_all(end)-1)]+50;
 
 %% Running Simulations
 % get output file name
-if cluster_flag == 1
-    files = dir(fullfile(pwd, 'd_pf.*.out'));
-    fileNumbers = cellfun(@(x) str2double(regexp(x, 'd_pf\.(\d+)\.out', 'tokens', 'once')), {files.name});
-    [~, maxIndex] = max(fileNumbers);
-    outfile = files(maxIndex).name;
-end
+% if cluster_flag == 1
+%     files = dir(fullfile(pwd, 'd_pf.*.out'));
+%     fileNumbers = cellfun(@(x) str2double(regexp(x, 'd_pf\.(\d+)\.out', 'tokens', 'once')), {files.name});
+%     [~, maxIndex] = max(fileNumbers);
+%     outfile = files(maxIndex).name;
+% end
 
 % description of data set
 descr = strcat('Varying_pf_',num2str(p_min),'-',num2str(p_max),'-',num2str(num_p),...
@@ -99,6 +96,8 @@ descr = strcat('Varying_pf_',num2str(p_min),'-',num2str(p_max),'-',num2str(num_p
 raw_dir   = fullfile('..','..','data','raw' ,descr);
 mkdir(raw_dir);
 
+jobs = cell(1,num_p);
+system("echo Starting for loop")
 for k_p = 1:num_p
     N_OL = N_OL_all(k_p);
     N_CL = N_CL_all(k_p);
@@ -114,26 +113,42 @@ for k_p = 1:num_p
     desc_runs = strcat('p_',num2str(p),'_f_',num2str(f));
     run_dir   = fullfile(raw_dir,desc_runs);
     mkdir(run_dir);
-    tParFor = tic;
+
     % loop over noise realizations
-    parfor k_e = 1:num_e
+   system(append("echo p=",num2str(p),", altering ResourceTemplate"));
+    myCluster.ResourceTemplate = strjoin({strcat('--job-name=d_pf',num2str(p)), '--partition=compute',...
+            '--time=00:15:00 --account=research-3mE-dcsc --ntasks=4',... 17:00:00, 10, 12(/13?)--nodes=10 --ntasks-per-node=13
+            '--cpus-per-task=1 --mem-per-cpu=4GB --output=d_pf.%A_%a.out --error=d_pf.%A_%a.err',.../dev/null
+            '--mail-user=r.t.o.dinkla@tudelft.nl --mail-type=BEGIN,END,FAIL'})
+    jobs{k_p} = createJob(myCluster);%batch('batch_d_pf','CurrentFolder',run_dir,'AutoAddClientPath',true,'CaptureDiary',true)
+    jobs{k_p}.AutoAddClientPath = true;
+    for k_e = 1:num_e
         seed_num = (k_p-1)*num_e+k_e+2520;
-        loop_var(x0,N_OL,N_CL,p,f,k_p,k_e,plant,Ru,Re,ny,nu,nx,num_steps,Nbar,ref,Qk,Rk,dRk,num_c,Rdu,CL_sim_steps,run_dir,seed_num,Obsv_pf,Lu_pf,Ly_pf,Gu_pf);
+        createTask(jobs{k_p}, @loop_var, 0, {x0,N_OL,N_CL,p,f,k_p,k_e,plant,Ru,Re,ny,nu,nx,num_steps,Nbar,ref,Qk,Rk,dRk,num_c,Rdu,CL_sim_steps,run_dir,seed_num,Obsv_pf,Lu_pf,Ly_pf,Gu_pf});
+        %loop_var(x0,N_OL,N_CL,p,f,k_p,k_e,plant,Ru,Re,ny,nu,nx,num_steps,Nbar,ref,Qk,Rk,dRk,num_c,Rdu,CL_sim_steps,run_dir,seed_num,Obsv_pf,Lu_pf,Ly_pf,Gu_pf);
     end
-    dtParFor=toc(tParFor);
-    clear output file contents
-    if cluster_flag == 1
-        fid = fopen(outfile,'w');
-        fclose(fid);
-    end
+    jobs{k_p}
+    submit(jobs{k_p});
+    jobs{k_p}
+    system(append('echo ', 'Submitted batch script with parfor for ',num2str(p)'));
+    % clear output file contents
+    % if cluster_flag == 1
+    %     fid = fopen(outfile,'w');
+    %     fclose(fid);
+    % end
 
     % saved temp data into results structure and save in raw data folder
-    temp2raw(num_e,num_c,run_dir,raw_dir,desc_runs,p,f,ref);
-    disp(['End of run with p=f=',num2str(p),' Time taken=',num2str(dtParFor)])
-    whos
+    %temp2raw(num_e,num_c,run_dir,raw_dir,desc_runs,p,f,ref);
 end
-disp('Done with iterations over p & f');
-pause(1)
-disp('Deleting parallel pool');
-delete(Pool);
-disp('Done');
+for k_p = 1:num_p
+    system("echo 'Waiting...'");
+    wait(jobs{k_p})
+    system("echo 'Wait over'");
+    jobs{k_p}
+    results = fetchOutputs(jobs{k_p})
+end
+system("echo Done with iterations over p & f");
+% pause(1)
+% disp('Deleting parallel pool');
+% delete(Pool);
+% disp('Done');
