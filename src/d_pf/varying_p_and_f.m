@@ -122,15 +122,16 @@ for k_p = 1:num_p
             '--mail-user=r.t.o.dinkla@tudelft.nl --mail-type=BEGIN,END,FAIL'})
     jobs{k_p} = createJob(myCluster);%batch('batch_d_pf','CurrentFolder',run_dir,'AutoAddClientPath',true,'CaptureDiary',true)
     jobs{k_p}.AutoAddClientPath = true;
+    jobs{k_p}.AutoAttachFiles = false;
     for k_e = 1:num_e
         seed_num = (k_p-1)*num_e+k_e+2520;
-        createTask(jobs{k_p}, @loop_var, 0, {x0,N_OL,N_CL,p,f,k_p,k_e,plant,Ru,Re,ny,nu,nx,num_steps,Nbar,ref,Qk,Rk,dRk,num_c,Rdu,CL_sim_steps,run_dir,seed_num,Obsv_pf,Lu_pf,Ly_pf,Gu_pf});
+        createTask(jobs{k_p}, @loop_var, 0, {x0,N_OL,N_CL,p,f,k_p,k_e,plant,Ru,Re,ny,nu,nx,num_steps,Nbar,ref,Qk,Rk,dRk,num_c,Rdu,CL_sim_steps,run_dir,seed_num,Obsv_pf,Lu_pf,Ly_pf,Gu_pf,'k_p'});
         %loop_var(x0,N_OL,N_CL,p,f,k_p,k_e,plant,Ru,Re,ny,nu,nx,num_steps,Nbar,ref,Qk,Rk,dRk,num_c,Rdu,CL_sim_steps,run_dir,seed_num,Obsv_pf,Lu_pf,Ly_pf,Gu_pf);
     end
     jobs{k_p}
     submit(jobs{k_p});
     jobs{k_p}
-    system(append('echo ', 'Submitted batch script with parfor for ',num2str(p)'));
+    system(append('echo ', 'Submitted batch script with parfor for ',num2str(p)));
     % clear output file contents
     % if cluster_flag == 1
     %     fid = fopen(outfile,'w');
@@ -140,15 +141,10 @@ for k_p = 1:num_p
     % saved temp data into results structure and save in raw data folder
     %temp2raw(num_e,num_c,run_dir,raw_dir,desc_runs,p,f,ref);
 end
-for k_p = 1:num_p
-    system("echo 'Waiting...'");
-    wait(jobs{k_p})
-    system("echo 'Wait over'");
-    jobs{k_p}
-    results = fetchOutputs(jobs{k_p})
-end
-system("echo Done with iterations over p & f");
-% pause(1)
-% disp('Deleting parallel pool');
-% delete(Pool);
-% disp('Done');
+% for k_p = 1:num_p
+%     system("echo 'Waiting...'");
+%     wait(jobs{k_p})
+%     system("echo 'Wait over'");
+%     jobs{k_p}
+% end
+% system("echo Done with iterations over p and f");
