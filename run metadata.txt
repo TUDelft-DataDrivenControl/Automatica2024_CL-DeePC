@@ -11,3 +11,8 @@ Varying p=f  - p=f=100   num_e=4    num_cores=4,   1800  steps  time passed = 91
 						interpolated duration: 15:19:54			interpolated size: 2.44 GB
 Varying Re   - Re=1      num_e=4    num_cores=4	   1800  steps  time passed =  95.4s			       size: 1530 kB
      	     - x50       num_e=141  num_cores=47   x1	 	time passed =  95.4s*50*3= 14,306s=  3:58:26   size: 1530 kB *50*141/4 = 2.70 GB
+
+Varying      - p=f=62    num_e=4    num_cores=4,   1800  steps  time passed = 323.4s   size:  kB
+             - x20	     num_e=120  num_cores=     x1           time passed = 323.4s   size:  kB 1691 kB*120/4 =  50.73 MB
+	         - p=f=100   num_e=4    num_cores=4,   1800  steps  time passed = 590.3s
+             - x20	     num_e=120  num_cores=47   x1           time passed = 
