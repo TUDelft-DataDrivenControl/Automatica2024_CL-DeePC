@@ -13,12 +13,12 @@ clc;
 [mfilePath,~,~] = fileparts(mfilename('fullpath')); % get dir of this file
 cd(mfilePath); % change cwd to folder containing this file
 
-addpath("../../data/raw",'-begin');
-addpath(genpath("../../bin"),'-begin');
-addpath(genpath("../../src"),'-begin');
-rmpath(genpath("../../src/d_Re"));
-rmpath(genpath("../../src/d_Nbar"));
-rmpath(genpath("../../src/test"));
+addpath(fullfile("..","..","data","raw"),'-begin');
+addpath(genpath(fullfile("..","..","bin")),'-begin');
+addpath(genpath(fullfile("..","..","src")),'-begin');
+rmpath(genpath(fullfile("..","..","src","d_Re")));
+rmpath(genpath(fullfile("..","..","src","d_Nbar")));
+rmpath(genpath(fullfile("..","..","src","test")));
 addpath(genpath(pwd),'-begin');% add directory of this file to path
 
 % cluster settings
@@ -29,7 +29,7 @@ switch cluster_flag
         Pool = parpool(myCluster, 4);
     case 2 % multiple nodes
         % nworker = 120;
-        myCluster = parcluster('SlurmProfile1')
+        myCluster = parcluster('SlurmProfile1');
         myCluster.NumWorkers = 4;
         % Pool = parpool(myCluster, nworker);
 end
@@ -97,7 +97,7 @@ raw_dir   = fullfile('..','..','data','raw' ,descr);
 mkdir(raw_dir);
 
 jobs = cell(1,num_p);
-system("echo Starting for loop")
+system("echo Starting for loop");
 for k_p = 1:num_p
     N_OL = N_OL_all(k_p);
     N_CL = N_CL_all(k_p);
@@ -112,25 +112,17 @@ for k_p = 1:num_p
     % make directories to save data in
     desc_runs = strcat('p_',num2str(p),'_f_',num2str(f));
     run_dir   = fullfile(raw_dir,desc_runs);
-    mkdir(run_dir);
+    mkdir(run_dir); addpath(run_dir);
 
     % loop over noise realizations
-   system(append("echo p=",num2str(p),", altering ResourceTemplate"));
+    system(append("echo p=",num2str(p),", altering ResourceTemplate"));
     myCluster.ResourceTemplate = strjoin({strcat('--job-name=d_pf',num2str(p)), '--partition=compute',...
             '--time=00:15:00 --account=research-3mE-dcsc --ntasks=4',... 17:00:00, 10, 12(/13?)--nodes=10 --ntasks-per-node=13
             '--cpus-per-task=1 --mem-per-cpu=4GB --output=d_pf.%A_%a.out --error=d_pf.%A_%a.err',.../dev/null
             '--mail-user=r.t.o.dinkla@tudelft.nl --mail-type=BEGIN,END,FAIL'})
-    jobs{k_p} = createJob(myCluster);%batch('batch_d_pf','CurrentFolder',run_dir,'AutoAddClientPath',true,'CaptureDiary',true)
-    jobs{k_p}.AutoAddClientPath = true;
-    jobs{k_p}.AutoAttachFiles = false;
-    for k_e = 1:num_e
-        seed_num = (k_p-1)*num_e+k_e+2520;
-        createTask(jobs{k_p}, @loop_var, 0, {x0,N_OL,N_CL,p,f,k_p,k_e,plant,Ru,Re,ny,nu,nx,num_steps,Nbar,ref,Qk,Rk,dRk,num_c,Rdu,CL_sim_steps,run_dir,seed_num,Obsv_pf,Lu_pf,Ly_pf,Gu_pf,'k_p'});
-        %loop_var(x0,N_OL,N_CL,p,f,k_p,k_e,plant,Ru,Re,ny,nu,nx,num_steps,Nbar,ref,Qk,Rk,dRk,num_c,Rdu,CL_sim_steps,run_dir,seed_num,Obsv_pf,Lu_pf,Ly_pf,Gu_pf);
-    end
-    jobs{k_p}
-    submit(jobs{k_p});
-    jobs{k_p}
+    jobs{k_p} = batch(myCluster,@batch_d_pf,0,{x0,N_OL,N_CL,p,f,k_p,num_e,plant,Ru,Re,ny,nu,nx,num_steps,Nbar,ref,...
+        Qk,Rk,dRk,num_c,Rdu,CL_sim_steps,run_dir,Obsv_pf,Lu_pf,Ly_pf,Gu_pf,'k_p'},...
+        'CurrentFolder','.','Pool',myCluster.NumWorkers-1,'AutoAddClientPath',true,'CaptureDiary',true,'AutoAttachFiles',false);
     system(append('echo ', 'Submitted batch script with parfor for ',num2str(p)));
     % clear output file contents
     % if cluster_flag == 1
