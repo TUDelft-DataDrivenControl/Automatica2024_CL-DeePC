@@ -1,3 +1,4 @@
+function varying_noise_level(k_n,k_e)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %           Closed-loop Data-Enabled Predictive Control
 %           Authors: R. Dinkla, S.P. Mulders, T. Oomen, J.W. van Wingerden
@@ -5,7 +6,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 close all;
-clear;
+% clear;
 rng('default');
 clc;
 
@@ -20,22 +21,6 @@ rmpath(genpath("../../src/d_pf"));
 rmpath(genpath("../../src/d_Nbar"));
 rmpath(genpath("../../src/test"));
 addpath(genpath(pwd),'-begin');% add directory of this file to path
-
-% cluster settings
-cluster_flag = 2;
-switch cluster_flag
-    case 1 % single node
-        myCluster = parcluster('local');
-        parpool(myCluster, 41);
-    case 2 % multiple nodes
-        nworker = 120;
-        myCluster = parcluster('SlurmProfile1');
-        myCluster.ResourceTemplate = strjoin({'--job-name=d_Re', '--partition=compute',...
-            '--time=02:30:00 --account=research-3mE-dcsc --nodes=6 --ntasks-per-node=20',...
-            '--cpus-per-task=1 --mem-per-cpu=4GB --output=/dev/null --error=d_Re.%j.err',...
-            '--mail-user=r.t.o.dinkla@tudelft.nl --mail-type=ALL'});
-        parpool(myCluster, nworker);
-end
 
 %% Simulation settings
 model_Favoreel1999 % loads model from Favoreel 1999 - original SPC paper
@@ -79,14 +64,7 @@ num_steps = Nbar + CL_sim_steps;  % total simulation length
 % define reference
 ref = 50*[-sign(sin(2*pi/2*0.01*(0:CL_sim_steps-1))) ones(1,f-1)]+50;
 
-%% running simulations
-% get output file name
-if cluster_flag == 1
-    files = dir(fullfile(pwd, 'd_Re.*.out'));
-    fileNumbers = cellfun(@(x) str2double(regexp(x, 'd_Re\.(\d+)\.out', 'tokens', 'once')), {files.name});
-    [~, maxIndex] = max(fileNumbers);
-    outfile = files(maxIndex).name;
-end
+%% Running simulation
 
 % description of data set
 descr = strcat('Varying_Re_',num2str(Re_min),'-',num2str(Re_max),'-',num2str(num_n),...
@@ -95,27 +73,24 @@ descr = strcat('Varying_Re_',num2str(Re_min),'-',num2str(Re_max),'-',num2str(num
 
 % make directory for raw data files
 raw_dir   = fullfile('..','..','data','raw' ,descr);
-mkdir(raw_dir);
-for k_n = 1:num_n % loop over noise levels
-    Re = Re_all(k_n)*eye(ny);
+if ~isfolder(raw_dir)
+    mkdir(raw_dir);
+end
 
-    % make directories to save data in
-    desc_runs = strcat('Re_',num2str(Re));
-    run_dir   = fullfile(raw_dir,desc_runs);
-    mkdir(run_dir);
+Re = Re_all(k_n)*eye(ny);
 
-    % loop over noise realizations
-    parfor k_e = 1:num_e
-        seed_num = (k_n-1)*num_e+k_e;
-        loop_var(x0,N_OL,N_CL,p,f,k_n,k_e,plant,Ru,Re,ny,nu,nx,num_steps,Nbar,ref,Qk,Rk,dRk,num_c,Rdu,CL_sim_steps,run_dir,seed_num,Obsv_f,Lu_act,Ly_act,Gu_act);
-    end
+% make directories to save data in
+desc_runs = strcat('Re_',num2str(Re));
+run_dir   = fullfile(raw_dir,desc_runs);
+if ~isfolder(run_dir)
+    mkdir(run_dir); addpath(run_dir);
+end
 
-    % clear output file contents
-    if cluster_flag == 1
-        fid = fopen(outfile,'w');
-        fclose(fid);
-    end
+tic
+seed_num = (k_n-1)*num_e+k_e;
+loop_var(x0,N_OL,N_CL,p,f,k_n,k_e,plant,Ru,Re,ny,nu,nx,num_steps,Nbar,ref,Qk,Rk,dRk,num_c,Rdu,CL_sim_steps,run_dir,seed_num,Obsv_f,Lu_act,Ly_act,Gu_act);
+toc
 
-    % saved temp data into results structure and save in raw data folder
-    temp2raw(num_e,num_c,run_dir,raw_dir,desc_runs,Re,ref);
+% saved temp data into results structure and save in raw data folder
+% temp2raw(num_e,num_c,run_dir,raw_dir,desc_runs,Re,ref);
 end

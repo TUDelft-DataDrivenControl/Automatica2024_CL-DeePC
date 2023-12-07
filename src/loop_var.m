@@ -1,4 +1,4 @@
-function loop_var(x0,N_OL,N_CL,p,f,k_var,k_e,plant,Ru,Re,ny,nu,nx,num_steps,Nbar,ref,Qk,Rk,dRk,num_c,Rdu,CL_sim_steps,dir_name,seed_num,Obsv_f,Lu_act,Ly_act,Gu_act,name_kvar)
+function loop_var(x0,N_OL,N_CL,p,f,k_var,k_e,plant,Ru,Re,ny,nu,nx,num_steps,Nbar,ref,Qk,Rk,dRk,num_c,Rdu,CL_sim_steps,dir_name,seed_num,Obsv_f,Lu_act,Ly_act,Gu_act)
 system("echo Start loop var");
 %% user defined constraints
 y_max = 1000;
@@ -18,9 +18,9 @@ du_CL = mvnrnd(zeros(nu,1),Rdu,CL_sim_steps).'; % CL input
 %du_CL(du_CL>du_max)  =  du_max;
 
 % saving data
-% name_kvar = inputname(6);
+name_kvar = inputname(6);
 save_str = fullfile(dir_name, sprintf('%s_%d_ke_%d_ks_%d.mat',name_kvar([1 3]),k_var,k_e,seed_num));
-save(save_str,'e','u_OL','du_CL');
+save(save_str,'e','u_OL','du_CL','ref');
 
 % splitting e into OL & CL parts
 e_OL = e(:,1:OL_sim_steps);
@@ -111,7 +111,7 @@ for k_c = 1:num_c
     stat{k_c} = stat_r;
 
 end % end for k_c
-
+system("echo Saving loop var results");
 save(save_str,'y_OL','x_OL','u_CL','y_CL','x_CL','Cost','eLu','eLy','eGu','eObX','stat','-append')
 end
 
