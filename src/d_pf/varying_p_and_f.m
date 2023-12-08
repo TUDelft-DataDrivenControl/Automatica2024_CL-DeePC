@@ -37,7 +37,7 @@ num_c = 2; % controllers
 num_e = 120; % noise realizations per value of p,f
 
 % p & f values
-p_min = 62;
+p_min = 20;
 p_max = 100;
 p_all = p_min:2:p_max; % > pmin with Nmax
 num_p = length(p_all);  % number of values for p
@@ -54,7 +54,7 @@ N_OL_all = Nbar - p_all - f_all + 1;
 % variances
 Re = 0.25*eye(ny); % noise
 Ru = 1*eye(nu);    % OL input
-Rdu= Ru/4;  % CL input disturbance variance
+Rdu= 0*Ru/4;  % CL input disturbance variance
 
 % OL-sim initial state
 x0 = zeros(nx,1);
@@ -97,7 +97,7 @@ if ~isfolder(run_dir)
 end
 
 tic
-seed_num = (k_p-1)*num_e+k_e+2520;
+seed_num = (k_p-1)*num_e+k_e;
 loop_var(x0,N_OL,N_CL,p,f,k_p,k_e,plant,Ru,Re,ny,nu,nx,num_steps,Nbar,ref,Qk,Rk,dRk,num_c,Rdu,CL_sim_steps,run_dir,seed_num,Obsv_pf,Lu_pf,Ly_pf,Gu_pf);
 toc
 

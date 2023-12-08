@@ -52,7 +52,7 @@ Re_all = logspace(-4,0,num_n);
 Re_min = min(Re_all,[],'all');
 Re_max = max(Re_all,[],'all');
 Ru = 1*eye(nu);   % OL input
-Rdu= Ru/4;       % CL input disturbance
+Rdu= 0*Ru/4;       % CL input disturbance
 
 % OL-sim initial state
 x0 = zeros(nx,1);

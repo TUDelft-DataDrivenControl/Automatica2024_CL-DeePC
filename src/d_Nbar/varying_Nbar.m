@@ -56,7 +56,7 @@ Nbar_max = max(Nbar_all,[],'all');
 % variances
 Re = 0.25*eye(ny); % noise
 Ru = 1*eye(nu);    % OL input
-Rdu= Ru/4;         % CL input disturbance
+Rdu= 0*Ru/4;         % CL input disturbance
 
 % OL-sim initial state
 x0 = zeros(nx,1);
@@ -93,9 +93,10 @@ if ~isfolder(run_dir)
     mkdir(run_dir); addpath(run_dir);
 end
 
-% loop over noise realizations
+tic
 seed_num = (k_N-1)*num_e+k_e;
 loop_var(x0,N_OL,N_CL,p,f,k_N,k_e,plant,Ru,Re,ny,nu,nx,num_steps,Nbar,ref,Qk,Rk,dRk,num_c,Rdu,CL_sim_steps,run_dir,seed_num,Obsv_f,Lu_act,Ly_act,Gu_act);
+toc
 
 % saved temp data into results structure and save in raw data folder
 % temp2raw(num_e,num_c,run_dir,raw_dir,desc_runs,Nbar,ref);

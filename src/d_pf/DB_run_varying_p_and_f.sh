@@ -43,7 +43,7 @@ EOL
 
 # Specify the range of job arrays
 start_index=1
-end_index=20
+end_index=41
 
 cd ${HOME}/../../scratch/${USER}/Automatica_2023/src/d_pf
 
