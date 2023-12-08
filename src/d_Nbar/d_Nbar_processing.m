@@ -64,19 +64,19 @@ end
 %%
 color = {[220,50,32]/256,[0,90,181]/256};%{'#DC3220','#005AB5'};
 figure();
-l1 = semilogy(Nbar_all,costs_DeePC1(idx_median,:),   Color=color{1},LineWidth=2.5); hold on;
-l11= semilogy(Nbar_all,costs_DeePC2,Color=color{1},  LineStyle='--',LineWidth=1.5);
-l2 = semilogy(Nbar_all,costs_CLDeePC1(idx_median,:), Color=color{2},LineWidth=2.5);
-l21= semilogy(Nbar_all,costs_CLDeePC2,Color=color{2},LineStyle='--',LineWidth=1.5);
+l1 = semilogx(Nbar_all,costs_DeePC1(idx_median,:),   Color=color{1},LineWidth=2.5); hold on;
+l11= semilogx(Nbar_all,costs_DeePC2,Color=color{1},  LineStyle='--',LineWidth=1.5);
+l2 = semilogx(Nbar_all,costs_CLDeePC1(idx_median,:), Color=color{2},LineWidth=2.5);
+l21= semilogx(Nbar_all,costs_CLDeePC2,Color=color{2},LineStyle='--',LineWidth=1.5);
 leg = legend('DeePC (median)','DeePC (mean)','CL-DeePC (median)','CL-DeePC (mean)');
 set(leg,'Interpreter','latex');
 ff1 = cell(1,idx_mean-1);
 ff2 = ff1;
 FaceAlpha = 0.6/(idx_mean-1);
 for idx = 1:idx_median-1
-    ff1{idx}=fill([Nbar_all fliplr(Nbar_all)],[costs_DeePC1(idx,:),  fliplr(costs_DeePC1(end-idx+1,:))],  Color{1},HandleVisibility='off');
+    ff1{idx}=fill([Nbar_all fliplr(Nbar_all)],[costs_DeePC1(idx,:),  fliplr(costs_DeePC1(end-idx+1,:))],  color{1},HandleVisibility='off');
     ff1{idx}.EdgeAlpha = 0.1; ff1{idx}.FaceAlpha = FaceAlpha; hold on;
-    ff2{idx}=fill([Nbar_all fliplr(Nbar_all)],[costs_CLDeePC1(idx,:),fliplr(costs_CLDeePC1(end-idx+1,:))],Color{2},HandleVisibility='off');
+    ff2{idx}=fill([Nbar_all fliplr(Nbar_all)],[costs_CLDeePC1(idx,:),fliplr(costs_CLDeePC1(end-idx+1,:))],color{2},HandleVisibility='off');
     ff2{idx}.EdgeAlpha = 0.1; ff2{idx}.FaceAlpha = FaceAlpha; hold on;
 end
 grid on

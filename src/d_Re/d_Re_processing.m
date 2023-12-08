@@ -73,9 +73,9 @@ ff1 = cell(1,idx_median-1);
 ff2 = ff1;
 FaceAlpha = 0.6/(idx_median-1);
 for idx = 1:idx_median-1
-    ff1{idx}=fill([Re_all fliplr(Re_all)],[costs_DeePC1(idx,:),  fliplr(costs_DeePC1(end-idx+1,:))],  Color{1},HandleVisibility='off');
+    ff1{idx}=fill([Re_all fliplr(Re_all)],[costs_DeePC1(idx,:),  fliplr(costs_DeePC1(end-idx+1,:))],  color{1},HandleVisibility='off');
     ff1{idx}.EdgeAlpha = 0.1; ff1{idx}.FaceAlpha = FaceAlpha; hold on;
-    ff2{idx}=fill([Re_all fliplr(Re_all)],[costs_CLDeePC1(idx,:),fliplr(costs_CLDeePC1(end-idx+1,:))],Color{2},HandleVisibility='off');
+    ff2{idx}=fill([Re_all fliplr(Re_all)],[costs_CLDeePC1(idx,:),fliplr(costs_CLDeePC1(end-idx+1,:))],color{2},HandleVisibility='off');
     ff2{idx}.EdgeAlpha = 0.1; ff2{idx}.FaceAlpha = FaceAlpha; hold on;
 end
 grid on
