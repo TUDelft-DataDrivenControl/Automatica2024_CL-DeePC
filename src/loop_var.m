@@ -111,7 +111,9 @@ for k_c = 1:3
         [y_CLr(:,k),x_CLr(:,k+1)] = simulate_step(u_CLr(:,k),e_CL(:,k),x_CLr(:,k));
         % calculate cost
         cost(k) = stage_cost(u_CLr(:,k-1:k),y_CLr(:,k));      % stage cost
-        [eObX_r(k),eLu_r(k), eLy_r(k), eGu_r(k)] = error_ID(Cz{k_c},x_CLr(:,k),Obsv_f,Lu_act,Ly_act,Gu_act); % ID errors
+        if k_c < 3
+            [eObX_r(k),eLu_r(k), eLy_r(k), eGu_r(k)] = error_ID(Cz{k_c},x_CLr(:,k),Obsv_f,Lu_act,Ly_act,Gu_act); % ID errors
+        end
 %         if k==2 || k/CL_sim_steps*100>=k2
 %             if k==2; k2 = 10; else k2 = k2 + 5; end
 %             clc
