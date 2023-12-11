@@ -255,9 +255,9 @@ obj.Prob.res.x     = zero_x;
 obj.Prob.res.lam_x = zero_x;
 obj.Prob.res.g     = zero_g;
 obj.Prob.res.lam_g = zero_g;
-obj.Prob.get_x0     = @() obj.Prob.res.x;
-obj.Prob.get_lam_x0 = @() obj.Prob.res.lam_x;
-obj.Prob.get_lam_a0 = @() obj.Prob.res.lam_g;
+obj.Prob.get_x0     = @() obj.Prob.res.x(1:size(zero_x,1),1);    % indices specified to accomodate use after backup solver
+obj.Prob.get_lam_x0 = @() obj.Prob.res.lam_x(1:size(zero_x,1),1);
+obj.Prob.get_lam_a0 = @() obj.Prob.res.lam_g(1:size(zero_g,1),1);
 
 obj.Prob.p2res = @(p) obj.Prob.QP1('p',p,...
     'x0',obj.Prob.get_x0(),...
