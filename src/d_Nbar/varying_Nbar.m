@@ -42,7 +42,6 @@ dRk= 10;
 [Obsv_f,Lu_act,Ly_act,Gu_act] = make_ObsvLuLyGu(plant,f,p);
 
 % number of
-num_c = 2;   % controllers
 num_e = 120; % noise realizations per value of N
 num_N = 50;  % values for N
 
@@ -95,7 +94,7 @@ end
 
 tic
 seed_num = (k_N-1)*num_e+k_e;
-loop_var(x0,N_OL,N_CL,p,f,k_N,k_e,plant,Ru,Re,ny,nu,nx,num_steps,Nbar,ref,Qk,Rk,dRk,num_c,Rdu,CL_sim_steps,run_dir,seed_num,Obsv_f,Lu_act,Ly_act,Gu_act);
+loop_var(x0,N_OL,N_CL,p,f,k_N,k_e,plant,Ru,Re,ny,nu,nx,num_steps,Nbar,ref,Qk,Rk,dRk,Rdu,CL_sim_steps,run_dir,seed_num,Obsv_f,Lu_act,Ly_act,Gu_act);
 toc
 
 % saved temp data into results structure and save in raw data folder

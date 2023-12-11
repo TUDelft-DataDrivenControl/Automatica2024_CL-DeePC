@@ -33,7 +33,6 @@ Rk = 0;
 dRk= 10;
 
 % number of
-num_c = 2; % controllers
 num_e = 120; % noise realizations per value of p,f
 
 % p & f values
@@ -98,7 +97,7 @@ end
 
 tic
 seed_num = (k_p-1)*num_e+k_e;
-loop_var(x0,N_OL,N_CL,p,f,k_p,k_e,plant,Ru,Re,ny,nu,nx,num_steps,Nbar,ref,Qk,Rk,dRk,num_c,Rdu,CL_sim_steps,run_dir,seed_num,Obsv_pf,Lu_pf,Ly_pf,Gu_pf);
+loop_var(x0,N_OL,N_CL,p,f,k_p,k_e,plant,Ru,Re,ny,nu,nx,num_steps,Nbar,ref,Qk,Rk,dRk,Rdu,CL_sim_steps,run_dir,seed_num,Obsv_pf,Lu_pf,Ly_pf,Gu_pf);
 toc
 
 % saved temp data into results structure and save in raw data folder

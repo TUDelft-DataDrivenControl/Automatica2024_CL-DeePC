@@ -1,4 +1,4 @@
-function loop_var(x0,N_OL,N_CL,p,f,k_var,k_e,plant,Ru,Re,ny,nu,nx,num_steps,Nbar,ref,Qk,Rk,dRk,num_c,Rdu,CL_sim_steps,dir_name,seed_num,Obsv_f,Lu_act,Ly_act,Gu_act)
+function loop_var(x0,N_OL,N_CL,p,f,k_var,k_e,plant,Ru,Re,ny,nu,nx,num_steps,Nbar,ref,Q,R,dR,Rdu,CL_sim_steps,dir_name,seed_num,Obsv_f,Lu_act,Ly_act,Gu_act)
 system("echo Start loop var");
 %% user defined constraints
 y_max = 1000;
@@ -20,7 +20,7 @@ du_CL = mvnrnd(zeros(nu,1),Rdu,CL_sim_steps).'; % CL input
 % saving data
 name_kvar = inputname(6);
 save_str = fullfile(dir_name, sprintf('%s_%d_ke_%d_ks_%d.mat',name_kvar([1 3]),k_var,k_e,seed_num));
-save(save_str,'e','u_OL','du_CL','ref');
+save(save_str,'e','u_OL','du_CL','ref','p','f','Nbar','Re','Ru','Rdu','Q','R','dR');
 
 % splitting e into OL & CL parts
 e_OL = e(:,1:OL_sim_steps);
@@ -42,7 +42,7 @@ y_ol = y_OL(:,end-Nbar+1:end);
 % step-simulate system
 simulate_step = @(u_k,e_k,x_k) deal(plant.C*x_k + plant.D*[u_k;e_k],... [y_k,
                                     plant.A*x_k + plant.B*[u_k;e_k]);  % x_next]
-stage_cost    = @(u,y_k) y_k.'*Qk*y_k + u(:,2).'*Rk*u(:,2) + (u(:,2)-u(:,1)).'*dRk*(u(:,2)-u(:,1));
+stage_cost    = @(u,y_k) y_k.'*Q*y_k + u(:,2).'*R*u(:,2) + (u(:,2)-u(:,1)).'*dR*(u(:,2)-u(:,1));
 
 % user defined constraints
 con = struct();
@@ -53,22 +53,36 @@ con.u_min  = -u_max;
 con.du_max = du_max;
 
 % initialize data arrays
-Cz = cell(num_c,1);
-[u_CL,y_CL,x_CL,Cost,eLu,eLy,eGu,eObX,stat] = deal(Cz);
+Cz = cell(3,1);
+[u_CL,y_CL,x_CL,Cost,stat] = deal(Cz);
+[eLu,eLy,eGu,eObX] = deal(cell(2,1));
 
 % 1) DeePC with IV
-Cz{1} =    DeePC(u_ol,y_ol,p,f,N_OL,Qk,Rk,dRk,constr=con);
+Cz{1} =    DeePC(u_ol,y_ol,p,f,N_OL,Q,R,dR,constr=con);
 
 % 2) CL-DeePC with IV
-Cz{2} = CL_DeePC(u_ol,y_ol,p,f,N_CL,Qk,Rk,dRk,constr=con,EstimateD=false);
+Cz{2} = CL_DeePC(u_ol,y_ol,p,f,N_CL,Q,R,dR,constr=con,EstimateD=false);
 
-for k_c = 1:num_c
+% 3) Oracle
+Cz{3} = Oracle(Obsv_f,Gu_act,f,p,nx,nu,ny,Q,R,dR,con);
+
+for k_c = 1:3
     % initialize data for run with controller
     x_CLr = nan(nx,CL_sim_steps+1); x_CLr(:,1) = x0_CL;
-    [u_CLr,y_CLr,cost,eLu_r,eLy_r,eGu_r,eObX_r,stat_r] = deal( nan(nu,CL_sim_steps) );
-    
+    u_CLr = nan(nu,CL_sim_steps);
+    y_CLr = nan(ny,CL_sim_steps);
+    cost  = nan(1,CL_sim_steps);
+    stat_r= cost;
+    if k_c < 3
+        [eLu_r,eLy_r,eGu_r,eObX_r] = deal(cost);
+    end
+
     % get first CL input
-    [uf_k,~,stat_r(1)] = Cz{k_c}.solve(rf=ref(:,1:f));
+    if k_c < 3
+        [uf_k,~,stat_r(1)] = Cz{k_c}.solve(rf=ref(:,1:f));
+    else
+        [uf_k,~,stat_r(1)] = Cz{k_c}.solve(x_CLr(:,1),u_ol(:,end),rf=ref(:,1:f));
+    end
     % add disturbance input
     u_CLr(:,1) = uf_k(:,1)+du_CL(:,1);
     % simulate step
@@ -76,11 +90,17 @@ for k_c = 1:num_c
     
     % analysis
     cost(1) = stage_cost([u_OL(:,end) u_CLr(:,1)],y_CLr(:,1)); % stage cost
-    [eObX_r(1),eLu_r(1), eLy_r(1), eGu_r(1)] = error_ID(Cz{k_c},x_CLr(:,1),Obsv_f,Lu_act,Ly_act,Gu_act);      % ID errors    
+    if k_c < 3
+        [eObX_r(1),eLu_r(1), eLy_r(1), eGu_r(1)] = error_ID(Cz{k_c},x_CLr(:,1),Obsv_f,Lu_act,Ly_act,Gu_act);      % ID errors   
+    end
     for k = 2:CL_sim_steps
         % get input
         try
-            [uf_k,~,stat_r(k)] = Cz{k_c}.step(u_CLr(:,k-1), y_CLr(:,k-1), rf=ref(:,k:k+f-1));
+            if k_c < 3
+                [uf_k,~,stat_r(k)] = Cz{k_c}.step( u_CLr(:,k-1), y_CLr(:,k-1), rf=ref(:,k:k+f-1));
+            else
+                [uf_k,~,stat_r(k)] = Cz{k_c}.solve(x_CLr(:,k),   u_CLr(:,k-1), rf=ref(:,k:k+f-1));
+            end
         catch Error
             disp(['k_var =',num2str(k_var),'; k_e = ',num2str(k_e),' k1 = ',num2str(k)]);
             error(Error.message)
@@ -104,10 +124,12 @@ for k_c = 1:num_c
     y_CL{k_c} = y_CLr;
     x_CL{k_c} = x_CLr;
     Cost{k_c} = cost;
-    eLu{k_c}  = eLu_r;
-    eLy{k_c}  = eLy_r;
-    eGu{k_c}  = eGu_r;
-    eObX{k_c} = eObX_r;
+    if k_c < 3
+        eLu{k_c}  = eLu_r;
+        eLy{k_c}  = eLy_r;
+        eGu{k_c}  = eGu_r;
+        eObX{k_c} = eObX_r;
+    end
     stat{k_c} = stat_r;
 
 end % end for k_c
