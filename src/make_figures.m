@@ -78,7 +78,7 @@ set(fig4,'Color','w');
 
 desc_str1 = regexp(fn,'(.*)\.mat$','match'); desc_str1 = desc_str1{1};
 desc_str2 = regexp(dirname,'Nbar_(.*)$','match'); desc_str2 = desc_str2{1};
-figname = append('DeePC_ID_issue',desc_str1,'_',desc_str2,'.pdf');
+figname = append('DeePC_CL_ID_issue_',desc_str1,'_',desc_str2,'.pdf');
 cd(fullfile('results','figures'));
 exportgraphics(fig4,figname,'ContentType','vector');
 cd(main_dir);
