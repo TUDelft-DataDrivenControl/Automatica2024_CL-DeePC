@@ -95,15 +95,15 @@ for k_et = 3%1:3 % error type
     switch k_et
         case 1
             eLG = eLu;
-            title_str = 'Error $\Gamma_f \mathcal{K}_p^\mathrm{u}$';
+%             title_str = 'Error $\Gamma_f \mathcal{K}_p^\mathrm{u}$';
             ylab = '$||\Gamma_f \mathcal{K}_p^\mathrm{u}-\widehat{\Gamma_f \mathcal{K}_p^\mathrm{u}}||_\mathrm{F}^2$';
         case 2
             eLG = eLy;
-            title_str = 'Error $\Gamma_f \mathcal{K}_p^\mathrm{y}$';
+%             title_str = 'Error $\Gamma_f \mathcal{K}_p^\mathrm{y}$';
             ylab = '$||\Gamma_f \mathcal{K}_p^\mathrm{y}-\widehat{\Gamma_f \mathcal{K}_p^\mathrm{y}}||_\mathrm{F}^2$';
         case 3
             eLG = eGu;
-            title_str = 'Error $\mathcal{T}_f^\mathrm{u}$';
+%             title_str = 'Error $\mathcal{T}_f^\mathrm{u}$';
             ylab = '$||\mathcal{T}_f^\mathrm{u}-\widehat{\mathcal{T}}_f^\mathrm{u}||_\mathrm{F}^2$';
     end
 %     ax{k_et} = nexttile;
@@ -129,7 +129,8 @@ for k_et = 3%1:3 % error type
     grid on;
     xlabel('$\bar{N}$','Interpreter','latex','FontSize',12);
     ylabel(ylab,'Interpreter','latex','FontSize',12);
-    title(title_str,'Interpreter','latex','FontSize',14);
+    xlim([50 ceil(Nbar_all(end)/50)*50]);
+%     title(title_str,'Interpreter','latex','FontSize',14);
     legend({'DeePC (median)','DeePC (mean)','CL-DeePC (median)','CL-DeePC (mean)'},'Interpreter','latex','FontSize',12);
     h = gca; h.YScale = 'log';
 end
