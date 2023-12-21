@@ -1,10 +1,13 @@
 \section{Closed-loop Data-enabled Predictive Control}
 This section presents the main result of this article, providing contribution~(\ref{contribution:solves_CL_issue}) whereby we develop \ac{CL-DeePC}. An intuitive explanation is first offered before a proof of the underlying main result is provided.
 
-As a solution to the identification bias that arises in closed-loop due to correlation between inputs and noise (a demonstration thereof is deferred to Section~\ref{sec:CL_ID_issue}) it is possible to estimate a step-ahead predictor~\citep{Ljung1996}. A prediction horizon length $f>1$ is of more practical use in receding horizon optimal control settings, to which end step-ahead predictors can be applied sequentially. 
+As a solution to the identification bias that arises in closed-loop due to correlation between inputs and noise %(a demonstration thereof is deferred to Section~\ref{sec:CL_ID_issue})
+it is possible to estimate a step-ahead predictor~\citep{Ljung1996}. A prediction horizon length ${f>1}$ is of more practical use in receding horizon optimal control settings, to which end step-ahead predictors can be applied sequentially. 
 
-Fig.~\ref{fig:CL-DeePC} and \eqref{eq:CL_DeePC_no_IVs} illustrate how this idea is employed in \ac{CL-DeePC}. A step-ahead predictor can be obtained from \ac{DeePC} (see Fig.~\ref{fig:regular-DeePC} and \eqref{eq:regular_DeePC_no_IVs}) with $f=1$. In \ac{CL-DeePC} the successive columns of $G$ (from left to right) and their corresponding columns on the right-hand side correspond to sequential applications of \ac{DeePC} with $f=1$ to the same matrix of sufficiently persistently exciting past input-output data on the left-hand side as well as time-shifted windows of input-output data on the right-hand side that encode information on successive initial states.\\ 
-%
+Fig.~\ref{fig:CL-DeePC} and \eqref{eq:CL_DeePC_no_IVs} illustrate how this idea is employed in \ac{CL-DeePC}. A step-ahead predictor can be obtained from \ac{DeePC} (see Fig.~\ref{fig:regular-DeePC} and \eqref{eq:regular_DeePC_no_IVs}) with $f=1$. In \ac{CL-DeePC} the successive columns of $G$ (from left to right) and their corresponding columns on the right-hand side correspond to sequential applications of \ac{DeePC} with $f=1$ to the same matrix of sufficiently persistently exciting past input-output data on the left-hand side as well as time-shifted windows of input-output data on the right-hand side that encode information on successive initial states.
+
+\subsection{Main result}
+To ensure that \ac{CL-DeePC} employs a consistent output predictor the following main result of this article concerns a modification of \eqref{eq:CL_DeePC_no_IVs} that makes use of \ac{IVs}.
 \begin{figure}[b!]
 \centering
 \input{tikzpictures/CL-DeePC}
@@ -18,53 +21,75 @@ Fig.~\ref{fig:CL-DeePC} and \eqref{eq:CL_DeePC_no_IVs} illustrate how this idea 
 \label{fig:regular-DeePC}
 \end{figure}
 %
+% ----------------------------------------------------------- Main result ---------------------------------------------------------------------------------------------
 \setcounter{thm}{0}
-\begin{thm}\label{theorem:main_result}
-    Consider the minimal discrete non-deterministic \ac{LTI} system given by~\eqref{eqn:SS_innovation} to generate input-output data in closed-loop by means of a causal controller without direct feedthrough, and data matrices $\overline{\Psi}_{\hat{i},1,f}$ and $\Psi_{i,1,N_\mathrm{s}}$ as in \eqref{eq:Phi_def}. If $N_\mathrm{s}=(p+1)r+pl$ such that $\Psi_{i,1,N_\mathrm{s}}$ is square, and furthermore, if $\Psi_{i,1,N_\mathrm{s}}$ is invertible, %
-    %
-    % If the joint input and noise sequences are sufficiently persistently exciting such that $\left[X_{i,1,N}^\top \; U_{i,p,N}^\top \; U_{i_p,1,N}^\top \; E_{i,p,N}^\top\right]^\top$ is full row rank %
-    % ------------------------------------------------------
-    %% ----------------- old version below -----------------
-    %If the input sequence $\{u_k\}_{k=i}^{i+\bar{N}-1}$ of length $\bar{N}=p+s+N-1$ %, with $N\geq(p+s+n)(r+l)+n$ and $p\geq\ell$\todo{don't forget},
-    % is persistently exciting of order $p+s+n$, and has sample correlations such that%
-    % \begin{alignat}{2}%see also https://www.cis.upenn.edu/~jean/schur-comp.pdf
-    % % \widehat{\Sigma}_{u,u} &> 0,\label{eq:PE_corU}\\
-    % &\widehat{\Sigma}_{\mathrm{ee}} - \widehat{\Sigma}_{\mathrm{ue}^\top} \widehat{\Sigma}_{\mathrm{uu}}\inv \widehat{\Sigma}_{\mathrm{ue}}\succ0,\span\span\label{eq:PE_corUE2}\\
-    % &&\text{with}\quad\widehat{\Sigma}_{\mathrm{ee}}&=E_{i,p+s+n,N-n}E_{i,p+s+n,N-n}^\top,\notag\\
-    % &&\widehat{\Sigma}_{\mathrm{ue}}&=U_{i,p+s+n,N-n}E_{i,p+s+n,N-n}^\top,\notag\\
-    % &&\widehat{\Sigma}_{\mathrm{uu}}&=U_{i,p+s+n,N-n}U_{i,p+s+n,N-n}^\top,\notag
-    % \end{alignat}
-    % ------------------------------------------------------
-    then \\
-    $\mathrm{(i)}$ $\exists G\in\mathbb{R}^{N\times f}$ such that
-    \begin{align}\tag{\ref{eq:CL_DeePC_no_IVs}}%\label{eq:Theorem1}
+\begin{thm}\label{theorem:main_result_IVs}
+    % Consider the minimal discrete non-deterministic \ac{LTI} system given by~\eqref{eqn:SS_innovation} to generate input-output data in closed-loop with a strictly causal controller. Define data matrices $\Psi_{i,1,N}$ and $\overline{\Psi}_{\hat{i},1,f}$ as in \eqref{eq:Phi_def}. %
+    % 
+    % If the joint input and noise sequences are sufficiently persistently exciting such that $\left[X_{i,1,N}^\top \; U_{i,p,N}^\top \; U_{i_p,1,N}^\top \; E_{i,p,N}^\top\right]^\top$ is full row rank, and with the choice of \ac{IV} given by $\mathcal{Z}=\Psi_{i,1,N}$ then\\
+    Consider the minimal discrete non-deterministic \ac{LTI} system given by~\eqref{eqn:SS_innovation} to generate input-output data in closed-loop by means of a causal controller without direct feedthrough, data matrices $\overline{\Psi}_{\hat{i},1,f}$ and full row rank $\Psi_{i,1,N}$ as in \eqref{eq:Phi_def}, and with an \ac{IV} given by $\mathcal{Z}=\Psi_{i,1,N}$, then\\
+    $\mathrm{(i)}$ $\exists G^\mathrm{IV}\in\mathbb{R}^{((p+1)r+pl)\times f}$ such that
+    \begin{align}\label{eq:Theorem2}
         \begin{bmatrix}
-            \Psi_{i,1,N_\mathrm{s}}\\
-            Y_{i_p,1,N_\mathrm{s}}
-        \end{bmatrix}G =
+            \Psi_{i,1,N}\\Y_{i_p,1,N}
+        \end{bmatrix}\mathcal{Z}^\top G^\mathrm{IV} =
         \begin{bmatrix}
-            \overline{\Psi}_{\hat{i},1,f}\\
-            \widehat{Y}_{\hat{i}_p,1,f}
+            \overline{\Psi}_{\hat{i},1,f}\\\widehat{Y}_{\hat{i}_p,1,f}^\mathrm{IV}
         \end{bmatrix},
     \end{align}
-    $\mathrm{(ii)}$ and with $\widehat{Y}_{\hat{i}_p,1,f}$ as an asymptotically unbiased predictor %with respect to both past and future noise 
-    with respect to future noise and conditioned on past data as $p\rightarrow\infty$.\todo{Compa-rative rates?\\also
-    $N_\mathrm{s}\rightarrow\infty$}%
+    $\mathrm{(ii)}$ which specifies $\widehat{Y}_{\hat{i}_p,1,f}^\mathrm{IV}$ as an asymptotically unbiased predictor as $p\rightarrow\infty$ and $N\rightarrow\infty$ in accordance with Lemma~\ref{lem:relative_rates}. %with respect to future noise and conditioned on past data as $p\rightarrow\infty$, $N\rightarrow\infty$.\\
+    %$\mathrm{(iii)}$ that has a variance that is smaller than or equal to the variance of $\widehat{Y}_{\hat{i}_p,1,f}$.
 \end{thm}
+%
+% \begin{thm}\label{theorem:main_result}
+%     Consider the minimal discrete non-deterministic \ac{LTI} system given by~\eqref{eqn:SS_innovation} to generate input-output data in closed-loop by means of a causal controller without direct feedthrough, and data matrices $\overline{\Psi}_{\hat{i},1,f}$ and $\Psi_{i,1,N_\mathrm{s}}$ as in \eqref{eq:Phi_def}. If $N_\mathrm{s}=(p+1)r+pl$ such that $\Psi_{i,1,N_\mathrm{s}}$ is square, and furthermore, if $\Psi_{i,1,N_\mathrm{s}}$ is invertible, %
+%     %
+%     % If the joint input and noise sequences are sufficiently persistently exciting such that $\left[X_{i,1,N}^\top \; U_{i,p,N}^\top \; U_{i_p,1,N}^\top \; E_{i,p,N}^\top\right]^\top$ is full row rank %
+%     % ------------------------------------------------------
+%     %% ----------------- old version below -----------------
+%     %If the input sequence $\{u_k\}_{k=i}^{i+\bar{N}-1}$ of length $\bar{N}=p+s+N-1$ %, with $N\geq(p+s+n)(r+l)+n$ and $p\geq\ell$\todo{don't forget},
+%     % is persistently exciting of order $p+s+n$, and has sample correlations such that%
+%     % \begin{alignat}{2}%see also https://www.cis.upenn.edu/~jean/schur-comp.pdf
+%     % % \widehat{\Sigma}_{u,u} &> 0,\label{eq:PE_corU}\\
+%     % &\widehat{\Sigma}_{\mathrm{ee}} - \widehat{\Sigma}_{\mathrm{ue}^\top} \widehat{\Sigma}_{\mathrm{uu}}\inv \widehat{\Sigma}_{\mathrm{ue}}\succ0,\span\span\label{eq:PE_corUE2}\\
+%     % &&\text{with}\quad\widehat{\Sigma}_{\mathrm{ee}}&=E_{i,p+s+n,N-n}E_{i,p+s+n,N-n}^\top,\notag\\
+%     % &&\widehat{\Sigma}_{\mathrm{ue}}&=U_{i,p+s+n,N-n}E_{i,p+s+n,N-n}^\top,\notag\\
+%     % &&\widehat{\Sigma}_{\mathrm{uu}}&=U_{i,p+s+n,N-n}U_{i,p+s+n,N-n}^\top,\notag
+%     % \end{alignat}
+%     % ------------------------------------------------------
+%     then \\
+%     $\mathrm{(i)}$ $\exists G\in\mathbb{R}^{N\times f}$ such that
+%     \begin{align}\tag{\ref{eq:CL_DeePC_no_IVs}}%\label{eq:Theorem1}
+%         \begin{bmatrix}
+%             \Psi_{i,1,N_\mathrm{s}}\\
+%             Y_{i_p,1,N_\mathrm{s}}
+%         \end{bmatrix}G =
+%         \begin{bmatrix}
+%             \overline{\Psi}_{\hat{i},1,f}\\
+%             \widehat{Y}_{\hat{i}_p,1,f}
+%         \end{bmatrix},
+%     \end{align}
+%     $\mathrm{(ii)}$ and with $\widehat{Y}_{\hat{i}_p,1,f}$ as an asymptotically unbiased predictor %with respect to both past and future noise 
+%     with respect to future noise and conditioned on past data as $p\rightarrow\infty$.\todo{Compa-rative rates?\\also
+%     $N_\mathrm{s}\rightarrow\infty$}%
+% \end{thm}
 
+
+% ----------------------------------------------------------- Auxiliary results ---------------------------------------------------------------------------------------------
 \subsection{Auxiliary results}
-The proof of Theorem~\ref{theorem:main_result} is deferred till after the treatment of several auxiliary results. The first of which is the following lemma.
+Proof of the main result is deferred till after the treatment of several auxiliary results. The first of which is the following lemma.
 \setcounter{thm}{0}
-\begin{lem}\label{lem:relative_rates}\citep{Bauer2002,Chiuso2006}
-    A necessary condition for consistent closed-loop subspace identification is that as $p\rightarrow\infty$, $N\rightarrow\infty$ such that
+\begin{lem}\label{lem:relative_rates}\citep{Chiuso2006}
+    If the past data window length $p\rightarrow\infty$, and the number of columns used to construct block-Hankel data matrices $N\rightarrow\infty$ such that%A necessary condition for consistent closed-loop subspace identification is that as $p\rightarrow\infty$, $N\rightarrow\infty$ such that
     \begin{align}\label{eq:relative_rates}
         \begin{split}
             p &\geq -\frac{d\log N}{2\log|\rho|}, \quad 1 < d < \infty,\\
-            \lim_{p,N\rightarrow\infty} &\; \frac{p}{(\log N)^\alpha}=0, \quad \alpha < \infty,
+            p&=o((\log N)^\alpha) \quad \alpha < \infty%\lim_{p,N\rightarrow\infty} &\; \frac{p}{(\log N)^\alpha}=0, \quad \alpha < \infty,
         \end{split}
     \end{align}
+    then errors due to mishandling of the initial condition are $o_P(1/\sqrt{N})$ (i.e. negligible).
 \end{lem}
-where $d\in\mathbb{R}$ is a constant and $\rho$ is the eigenvalue of $\tilde{A}$ of maximum absolute value. For the considered system that was introduced in Section~\secref{sec:sys_model} we have $|\rho|<1$. These conditions are necessary to ensure consistency of the closed-loop estimator because they ensure that errors induced by implicit mis-specification of the initial state are indeed negligible and that sample correlation matrices asymptotically approach well-defined true correlation counterparts  \cite{Chiuso2007}.
+where $d\in\mathbb{R}$ is a constant and $\rho$ is the eigenvalue of $\tilde{A}$ of maximum absolute value. For the considered system that was introduced in Section~\secref{sec:sys_model} we have $|\rho|<1$. These conditions are necessary to ensure consistency of the closed-loop estimator because they ensure that errors induced by implicit mis-specification of the initial state are indeed negligible and that sample correlation matrices asymptotically approach well-defined true correlation counterparts  \cite{Chiuso2007,Bauer2002}.
 
 \begin{lem}\label{lem:oblique_projections}\citep[Lemma~1]{VanOverschee1994,Katayama1999} Let $a$, $b$ and $c$ be random vectors with components in the Hilbert space $\mathscr{H}$, $\mathscr{A}=\text{span}\{a\}$, $\mathscr{B}=\text{span}\{b\}$ and $\mathscr{A}\cap\mathscr{B}=\{0\}$. Furthermore, let correlation matrices be exemplified by $\Sigma_{ca}=\mathbb{E}[ca^\top]$ and their conditional counterparts by $\Sigma_{ca|b}=\mathbb{E}[(c|b^\bot)(a|b^\bot)^\top]$, with $\bot$ denoting the orthogonal complement. Then the orthogonal projection of the row space of $c$ on the joint row space of $a$ and $b$ is the sum of the oblique projections $\Pi_{ca||b}a$ ($c$ onto $\mathscr{A}$ along $\mathscr{B}$) and $\Pi_{cb||a}b$ ($c$ onto $\mathscr{B}$ along $\mathscr{A}$) as
 \begin{align}
@@ -81,6 +106,8 @@ where $d\in\mathbb{R}$ is a constant and $\rho$ is the eigenvalue of $\tilde{A}$
 \end{align}
 The conditional correlation matrices may be expressed as demonstrated by $\Sigma_{ca|b}=\Sigma_{ca}-\Sigma_{cb}\Sigma_{bb}\inv\Sigma_{ba}$ if the involved inverse exists. In addition, $\Sigma_{aa|b}$ and $\Sigma_{bb|a}$ are invertible if $\Sigma_{aa}$ and $\Sigma_{bb}$ are invertible.
 \end{lem}
+
+% ----------------------------------------------------------- Proof of main result ---------------------------------------------------------------------------------------------
 \subsection{Proof of Theorem~\ref{theorem:main_result}}
 % ---------------- Proof of (i) ----------------
 \noindent\textbf{Proof of $(\mathrm{i})$:} In \eqref{eq:CL_DeePC_no_IVs} the output predictor is an optimization variable that is defined in terms of $G$, leaving its top matrix equations to specify $G$ as
@@ -222,23 +249,23 @@ Since the relevant innovation and input-output samples in the correlation matrix
 % 
 % are increasing the variance of the implicitly estimated noise in \todo{left off here}$\widehat{E}_{\hat{i}_p,1,f}$. The idea is to redefine $G$ such that its columns are orthogonal to the noise. The following theorem demonstrates the use of an \ac{IV} $\mathcal{Z}$ for this purpose based on the same assumptions as Theorem~\ref{theorem:main_result}.
 
-\begin{thm}\label{theorem:main_result_IVs}
-    % Consider the minimal discrete non-deterministic \ac{LTI} system given by~\eqref{eqn:SS_innovation} to generate input-output data in closed-loop with a strictly causal controller. Define data matrices $\Psi_{i,1,N}$ and $\overline{\Psi}_{\hat{i},1,f}$ as in \eqref{eq:Phi_def}. %
-    % 
-    % If the joint input and noise sequences are sufficiently persistently exciting such that $\left[X_{i,1,N}^\top \; U_{i,p,N}^\top \; U_{i_p,1,N}^\top \; E_{i,p,N}^\top\right]^\top$ is full row rank, and with the choice of \ac{IV} given by $\mathcal{Z}=\Psi_{i,1,N}$ then\\
-    Consider the minimal discrete non-deterministic \ac{LTI} system given by~\eqref{eqn:SS_innovation} to generate input-output data in closed-loop by means of a causal controller without direct feedthrough, data matrices $\overline{\Psi}_{\hat{i},1,f}$ and full row rank $\Psi_{i,1,N}$ as in \eqref{eq:Phi_def}, and with an \ac{IV} given by $\mathcal{Z}=\Psi_{i,1,N}$ then\\
-    $\mathrm{(i)}$ $\exists G^\mathrm{IV}\in\mathbb{R}^{((p+s)r+pl)\times f}$ such that
-    \begin{align}\label{eq:Theorem2}
-        \begin{bmatrix}
-            \Psi_{i,1,N}\\Y_{i_p,1,N}
-        \end{bmatrix}\mathcal{Z}^\top G^\mathrm{IV} =
-        \begin{bmatrix}
-            \overline{\Psi}_{\hat{i},1,f}\\\widehat{Y}_{\hat{i}_p,1,f}^\mathrm{IV}
-        \end{bmatrix},
-    \end{align}
-    $\mathrm{(ii)}$ and with $\widehat{Y}_{\hat{i}_p,1,f}^\mathrm{IV}$ as an asymptotically unbiased predictor with respect to future noise and conditioned on past data as $p\rightarrow\infty$, $N\rightarrow\infty$.\\
-    $\mathrm{(iii)}$ that has a variance that is smaller than or equal to the variance of $\widehat{Y}_{\hat{i}_p,1,f}$.
-\end{thm}
+% \begin{thm}\label{theorem:main_result_IVs}
+%     % Consider the minimal discrete non-deterministic \ac{LTI} system given by~\eqref{eqn:SS_innovation} to generate input-output data in closed-loop with a strictly causal controller. Define data matrices $\Psi_{i,1,N}$ and $\overline{\Psi}_{\hat{i},1,f}$ as in \eqref{eq:Phi_def}. %
+%     % 
+%     % If the joint input and noise sequences are sufficiently persistently exciting such that $\left[X_{i,1,N}^\top \; U_{i,p,N}^\top \; U_{i_p,1,N}^\top \; E_{i,p,N}^\top\right]^\top$ is full row rank, and with the choice of \ac{IV} given by $\mathcal{Z}=\Psi_{i,1,N}$ then\\
+%     Consider the minimal discrete non-deterministic \ac{LTI} system given by~\eqref{eqn:SS_innovation} to generate input-output data in closed-loop by means of a causal controller without direct feedthrough, data matrices $\overline{\Psi}_{\hat{i},1,f}$ and full row rank $\Psi_{i,1,N}$ as in \eqref{eq:Phi_def}, and with an \ac{IV} given by $\mathcal{Z}=\Psi_{i,1,N}$ then\\
+%     $\mathrm{(i)}$ $\exists G^\mathrm{IV}\in\mathbb{R}^{((p+s)r+pl)\times f}$ such that
+%     \begin{align}\label{eq:Theorem2}
+%         \begin{bmatrix}
+%             \Psi_{i,1,N}\\Y_{i_p,1,N}
+%         \end{bmatrix}\mathcal{Z}^\top G^\mathrm{IV} =
+%         \begin{bmatrix}
+%             \overline{\Psi}_{\hat{i},1,f}\\\widehat{Y}_{\hat{i}_p,1,f}^\mathrm{IV}
+%         \end{bmatrix},
+%     \end{align}
+%     $\mathrm{(ii)}$ and with $\widehat{Y}_{\hat{i}_p,1,f}^\mathrm{IV}$ as an asymptotically unbiased predictor with respect to future noise and conditioned on past data as $p\rightarrow\infty$, $N\rightarrow\infty$.\\
+%     $\mathrm{(iii)}$ that has a variance that is smaller than or equal to the variance of $\widehat{Y}_{\hat{i}_p,1,f}$.
+% \end{thm}
 \textbf{Proof of $\mathrm{(i)}:$} Similarly as before, $G^\mathrm{IV}$ is determined by the top matrix equations of \eqref{eq:Theorem2}, which are given by $\Psi_{i,1,N}\mathcal{Z}^\top G^\mathrm{IV}=\overline{\Psi}_{\hat{i},1,f}$. By the same reasoning as in the proof of Theorem~\ref{theorem:main_result}$\mathrm{(i)}$ the matrix $\Psi_{i,1,N}$ is full row rank. Hence, $\Psi_{i,1,N}\mathcal{Z}^\top=\Psi_{i,1,N}\Psi_{i,1,N}^\top$ is square and invertible such that $G^\mathrm{IV} = (\Psi_{i,1,N}\Psi_{i,1,N}^\top)\inv \overline{\Psi}_{\hat{i},1,f}$. $\hfill \qed$\\
 \textbf{Remark 3:} Note that $G$ in Theorem~\ref{theorem:main_result} has been replaced with $\mathcal{Z}^\top G^\mathrm{IV}$ in Theorem~\ref{theorem:main_result_IVs}, which is
 \begin{align*}

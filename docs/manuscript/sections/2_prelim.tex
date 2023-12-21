@@ -29,44 +29,42 @@ in which $\tilde{B}=B-KD$.
 % in which ${\bar{x}_k\in\mathbb{R}^n}$, ${u_k\in\mathbb{R}^r}$, ${y_k\in\mathbb{R}^l}$, ${w_k\in\mathbb{R}^n}$, ${v_k\in\mathbb{R}^l}$ respectively represent states, inputs, outputs, process noise, and measurement noise, and $\{A,B,C,D\}$ are system matrices of compatible dimensions. If the process and measurement noise are either zero-mean white or colored Gaussian sequences such that the system $\mathcal{S}$ satisfies notions of detectability and reachability there exists an equivalent innovation form $\mathcal{F}_\mathcal{I}$ that is based on Kalman filtering (see~\citet[p.~112-113\todo{Check pages}]{Anderson1979}, or \citet[p.~162]{Verhaegen2007a} for details) and is given by
 %
 \subsection{Notation and definitions}\label{sec:notation}
-Having described the different system representations of the considered system, this section introduces some useful preliminary notation and definitions.
+%Having described the different representations of the considered system,
+This section introduces some useful preliminary notation and definitions.
 %
 % To start, several strictly-positive integers are denoted by $s,q,p,f,N,\bar{N}\in\mathbb{Z}_{>0}$ and are frequently used to indicate window lengths. Throughout this article, time indices $i$, $\hat{i}$, $j$, and $k$, will be used together with the shorthand exemplified by $k_p=k+p$.
-
 To start, block-Toeplitz matrices are defined by
 \begin{align}\label{eqn:blockToeplitz} 
 \mathcal{T}_s(\mathcal{A},\mathcal{B},\mathcal{C},\mathcal{D}) =\scriptsize{
-	\begin{bmatrix}
+	\begingroup
+    \renewcommand*{\arraystretch}{0.8}
+    \begin{bmatrix}
 		\mathcal{D}         & 0         & 0      & \cdots  & 0\\
 		\mathcal{C}\mathcal{B}        & \mathcal{D}         & 0      & \cdots  & 0\\
 		\mathcal{C}\mathcal{A}\mathcal{B}       & \mathcal{C}\mathcal{B}        & \mathcal{D}      & \cdots & 0\\
 		\vdots    &  \vdots & \ddots & \ddots & \vdots\\
 		\mathcal{C}\mathcal{A}^{s-2}\mathcal{B} & \mathcal{C}\mathcal{A}^{s-3}\mathcal{B} & \cdots  & \mathcal{C}\mathcal{B}     & \mathcal{D}
-	\end{bmatrix}},
+	\end{bmatrix}
+    \endgroup},
 \end{align}
-in which the subscript $s\in\mathbb{Z}_{>0}$ is a generic strictly-positive integer that is used here to indicate the number of block-rows, the matrices $\mathcal{A}$, $\mathcal{B}$, $\mathcal{C}$, and $\mathcal{D}$ are all of compatible dimensions. Let ${I_s\in\mathbb{R}^{s\times s}}$ represent an identity matrix. Equation~\eqnref{eqn:blockToeplitz} thereby defines the block-Toeplitz matrices
+in which the subscript $s\in\mathbb{Z}_{>0}$ is a generic strictly-positive integer that is used here to indicate the number of block-rows, the matrices $\{\mathcal{A},\mathcal{B},\mathcal{C},\mathcal{D}\}$ are of compatible dimensions. Let ${I_s\in\mathbb{R}^{s\times s}}$ represent an identity matrix. Equation~\eqnref{eqn:blockToeplitz} then defines block-Toeplitz matrices
 \begin{alignat*}{2}
 \mathcal{T}_s^\mathrm{u}&=\mathcal{T}_s(A,B,C,D),\quad  &\mathcal{H}_s&=\mathcal{T}_s(A,K,C,I_l),\\
 \widetilde{\mathcal{T}}_s^\mathrm{u}&=\mathcal{T}_s(\tilde{A},\tilde{B},C,D),\quad  &\widetilde{\mathcal{H}}_s&=\mathcal{T}_s(\tilde{A},K,-C,I_l).
 \end{alignat*}
 
-In addition, two extended observability matrices are defined by
-\begin{align*}
-\Gamma_s &= \begin{bmatrix}C^\top & (CA)^\top & \cdots & (CA^{s-1})^\top\end{bmatrix}^\top,\\%\quad\text{and}\\
-\widetilde{\Gamma}_s &= \begin{bmatrix}C^\top & (C\tilde{A})^\top & \cdots & (C\tilde{A}^{s-1})^\top\end{bmatrix}^\top.
-\end{align*}
+In addition, for a generic $s$ and specific past data window length $p\in\mathbb{Z}_{>0}$, the extended observability matrices $\Gamma_s$ and $\widetilde{\Gamma}_s$ as well as extended reversed controllability matrices $\tKp{u}$, $\tKp{y}$ are defined by
+$$\begin{array}{rll}
+\Gamma_s &= \begin{bmatrix}C^\top & (CA)^\top & \cdots & (CA^{s-1})^\top\end{bmatrix}^\top&\in\mathbb{R}^{sl\times n},\\
+\widetilde{\Gamma}_s &= \begin{bmatrix}C^\top & (C\tilde{A})^\top & \cdots & (C\tilde{A}^{s-1})^\top\end{bmatrix}^\top&\in\mathbb{R}^{sl\times n},\\
+\tKp{u} &= \begin{bmatrix} \tilde{A}^{p-1}\tilde{B}\, & \tilde{A}^{p-2}\tilde{B} & \cdots & \tilde{A}\tilde{B} & \tilde{B}\,\,\end{bmatrix}&\in\mathbb{R}^{n\times pr},\vphantom{\bigg|}\\%\text{ and}\\
+\tKp{y} &= \begin{bmatrix} \tilde{A}^{p-1}K & \tilde{A}^{p-2}K & \cdots & \tilde{A}K & K \end{bmatrix}&\in\mathbb{R}^{n\times pl}.
+\end{array}$$
 % The extended observability matrix $\Gamma_s$ is used to define a system property commonly referred to as its lag.
 % \begin{defn}\label{def:lag}
 %     A system's lag is the smallest integer $\ell\in\mathbb{Z}_{>0}$ such that the extended observability matrix $\Gamma_\ell$ is of rank $n$.
 % \end{defn}
 % For any observable dynamic \ac{LTI} system, $1\leq \ell \leq n$.
-
-Moreover, two extended reversed controllability matrices are defined as 
-\begin{align*}
-\tKp{u} &= \begin{bmatrix} \tilde{A}^{p-1}\tilde{B}\, & \tilde{A}^{p-2}\tilde{B} & \cdots & \tilde{A}\tilde{B} & \tilde{B}\,\,\end{bmatrix}\in\mathbb{R}^{n\times pr},\\%\text{ and}\\
-\tKp{y} &= \begin{bmatrix} \tilde{A}^{p-1}K & \tilde{A}^{p-2}K & \cdots & \tilde{A}K & K \end{bmatrix}\in\mathbb{R}^{n\times pl},
-\end{align*}
-in which $p\in\mathbb{Z}_{>0}$ is a past data window length.
 
 Data vectors are denoted as exemplified by
 \begin{align*}
@@ -98,6 +96,8 @@ For notational convenience, $\Psi$ denotes a concatenation of input and output b
 in which $k$, and $q$ respectively indicate the starting index and parameterize the dimensions of the concatenated matrix together with $p$.
 
 Moreover, the Moore-Penrose inverse is denoted by $(\cdot)^\dagger$. The specific cases in which it reduces to the left and right inverse are denoted by respectively $(\cdot)^{\dagger,\mathrm{l}}$ and $(\cdot)^{\dagger,\mathrm{r}}$.
+
+Furthermore, for sequences of scalar random variables $a_N$ and $b_N$, $a_N = o(b_N)$ is taken to mean that ${\lim_{N\rightarrow\infty}a_N/b_N=0}$. Likewise $a_N=o_P(b_N)$ is a probabilistic statement that means that $\forall \delta > 0$, ${\lim_{N\rightarrow\infty}P[|a_N/b_N|>\delta]=0}$.
 % 
 % ==============================================================================================================================================================
 % ==============================================================================================================================================================
