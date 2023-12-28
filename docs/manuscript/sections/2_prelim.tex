@@ -147,7 +147,7 @@ This section clarifies the scope of this work by considering a typical data-driv
 \begin{subequations}
 \begin{alignat}{2}
     \span\span\min_{\datavec{u}{\hat{i}_p,f}} ||\datavec{\hat{y}}{\hat{i}_p,f}-\datavec{r}{\hat{i}_p,f}||_Q^2 + ||\datavec{u}{\hat{i}_p,f}||_R^2 + ||\Delta\datavec{u}{\hat{i}_p,f}||_{R^\Delta}^2 \span\\
-    \text{s.t.}\quad& &\datavec{\hat{y}}{\hat{i}_p,f}&=\datavec{\hat{y}}{\hat{i}_p,f}\left(\datavec{u}{\hat{i}_p,f};\datavec{y}{i,\bar{N}},\datavec{y}{\hat{i},p},\datavec{u}{i,\bar{N}},\datavec{u}{\hat{i},p}\right)\\
+    \text{s.t.}\quad& &\datavec{\hat{y}}{\hat{i}_p,f}&=\datavec{\hat{y}}{\hat{i}_p,f}\left(\datavec{u}{\hat{i}_p,f};\datavec{u}{i,\bar{N}},\datavec{y}{i,\bar{N}},\datavec{u}{\hat{i},p},\datavec{y}{\hat{i},p}\right)\\
     %\text{s.t.}\quad& &\datavec{\hat{y}}{\hat{i}_p,f}&=\Gamma_f x_{\hat{i}_p}+\mathcal{T}_f^\mathrm{u}\datavec{u}{\hat{i}_p,f}%+\mathcal{H}_f\datavec{e}{\hat{i}_p,f},\label{eq:SS_iter}\\
    %&& x_{\hat{i}_p}&=x_\mathrm{ini},\label{eq:x_ini}\\
    && u_k&\in\mathcal{U},\quad \hat{y}_k\in\mathcal{Y},\quad \forall k\in\big[\hat{i}_p,\,\hat{i}_p+f\big),
@@ -158,7 +158,7 @@ in which $\datavec{\hat{y}}{\hat{i}_p,f}$ is a vector of future output predictio
 \begin{figure}[b!]
 	\centering
 	\includegraphics[width=8.4cm]{docs/manuscript/figures/intervals_DeePC.pdf}%[trim={0.0cm 0.0cm 0.0cm 0.0cm},clip,scale=1.0][trim={0.5cm 0.8cm 0.8cm 0.3cm},clip,width=8.4cm]
-	\caption{Discrete time indices and data windows. Past data from the blue and green intervals, shown overlapping as with fully adaptive implementations (for which $i+\bar{N}=\hat{i}_p$), is used to form an output predictor for the dashed future prediction window of length $f$.}
+	\caption{Discrete time indices and data windows. Past data from the green ($\datavec{u}{i,\bar{N}},\datavec{y}{i,\bar{N}}$) and blue () intervals, shown overlapping as with fully adaptive implementations (for which $i+\bar{N}=\hat{i}_p$), is used to form an output predictor for the dashed future prediction window of length $f$.}
 	\label{fig:intervals_DDC}
 \end{figure}
 
