@@ -153,8 +153,8 @@ This section clarifies the scope of this work by considering a typical data-driv
    && u_k&\in\mathcal{U},\quad \hat{y}_k\in\mathcal{Y},\quad \forall k\in\big[\hat{i}_p,\,\hat{i}_p+f\big),
 \end{alignat}
 \end{subequations}
-in which $\datavec{\hat{y}}{\hat{i}_p,f}$ is a vector of future output predictions, which is an affine function of future inputs $\datavec{u}{\hat{i}_p,f}$ that is parameterized by past data from intervals shown in Fig.~\ref{fig:intervals_DeePC}. Moreover, $\datavec{r}{\hat{i}_p,f}\in\mathbb{R}^{fl}$ is a vector of future references, %$x_\mathrm{ini}$ is an initial state at the first future time $k=\hat{i}_p$, and
-$||\cdot||_{(\cdot)}$ denotes a weighted Euclidian norm, $\Delta\datavec{u}{\hat{i}_p,f}=\datavec{u}{\hat{i}_p,f}-\datavec{u}{\hat{i}_p-1,f}$, $Q\in\mathbb{R}^{fl\times fl}$, $R\in\mathbb{R}^{fr\times fr}$, $R^\Delta\in\mathbb{R}^{fr\times fr}$ are respectively a positive semi-definite and two positive definite weighting matrices, and $\mathcal{U}$ and $\mathcal{Y}$ respectively represent sets of allowable inputs and outputs.
+in which $\datavec{\hat{y}}{\hat{i}_p,f}$ is a vector of future output predictions, which is an affine function of future inputs $\datavec{u}{\hat{i}_p,f}$ that is parameterized by past data from intervals shown in Fig.~\ref{fig:intervals_DeePC}. Moreover, $\datavec{r}{\hat{i}_p,f}$ is a vector of future references, %$x_\mathrm{ini}$ is an initial state at the first future time $k=\hat{i}_p$, and
+$||\cdot||_{(\cdot)}$ denotes a weighted Euclidian norm, ${\Delta\datavec{u}{\hat{i}_p,f}=\datavec{u}{\hat{i}_p,f}-\datavec{u}{\hat{i}_p-1,f}}$, $Q\in\mathbb{R}^{fl\times fl}$, $R,R^\Delta\in\mathbb{R}^{fr\times fr}$, are respectively a positive semi-definite and two positive definite weighting matrices, and $\mathcal{U}$ and $\mathcal{Y}$ respectively represent sets of allowable inputs and outputs.
 
 \begin{figure}[b!]
 	\centering
