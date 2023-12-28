@@ -158,8 +158,8 @@ $||\cdot||_{(\cdot)}$ denotes a weighted Euclidian norm, ${\Delta\datavec{u}{\ha
 
 \begin{figure}[b!]
 	\centering
-	\includegraphics[width=8.4cm]{docs/manuscript/figures/intervals_DeePC.pdf}%[trim={0.0cm 0.0cm 0.0cm 0.0cm},clip,scale=1.0][trim={0.5cm 0.8cm 0.8cm 0.3cm},clip,width=8.4cm]
-	\caption{Discrete time indices and data windows. Past data from the green ($\datavec{u}{i,\bar{N}},\datavec{y}{i,\bar{N}}$) and blue ($\datavec{u}{\hat{i},p},\datavec{y}{\hat{i},p}$) intervals, shown overlapping as with fully adaptive implementations (for which $i+\bar{N}=\hat{i}_p$), is used to form an output predictor for the dashed future prediction window of length $f$.}
+	\includegraphics[trim={0.0cm 0.1cm 0.0cm 0.0cm},clip,width=8.4cm]{docs/manuscript/figures/intervals_DeePC.pdf}%[trim={0.0cm 0.0cm 0.0cm 0.0cm},clip,scale=1.0][trim={0.5cm 0.8cm 0.8cm 0.3cm},clip,width=8.4cm]
+	\caption{Past data from the green ($\datavec{u}{i,\bar{N}},\datavec{y}{i,\bar{N}}$) and blue ($\datavec{u}{\hat{i},p},\datavec{y}{\hat{i},p}$) intervals, shown overlapping as with fully adaptive implementations (for which $i+\bar{N}=\hat{i}_p$), is used to form an output predictor for the black, dashed future prediction window of length $f$. \ac{CL-DeePC} can employ more sample trajectories $N$ of the green window than \ac{DeePC} because its sample trajectories are shorter (due to a shorter prediction window length $f_\mathrm{ID}$ that is used implicitly for identification).}
 	\label{fig:intervals_DeePC}
 \end{figure}
 %
