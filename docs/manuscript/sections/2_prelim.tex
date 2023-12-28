@@ -83,7 +83,7 @@ in which $q\in\mathbb{Z}_{>0}$ is another generic positive-definite integer that
 \begin{defn}\label{def:PE}\citep[Def.~10.1]{Verhaegen2007a} A signal consisting of samples ${w_j\!\in\!\mathbb{R}^q},$ $j\!\in\![k,k+s+N-2]$ is persistently exciting of order $s$ if the associated block-Hankel matrix ${ W_{k,s,N}\sqrt{N}\in\mathbb{R}^{sq \times N}}$ is full row rank.
 \end{defn}
 %Note that full row rank $W_{k,s,N}\sqrt{N} \Leftrightarrow {W_{k,s,N}W_{k,s,N}^\top\succ0}$, which is . %
-Data that are composed entirely or partly of predictions are indicated by respectively $\hat{(\cdot)}$ or $\overline{(\cdot)}$. The expectation of a non-deterministic variable is denoted by $\mathbb{E}[\cdot]$.
+Data that are composed entirely or partly of predictions are indicated by respectively $\hat{(\cdot)}$ or $\overline{(\cdot)}$. The expectation of a (non-deterministic) variable is denoted by $\mathbb{E}[\cdot]$.
 %
 % Predicted samples, vectors, or matrices of data are indicated by $\hat{(\cdot)}$.%Matrices and vectors that are composed partly of predictions are indicated by $\bar{(\cdot)}$.
 
@@ -142,26 +142,27 @@ in which $L_s,\widetilde{L}_s\in\mathbb{R}^{sl\times ((p+s)r+pl)}$ are defined a
 % in which $L_s$, $\widetilde{L}_s$, $\Psi_{k,s,q}$ are defined in Section \ref{sec:notation}. %Similarly to \eqref{eq:DataEq1} and \eqref{eq:DataEq2}, the future outputs are defined by
 % Although a more generic representation was kept above for later analysis, for \ac{CL-DeePC}, $s=1$. This reduces the complexity of the above equations since ${\widetilde{L}_1=L_1=\big[ C\tKp{u} \; D \; C\tKp{y} \big]}$ and $\widetilde{\mathcal{H}}_1=\mathcal{H}_1=I_l$.
 %
-\subsection{Receding horizon control problem formulation}
-This section clarifies the scope of this work by considering a typical data-driven receding horizon control problem. This problem is exemplified by %A predictor $\datavec{\hat{y}}{\hat{i}_p,f}$ is used that is based on \eqref{eq:Yf1} with a single column ($q=1$) from time index $k=\hat{i}$ and with $s=f\in\mathbb{Z}_{>0}$ as future prediction window length. The considered optimal control problem is
-\begin{subequations}
-\begin{alignat}{2}
-    \span\span\min_{\datavec{u}{\hat{i}_p,f}} ||\datavec{\hat{y}}{\hat{i}_p,f}-\datavec{r}{\hat{i}_p,f}||_Q^2 + ||\datavec{u}{\hat{i}_p,f}||_R^2 + ||\Delta\datavec{u}{\hat{i}_p,f}||_{R^\Delta}^2 \span\\
-    \text{s.t.}\quad& &\datavec{\hat{y}}{\hat{i}_p,f}&=\datavec{\hat{y}}{\hat{i}_p,f}\left(\datavec{u}{\hat{i}_p,f};\datavec{u}{i,\bar{N}},\datavec{y}{i,\bar{N}},\datavec{u}{\hat{i},p},\datavec{y}{\hat{i},p}\right)\\
-    %\text{s.t.}\quad& &\datavec{\hat{y}}{\hat{i}_p,f}&=\Gamma_f x_{\hat{i}_p}+\mathcal{T}_f^\mathrm{u}\datavec{u}{\hat{i}_p,f}%+\mathcal{H}_f\datavec{e}{\hat{i}_p,f},\label{eq:SS_iter}\\
-   %&& x_{\hat{i}_p}&=x_\mathrm{ini},\label{eq:x_ini}\\
-   && u_k&\in\mathcal{U},\quad \hat{y}_k\in\mathcal{Y},\quad \forall k\in\big[\hat{i}_p,\,\hat{i}_p+f\big),
-\end{alignat}
-\end{subequations}
-in which $\datavec{\hat{y}}{\hat{i}_p,f}$ is a vector of future output predictions, which is an affine function of future inputs $\datavec{u}{\hat{i}_p,f}$ that is parameterized by past data from intervals shown in Fig.~\ref{fig:intervals_DeePC}. Moreover, $\datavec{r}{\hat{i}_p,f}$ is a vector of future references, %$x_\mathrm{ini}$ is an initial state at the first future time $k=\hat{i}_p$, and
-$||\cdot||_{(\cdot)}$ denotes a weighted Euclidian norm, ${\Delta\datavec{u}{\hat{i}_p,f}=\datavec{u}{\hat{i}_p,f}-\datavec{u}{\hat{i}_p-1,f}}$, $Q\in\mathbb{R}^{fl\times fl}$, $R,R^\Delta\in\mathbb{R}^{fr\times fr}$, are respectively a positive semi-definite and two positive definite weighting matrices, and $\mathcal{U}$ and $\mathcal{Y}$ respectively represent sets of allowable inputs and outputs.
-
-\begin{figure}[b!]
-	\centering
-	\includegraphics[trim={0.0cm 0.1cm 0.0cm 0.0cm},clip,width=8.4cm]{docs/manuscript/figures/intervals_DeePC.pdf}%[trim={0.0cm 0.0cm 0.0cm 0.0cm},clip,scale=1.0][trim={0.5cm 0.8cm 0.8cm 0.3cm},clip,width=8.4cm]
-	\caption{Past data from the green ($\datavec{u}{i,\bar{N}},\datavec{y}{i,\bar{N}}$) and blue ($\datavec{u}{\hat{i},p},\datavec{y}{\hat{i},p}$) intervals, shown overlapping as with fully adaptive implementations (for which $i+\bar{N}=\hat{i}_p$), is used to form an output predictor for the black, dashed future prediction window of length $f$. \ac{CL-DeePC} can employ more sample trajectories $N$ of the green window than \ac{DeePC} because its sample trajectories are shorter (due to a shorter prediction window length $f_\mathrm{ID}$ that is used implicitly for identification).}
-	\label{fig:intervals_DeePC}
-\end{figure}
+%
+% \subsection{Receding horizon control problem formulation}
+% This section clarifies the scope of this work by considering a typical data-driven receding horizon control problem. Such a problem is exemplified by %A predictor $\datavec{\hat{y}}{\hat{i}_p,f}$ is used that is based on \eqref{eq:Yf1} with a single column ($q=1$) from time index $k=\hat{i}$ and with $s=f\in\mathbb{Z}_{>0}$ as future prediction window length. The considered optimal control problem is
+% \begin{subequations}
+% \begin{alignat}{2}
+%     \span\span\min_{\datavec{u}{\hat{i}_p,f}} ||\datavec{\hat{y}}{\hat{i}_p,f}-\datavec{r}{\hat{i}_p,f}||_Q^2 + ||\datavec{u}{\hat{i}_p,f}||_R^2 + ||\Delta\datavec{u}{\hat{i}_p,f}||_{R^\Delta}^2 \span\\
+%     \text{s.t.}\quad& &\datavec{\hat{y}}{\hat{i}_p,f}&=\datavec{\hat{y}}{\hat{i}_p,f}\left(\datavec{u}{\hat{i}_p,f};\datavec{u}{i,\bar{N}},\datavec{y}{i,\bar{N}},\datavec{u}{\hat{i},p},\datavec{y}{\hat{i},p}\right)\\
+%     %\text{s.t.}\quad& &\datavec{\hat{y}}{\hat{i}_p,f}&=\Gamma_f x_{\hat{i}_p}+\mathcal{T}_f^\mathrm{u}\datavec{u}{\hat{i}_p,f}%+\mathcal{H}_f\datavec{e}{\hat{i}_p,f},\label{eq:SS_iter}\\
+%    %&& x_{\hat{i}_p}&=x_\mathrm{ini},\label{eq:x_ini}\\
+%    && u_k&\in\mathcal{U},\quad \hat{y}_k\in\mathcal{Y},\quad \forall k\in\big[\hat{i}_p,\,\hat{i}_p+f\big),
+% \end{alignat}
+% \end{subequations}
+% in which $\datavec{\hat{y}}{\hat{i}_p,f}$ is a vector of future output predictions, which is an affine function of future inputs $\datavec{u}{\hat{i}_p,f}$ that is parameterized by past data from intervals shown in Fig.~\ref{fig:intervals_DeePC}. Moreover, $\datavec{r}{\hat{i}_p,f}$ is a vector of future references, %$x_\mathrm{ini}$ is an initial state at the first future time $k=\hat{i}_p$, and
+% $||\cdot||_{(\cdot)}$ denotes a weighted Euclidian norm, ${\Delta\datavec{u}{\hat{i}_p,f}=\datavec{u}{\hat{i}_p,f}-\datavec{u}{\hat{i}_p-1,f}}$, $Q\in\mathbb{R}^{fl\times fl}$, $R,R^\Delta\in\mathbb{R}^{fr\times fr}$, are respectively a positive semi-definite and two positive definite weighting matrices, and $\mathcal{U}$ and $\mathcal{Y}$ respectively represent sets of allowable inputs and outputs.
+%
+% \begin{figure}[b!]
+% 	\centering
+% 	\includegraphics[trim={0.0cm 0.1cm 0.0cm 0.0cm},clip,width=8.4cm]{docs/manuscript/figures/intervals_DeePC.pdf}%[trim={0.0cm 0.0cm 0.0cm 0.0cm},clip,scale=1.0][trim={0.5cm 0.8cm 0.8cm 0.3cm},clip,width=8.4cm]
+% 	\caption{Past data from the green ($\datavec{u}{i,\bar{N}},\datavec{y}{i,\bar{N}}$) and blue ($\datavec{u}{\hat{i},p},\datavec{y}{\hat{i},p}$) intervals, shown overlapping as with fully adaptive implementations (for which $i+\bar{N}=\hat{i}_p$), is used to form an output predictor for the black, dashed future prediction window of length $f$. \ac{CL-DeePC} can employ more sample trajectories $N$ of the green window than \ac{DeePC} because its sample trajectories are shorter (due to a shorter prediction window length $f_\mathrm{ID}$ that is used implicitly for identification).}
+% 	\label{fig:intervals_DeePC}
+% \end{figure}
 %
 %Without knowledge of the system matrices $\{A,B,C,D,K\}$ and the initial state $x_\mathrm{ini}$, but given sufficiently informative past input-output data from  intervals $k\in[i,\,i+\bar{N})$ and $k\in[\hat{i},\,\hat{i}_p)$ that may overlap\footnote{Depending on the difference $\hat{i}-i>0$ and the number of samples $\bar{N}$.} and have been collected in closed-loop, the principal goal is to find an unbiased behavioural output predictor to replace the unknown relations \eqref{eq:SS_iter} and \eqref{eq:x_ini}.
 
