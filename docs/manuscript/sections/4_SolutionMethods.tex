@@ -1,7 +1,7 @@
 \section{Efficient Implementation of \acs{CL-DeePC}}\label{sec:Sequential}
 Having demonstrated the consistency of \ac{CL-DeePC} in the previous section, this section presents an efficient implementation method w.r.t. the number of independent optimization variables.
 
-The use of such an efficient method can be understood by comparing the number of independent optimization variables (in red) in respectively Fig.~\ref{fig:CL-DeePC} and Fig.~\ref{fig:regular-DeePC}. Both with and without \ac{IVs}, the number of such independent optimization variables used in \ac{CL-DeePC} scales worse with $f$ than is the case for \ac{DeePC}. This is inherent to the formulation depicted by Fig.~\ref{fig:CL-DeePC} whereby multiple vector.
+The use of such an efficient method can be understood by comparing the number of independent optimization variables (in red) in respectively Fig.~\ref{fig:CL-DeePC} and Fig.~\ref{fig:regular-DeePC}. Both with and without \ac{IVs}, the number of such independent optimization variables used in \ac{CL-DeePC} scales worse with $f$ than is the case for \ac{DeePC}. This is inherent to the formulation depicted by Fig.~\ref{fig:CL-DeePC} whereby multiple vectors $g_{(\cdot)}$ are used.
 
 Alternatively, one may exploit the sequential nature of \ac{CL-DeePC} as shown by the columns of \eqref{eq:Yfhat_1}. For $k\in[\hat{i}_p,\hat{i}_p+f)$ this obtains
 \begin{align}\label{eq:yhat_k}
@@ -37,7 +37,9 @@ in which
         \vdots      & \ddots      & \ddots      &             & \ddots      & \ddots      & \ddots      & \vdots     \\
         0           & \cdots      & 0           & \tilde{\beta}_1     & \cdots      & \tilde{\beta}_{p}   & \tilde{\beta}_{p+1} & 0          \\
         0           & \cdots      & 0           & 0           & \tilde{\beta}_1     & \cdots      & \tilde{\beta}_{p}   & \tilde{\beta}_{p+1}\\
-    \end{bmatrix}},\\
+    \end{bmatrix}},%\\
+\end{align*}
+\begin{align*}
     % -----------------------------------------------------------------------------------------------------------------
     \begin{bmatrix}
         \widetilde{\mathcal{L}}^\mathrm{y}_f & \widetilde{\mathcal{G}}^\mathrm{y}_f 
