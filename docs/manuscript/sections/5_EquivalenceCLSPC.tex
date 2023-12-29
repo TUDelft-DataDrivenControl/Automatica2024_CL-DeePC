@@ -48,17 +48,13 @@ By comparing \eqref{eq:Sequential1} to \eqref{eq:CL-SPC-pred1} for $f=1$ it can 
 \begin{subequations}\label{eq:EquivMarkov}
 	\begin{align}
 		\tilde{\beta}_j &=
-            \left\{
-            \begin{split}
-                \widehat{C\tilde{A}^{p-j}\tilde{B}}, &1 \leq j \leq p\\%\forall j\in\{\mathbb{Z}_{>0}|\;p \geq j \geq 1\}\\
-			\widehat{D}, &j=p+1%\text{if } j=p+1
-            \end{split}
-            % \begin{array}{ll}
-		% 	\widehat{C\tilde{A}^{p-j}\tilde{B}}, &1 \leq j \leq p\\%\forall j\in\{\mathbb{Z}_{>0}|\;p \geq j \geq 1\}\\
-		% 	\widehat{D}, &j=p+1%\text{if } j=p+1
-		% \end{array}
+            \left\{%
+            \begin{array}{ll}
+			\widehat{C\tilde{A}^{p-j}\tilde{B}}, &\qquad 1 \leq j \leq p\\%\forall j\in\{\mathbb{Z}_{>0}|\;p \geq j \geq 1\}\\
+			\widehat{D}, &\qquad j=p+1%\text{if } j=p+1
+		\end{array}
             \right.,\label{eq:EquivMarkovInputs}\\
-	\tilde{\theta}_j &= \widehat{C\tilde{A}^{p-j}\tilde{B}},1 \leq j \leq p%\mkern24mu \forall j\in\{\mathbb{Z}_{>0}|\;p \geq j \geq 1\}
+	\tilde{\theta}_j &= \widehat{C\tilde{A}^{p-j}\tilde{B}}, \mkern24mu \qquad 1 \leq j \leq p%\mkern24mu \forall j\in\{\mathbb{Z}_{>0}|\;p \geq j \geq 1\}
         \label{eq:EquivMarkovOutputs}.
 	\end{align}
 \end{subequations}
