@@ -31,7 +31,7 @@ However, this predictor contains the predicted output on both sides of the equat
 		\widetilde{\Gamma}_f\tKp{u} & \widetilde{\mathcal{T}}_f^\mathrm{u} & \widetilde{\Gamma}_f\tKp{y}
 	\end{bmatrix},
 \end{align}
-as is also visible from the combination of \eqref{eq:DataEq1} and \eqref{eq:DataEq2} for $s=f$. Using \eqref{eq:MatrixRelations} to solve \eqref{eq:CL-SPC-pred1} (which can be done efficiently in a sequential manner as with \ac{CL-DeePC}) yields
+as is also visible from the combination of \eqref{eq:DataEq1} and \eqref{eq:DataEq2} for $s=f$. Using estimates in \eqref{eq:MatrixRelations} to solve \eqref{eq:CL-SPC-pred1} for the output predictions (which can be done efficiently in a sequential manner as with \ac{CL-DeePC}) yields
 \begin{align}\label{eq:CL-SPC-pred2}
 		\datavec{\hat{y}}{\hat{i}_p,f}= \begin{bmatrix}\widehat{\Gamma_f\tKp{u}} & \widehat{\Gamma_f\tKp{y}} \end{bmatrix} 
 		\begin{bmatrix}
@@ -41,7 +41,7 @@ as is also visible from the combination of \eqref{eq:DataEq1} and \eqref{eq:Data
 		\widehat{\mathcal{T}_f^\mathrm{u}} 
 		\datavec{u}{\hat{i}_p,f},
 \end{align}
-which is in line with \eqref{eq:DataEq1} and is used in a receding horizon optimization-based control framework.
+which is in line with \eqref{eq:DataEq1} and can be used in a receding horizon optimal control framework.
 
 \subsection{Equivalence between \ac{CL-DeePC} and \ac{CL-SPC}}
 By comparing \eqref{eq:Sequential1} to \eqref{eq:CL-SPC-pred1} for $f=1$ it can be seen that the building blocks $\tilde{\beta}_k$ and $\tilde{\theta}_k$ in \ac{CL-DeePC} are equal to the estimated predictor Markov parameters from \eqref{eq:CL-SPC-PredMarkov} that are obtained using \ac{CL-SPC}:
