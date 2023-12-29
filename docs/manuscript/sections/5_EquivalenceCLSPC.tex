@@ -24,11 +24,11 @@ in which the typically, as before, $\mathcal{Z}=\Psi_{i,1,N}$. Assuming that $p$
 \end{align}
 However, this predictor contains the predicted output on both sides of the equation. To solve \eqref{eq:CL-SPC-pred1} for the predicted outputs first make note of the fact that~\citep{Houtzager2012}
 \begin{align}\label{eq:MatrixRelations}
-	\tHf\inv\begin{bmatrix}
-		\widetilde{\Gamma}_f\tKp{u} & \widetilde{\mathcal{T}}_f^\mathrm{u} & \widetilde{\Gamma}_f\tKp{y}
-	\end{bmatrix} =
 	\begin{bmatrix}
 		\Gamma_f\tKp{u} & \mathcal{T}_f^\mathrm{u} & \Gamma_f\tKp{y}
+	\end{bmatrix}=
+        \tHf\inv\begin{bmatrix}
+		\widetilde{\Gamma}_f\tKp{u} & \widetilde{\mathcal{T}}_f^\mathrm{u} & \widetilde{\Gamma}_f\tKp{y}
 	\end{bmatrix},
 \end{align}
 as is also visible from the combination of \eqref{eq:DataEq1} and \eqref{eq:DataEq2} for $s=f$. Using \eqref{eq:MatrixRelations} to solve \eqref{eq:CL-SPC-pred1} (which can be done efficiently in a sequential manner as with \ac{CL-DeePC}) yields
