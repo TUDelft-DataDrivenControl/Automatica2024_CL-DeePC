@@ -148,13 +148,14 @@ This section clarifies the scope of this work by considering a typical data-driv
 \begin{subequations}
 \begin{alignat}{2}
     \span\span\min_{\datavec{u}{\hat{i}_p,f}} ||\datavec{\hat{y}}{\hat{i}_p,f}-\datavec{r}{\hat{i}_p,f}||_Q^2 + ||\datavec{u}{\hat{i}_p,f}||_R^2 + ||\Delta\datavec{u}{\hat{i}_p,f}||_{R^\Delta}^2 \span\\
-    \text{s.t.}\quad& &\datavec{\hat{y}}{\hat{i}_p,f}&=\datavec{\hat{y}}{\hat{i}_p,f}\left(\datavec{u}{\hat{i}_p,f};\datavec{u}{i,\bar{N}},\datavec{y}{i,\bar{N}},\datavec{u}{\hat{i},p},\datavec{y}{\hat{i},p}\right)\\
-    %\text{s.t.}\quad& &\datavec{\hat{y}}{\hat{i}_p,f}&=\Gamma_f x_{\hat{i}_p}+\mathcal{T}_f^\mathrm{u}\datavec{u}{\hat{i}_p,f}%+\mathcal{H}_f\datavec{e}{\hat{i}_p,f},\label{eq:SS_iter}\\
-   %&& x_{\hat{i}_p}&=x_\mathrm{ini},\label{eq:x_ini}\\
+    % \text{s.t.}\quad& &\datavec{\hat{y}}{\hat{i}_p,f}&=\datavec{\hat{y}}{\hat{i}_p,f}\left(\datavec{u}{\hat{i}_p,f};\datavec{u}{i,\bar{N}},\datavec{y}{i,\bar{N}},\datavec{u}{\hat{i},p},\datavec{y}{\hat{i},p}\right)\\
+    \text{s.t.}\quad& &\datavec{\hat{y}}{\hat{i}_p,f}&=\Gamma_f x_{\hat{i}_p}+\mathcal{T}_f^\mathrm{u}\datavec{u}{\hat{i}_p,f}%+\mathcal{H}_f\datavec{e}{\hat{i}_p,f},\label{eq:SS_iter}\\
+   && x_{\hat{i}_p}&=x_\mathrm{ini},\label{eq:x_ini}\\
    && u_k&\in\mathcal{U},\quad \hat{y}_k\in\mathcal{Y},\quad \forall k\in\big[\hat{i}_p,\,\hat{i}_p+f\big),
 \end{alignat}
 \end{subequations}
-in which $\datavec{\hat{y}}{\hat{i}_p,f}$ is a vector of future output predictions, which is an affine function of future inputs $\datavec{u}{\hat{i}_p,f}$ that is parameterized by past data from intervals shown in Fig.~\ref{fig:intervals_DeePC}. Moreover, $\datavec{r}{\hat{i}_p,f}$ is a vector of future references, %$x_\mathrm{ini}$ is an initial state at the first future time $k=\hat{i}_p$, and
+in which $\datavec{\hat{y}}{\hat{i}_p,f}$ is a vector of future output predictions, %which is an affine function of future inputs $\datavec{u}{\hat{i}_p,f}$ that is parameterized by past data from intervals shown in Fig.~\ref{fig:intervals_DeePC}. Moreover,
+$\datavec{r}{\hat{i}_p,f}$ is a vector of future references, %$x_\mathrm{ini}$ is an initial state at the first future time $k=\hat{i}_p$, and
 $||\cdot||_{(\cdot)}$ denotes a weighted Euclidian norm, ${\Delta\datavec{u}{\hat{i}_p,f}=\datavec{u}{\hat{i}_p,f}-\datavec{u}{\hat{i}_p-1,f}}$, $Q\in\mathbb{R}^{fl\times fl}$, $R,R^\Delta\in\mathbb{R}^{fr\times fr}$, are respectively a positive semi-definite and two positive definite weighting matrices, and $\mathcal{U}$ and $\mathcal{Y}$ respectively represent sets of allowable inputs and outputs.
 %
 % \begin{figure}[b!]
