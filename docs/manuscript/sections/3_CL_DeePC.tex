@@ -5,12 +5,12 @@ As a solution to the identification bias that arises in closed-loop due to corre
 it is possible to estimate a step-ahead predictor~\citep{Ljung1996}. A prediction horizon length ${f>1}$ is of more practical use in receding horizon optimal control settings, to which end step-ahead predictors can be applied sequentially. 
 
 Fig.~\ref{fig:CL-DeePC} and \eqref{eq:CL_DeePC_no_IVs} illustrate how this idea is employed in \ac{CL-DeePC}. A step-ahead predictor can be obtained from \ac{DeePC} (see Fig.~\ref{fig:regular-DeePC} and \eqref{eq:regular_DeePC_no_IVs}) with $f=1$. In \ac{CL-DeePC} the successive columns of $G$ (from left to right) and their corresponding columns on the right-hand side correspond to sequential applications of \ac{DeePC} with $f=1$ to the same matrix of sufficiently persistently exciting past input-output data on the left-hand side as well as time-shifted windows of input-output data on the right-hand side that encode information on successive initial states.
-\begin{figure}[b!]
-	\centering
-	\includegraphics[trim={0.0cm 0.1cm 0.0cm 0.0cm},clip,width=8.4cm]{docs/manuscript/figures/intervals_DeePC.pdf}%[trim={0.0cm 0.0cm 0.0cm 0.0cm},clip,scale=1.0][trim={0.5cm 0.8cm 0.8cm 0.3cm},clip,width=8.4cm]
-	\caption{Past data from the green ($\datavec{u}{i,\bar{N}},\datavec{y}{i,\bar{N}}$) and blue ($\datavec{u}{\hat{i},p},\datavec{y}{\hat{i},p}$) intervals, shown overlapping as with fully adaptive implementations (for which $i+\bar{N}=\hat{i}_p$), is used to form an output predictor for the black, dashed future prediction window of length $f$. \ac{CL-DeePC} can employ more sample trajectories $N$ of the green window than \ac{DeePC} because its sample trajectories are shorter (due to a shorter prediction window length $f_\mathrm{ID}$ that is used implicitly for identification).}
-	\label{fig:intervals_DeePC}
-\end{figure}
+% \begin{figure}[b!]
+% 	\centering
+% 	\includegraphics[trim={0.0cm 0.1cm 0.0cm 0.0cm},clip,width=8.4cm]{docs/manuscript/figures/intervals_DeePC.pdf}%[trim={0.0cm 0.0cm 0.0cm 0.0cm},clip,scale=1.0][trim={0.5cm 0.8cm 0.8cm 0.3cm},clip,width=8.4cm]
+% 	\caption{Past data from the green ($\datavec{u}{i,\bar{N}},\datavec{y}{i,\bar{N}}$) and blue ($\datavec{u}{\hat{i},p},\datavec{y}{\hat{i},p}$) intervals, shown overlapping as with fully adaptive implementations (for which $i+\bar{N}=\hat{i}_p$), is used to form an output predictor for the black, dashed future prediction window of length $f$. \ac{CL-DeePC} can employ more sample trajectories $N$ of the green window than \ac{DeePC} because its sample trajectories are shorter (due to a shorter prediction window length $f_\mathrm{ID}$ that is used implicitly for identification).}
+% 	\label{fig:intervals_DeePC}
+% \end{figure}
 \subsection{Main result}
 To ensure that \ac{CL-DeePC} employs a consistent output predictor the following main result of this article concerns a modification of \eqref{eq:CL_DeePC_no_IVs} that makes use of \ac{IVs}.
 \begin{figure}[b!]
