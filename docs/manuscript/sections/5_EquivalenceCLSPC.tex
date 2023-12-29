@@ -22,7 +22,7 @@ in which typically, as before, $\mathcal{Z}=\Psi_{i,1,N}$. Assuming that $p$ is 
 	\end{bmatrix}.
 	\end{split}
 \end{align}
-However, this predictor contains the predicted output on both sides of the equation. To solve \eqref{eq:CL-SPC-pred1} for the predicted outputs first make note of the fact that~\citep{Houtzager2012}
+Note that the predicted output is contained on both sides of this equation. To solve \eqref{eq:CL-SPC-pred1} for the predicted outputs first make note of the fact that~\citep{Houtzager2012}
 \begin{align}\label{eq:MatrixRelations}
 	\begin{bmatrix}
 		\Gamma_f\tKp{u} & \mathcal{T}_f^\mathrm{u} & \Gamma_f\tKp{y}
@@ -54,7 +54,7 @@ By comparing \eqref{eq:Sequential1} to \eqref{eq:CL-SPC-pred1} for $f=1$ it can 
 	\tilde{\theta}_j &= \widehat{C\tilde{A}^{p-j}\tilde{B}},\mkern24mu \forall j\in\{\mathbb{Z}_{>0}|\;p \geq j \geq 1\}\label{eq:EquivMarkovOutputs}.
 	\end{align}
 \end{subequations}
-As a result it is clear that there is an equivalence between the constructed matrices in \ac{CL-SPC} and \ac{CL-DeePC} that is succinctly described by
+As a result there is an equivalence between the constructed matrices in \ac{CL-SPC} and \ac{CL-DeePC} that is succinctly described by
 \begin{align}\label{eq:EquivPredictorMatrices}
 	\mkern-3mu\begin{bmatrix}
 		\widetilde{\mathcal{L}}^\mathrm{u}_f & \widetilde{\mathcal{G}}^\mathrm{u}_f & \widetilde{\mathcal{L}}^\mathrm{y}_f & \left(I_{fl}-\widetilde{\mathcal{G}}^\mathrm{y}_f\right)
