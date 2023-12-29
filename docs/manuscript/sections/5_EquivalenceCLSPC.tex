@@ -47,11 +47,11 @@ which is in line with \eqref{eq:DataEq1} and can be used in a receding horizon o
 By comparing \eqref{eq:Sequential1} to \eqref{eq:CL-SPC-pred1} for $f=1$ it can be seen that the building blocks $\tilde{\beta}_j$ and $\tilde{\theta}_j$ in \ac{CL-DeePC} are equal to the estimated predictor Markov parameters from \eqref{eq:CL-SPC-PredMarkov} that are obtained using \ac{CL-SPC}:
 \begin{subequations}\label{eq:EquivMarkov}
 	\begin{align}
-		\tilde{\beta}_k &= \left\{\begin{array}{ll}
-			\widehat{C\tilde{A}^{p-k}\tilde{B}}, &\forall k\in\{\mathbb{Z}_{>0}|\;p \geq k \geq 1\}\\
-			\widehat{D}, &\text{if } k=p+1
+		\tilde{\beta}_j &= \left\{\begin{array}{ll}
+			\widehat{C\tilde{A}^{p-j}\tilde{B}}, &\forall j\in\{\mathbb{Z}_{>0}|\;p \geq j \geq 1\}\\
+			\widehat{D}, &\text{if } j=p+1
 		\end{array}\right.,\label{eq:EquivMarkovInputs}\\
-	\tilde{\theta}_k &= \widehat{C\tilde{A}^{p-k}\tilde{B}},\mkern24mu \forall k\in\{\mathbb{Z}_{>0}|\;p \geq k \geq 1\}\label{eq:EquivMarkovOutputs}.
+	\tilde{\theta}_j &= \widehat{C\tilde{A}^{p-j}\tilde{B}},\mkern24mu \forall j\in\{\mathbb{Z}_{>0}|\;p \geq j \geq 1\}\label{eq:EquivMarkovOutputs}.
 	\end{align}
 \end{subequations}
 As a result it is clear that there is an equivalence between the constructed matrices in \ac{CL-SPC} and \ac{CL-DeePC} that is succinctly described by
