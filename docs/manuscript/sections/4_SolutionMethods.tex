@@ -7,7 +7,7 @@ Alternatively, one may exploit the sequential nature of \ac{CL-DeePC} as shown b
 \begin{align}\label{eq:yhat_k}
     \hat{y}_{k} = \begin{bmatrix} \tilde{\beta}_1 & \cdots & \tilde{\beta}_{p+1} \end{bmatrix} \datavec{u}{k-p,p+1} + \begin{bmatrix} \tilde{\theta}_1 & \cdots & \tilde{\theta}_{p} \end{bmatrix} \datavec{\overline{y}}{k-p,p},% \qquad \forall k\in[\hat{i}_p,\hat{i}_p+f)
 \end{align}
-in which $\tilde{\beta}_{(\cdot)}\in\mathbb{R}^{l\times r}$, and $\tilde{\theta}_{(\cdot)}\in\mathbb{R}^{l\times l}$ are determined from $Y_{i_p,1,f}\mathcal{Z}^\top\left(\Psi_{i,1,N}\mathcal{Z}^\top\right)\inv$ in \eqref{eq:Yfhat_1}. Sequential application of the step-ahead predictor \eqref{eq:yhat_k} leads to
+in which $\tilde{\beta}_j\in\mathbb{R}^{l\times r}$, and $\tilde{\theta}_j\in\mathbb{R}^{l\times l}$ are determined from $Y_{i_p,1,f}\mathcal{Z}^\top\left(\Psi_{i,1,N}\mathcal{Z}^\top\right)\inv$ in \eqref{eq:Yfhat_1}. Sequential application of the step-ahead predictor \eqref{eq:yhat_k} leads to
 \begin{align}\label{eq:Sequential1}
     \datavec{\hat{y}}{\hat{i}_p,f} &=
     \begin{bmatrix}
@@ -91,7 +91,7 @@ For this sequential procedure, define the $f$ block-rows of $\big[\widetilde{\ma
     \left\{\begin{array}{ll}
     0          ,     & \text{if } j<0\\
     \tilde{\alpha}_j,& \text{if } j=0\\
-    \tilde{\alpha}_j + \sum\limits_{r=1}^{p}\tilde{\theta}_r\alpha_{r-p+j-1}, & \text{if } j \geq 1
+    \tilde{\alpha}_j + \sum\limits_{m=1}^{p}\tilde{\theta}_m\alpha_{m-p+j-1}, & \text{if } j \geq 1
     \end{array}\right.
 \end{align}
  allows efficient sequential construction of $\big[\mathcal{L}^\mathrm{u}_f \; \mathcal{G}^\mathrm{u}_f \; \mathcal{L}^\mathrm{y}_f\big]$ starting from $j=0$. From the subsequent section, it will become clear that $\mathcal{G}^\mathrm{u}_f$ is a causal block-Toeplitz matrix, meaning that the matrix is fully parameterized by its leftmost block column. As such one may choose to only solve this portion of $\mathcal{G}^\mathrm{u}_f$ in \eqref{eq:Sequential3} using \eqref{eq:Sequential4} and to complete the matrix $\mathcal{G}^\mathrm{u}_f$ thereafter.
