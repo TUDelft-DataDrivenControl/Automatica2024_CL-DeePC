@@ -26,21 +26,24 @@ in which $\tilde{\beta}_{(\cdot)}\in\mathbb{R}^{l\times r}$, and $\tilde{\theta}
     \end{bmatrix},
 \end{align}
 in which
+{\begingroup\allowdisplaybreaks
 \begin{align*}
     % -----------------------------------------------------------------------------------------------------------------
     \begin{bmatrix}
         \widetilde{\mathcal{L}}^\mathrm{u}_f & \widetilde{\mathcal{G}}^\mathrm{u}_f 
-    \end{bmatrix}&= {\scriptsize%{\begingroup\renewcommand*{\arraystretch}{1.0}
+    \end{bmatrix}&= {\scriptsize
+    {\begingroup\renewcommand*{\arraystretch}{1.0}
     \begin{bmatrix}
         \tilde{\beta}_1     & \cdots      & \tilde{\beta}_{p}   & \tilde{\beta}_{p+1} & 0           & 0           & \cdots      & 0          \\
         0           & \tilde{\beta}_1     & \cdots      & \tilde{\beta}_{p}   & \tilde{\beta}_{p+1} & 0           & \cdots      & 0          \\
         \vdots      & \ddots      & \ddots      &             & \ddots      & \ddots      & \ddots      & \vdots     \\
         0           & \cdots      & 0           & \tilde{\beta}_1     & \cdots      & \tilde{\beta}_{p}   & \tilde{\beta}_{p+1} & 0          \\
         0           & \cdots      & 0           & 0           & \tilde{\beta}_1     & \cdots      & \tilde{\beta}_{p}   & \tilde{\beta}_{p+1}\\
-    \end{bmatrix}%\endgroup}
-    },%\\
-\end{align*}
-\begin{align*}
+    \end{bmatrix}
+    \endgroup}
+    },\\
+% \end{align*}
+% \begin{align*}
     % -----------------------------------------------------------------------------------------------------------------
     \begin{bmatrix}
         \widetilde{\mathcal{L}}^\mathrm{y}_f & \widetilde{\mathcal{G}}^\mathrm{y}_f 
@@ -52,7 +55,7 @@ in which
         0           & \cdots      & 0           & \tilde{\theta}_1     & \cdots       & \tilde{\theta}_{p}  & 0            & 0          \\
         0           & \cdots      & 0           & 0            & \tilde{\theta}_1     & \cdots      & \tilde{\theta}_{p}   & 0          \\
     \end{bmatrix}},
-\end{align*}
+\end{align*} \endgroup}
 with ${\widetilde{\mathcal{L}}^\mathrm{u}_f\in\mathbb{R}^{fl\times pr}}$, ${\widetilde{\mathcal{G}}^\mathrm{u}_f\in\mathbb{R}^{fl\times fr}}$, ${\widetilde{\mathcal{L}}^\mathrm{y}_f\in\mathbb{R}^{fl\times pl}}$, and ${\widetilde{\mathcal{G}}^\mathrm{y}_f\in\mathbb{R}^{fl\times fl}}$. The subscript of these matrices indicates the number of block rows.
 
 Notice that the predicted future outputs feature on both sides of \eqref{eq:Sequential1}. Solving for these predicted outputs yields
