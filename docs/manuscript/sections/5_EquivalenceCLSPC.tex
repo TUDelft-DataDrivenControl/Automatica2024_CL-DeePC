@@ -48,7 +48,7 @@ By comparing \eqref{eq:Sequential1} to \eqref{eq:CL-SPC-pred1} for $f=1$ it can 
 \begin{subequations}\label{eq:EquivMarkov}
 	\begin{align}
 		\tilde{\beta}_j &= \left\{\begin{array}{ll}
-			\widehat{C\tilde{A}^{p-j}\tilde{B}}, &\forall j\in\{\mathbb{Z}_{>0}|\;p \geq j \geq 1\}\\
+			\widehat{C\tilde{A}^{p-j}\tilde{B}}, &1 \leq j \leq p\\%\forall j\in\{\mathbb{Z}_{>0}|\;p \geq j \geq 1\}\\
 			\widehat{D}, &\text{if } j=p+1
 		\end{array}\right.,\label{eq:EquivMarkovInputs}\\
 	\tilde{\theta}_j &= \widehat{C\tilde{A}^{p-j}\tilde{B}},\mkern24mu \forall j\in\{\mathbb{Z}_{>0}|\;p \geq j \geq 1\}\label{eq:EquivMarkovOutputs}.
