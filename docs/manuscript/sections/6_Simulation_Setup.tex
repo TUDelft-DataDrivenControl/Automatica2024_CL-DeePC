@@ -1,0 +1,32 @@
+\section{Simulation setup}
+To demonstrate and compare the performance of \ac{DeePC} and \ac{CL-DeePC} under the influence of feedback, different simulation studies are performed. The simulated plant is a marginally stable fifth-order 
+model of the form \eqref{eqn:SS_innovation} that represents two circular plates that are spun by a motor with non-rigid shafts with \citep{Favoreel1999b}
+\begin{align}\label{eq:SysFavoreel}
+\scriptsize
+\begin{array}{lll}
+    A = \begin{bmatrix}
+        4.40 & 1 & 0 & 0 & 0\\
+       -8.09 & 0 & 1 & 0 & 0\\
+        7.83 & 0 & 0 & 1 & 0\\
+       -4.00 & 0 & 0 & 0 & 1\\
+        0.86 & 0 & 0 & 0 & 0
+    \end{bmatrix}\!,&
+    B = \begin{bmatrix}
+        0.00098\\
+        0.01299\\
+        0.01859\\
+        0.0033\\
+       -0.00002
+    \end{bmatrix}\!,&C = \begin{bmatrix}
+        1 \\ 0 \\ 0\\ 0\\ 0
+    \end{bmatrix}^\top\mkern-7mu,\\
+    K = \begin{bmatrix}
+        2.3 & -6.64 & 7.515 & -4.0146 & 0.86336
+    \end{bmatrix}^\top\mkern-7mu,\span
+    &D=0.
+\end{array}
+\end{align}
+
+Three different controllers are implemented. One controller uses \ac{DeePC} (with \ac{IVs} as proposed in \cite{vanWingerden2022}). Another uses \ac{CL-DeePC} with \ac{IVs} (implemented as described in \secref{sec:Sequential} to reduce computation time). As a benchmark, an oracle model predictive controller based on \eqref{eq:SS_iter} with perfect knowledge of the system matrices $\Gamma_f$, $\mathcal{T}_f^\mathrm{u}$ and state $x_{\hat{i}_p}$ is used.
+
+All of the simulations are carried out in MATLAB. CasADi is used to formulate a quadratic program that is solved using IPOPT. Unless indicated otherwise the employed cost function weights as in \eqref{eq:cost_fun} are $Q=100$, $R=0$, and $R^\Delta=10$ and employed constraints are $|u_k-u_{k-1}|\leq3.75$, $|u_k|\leq15$, $|y_k|<1000$.

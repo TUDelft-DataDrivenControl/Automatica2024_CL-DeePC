@@ -147,7 +147,7 @@ in which $L_s,\widetilde{L}_s\in\mathbb{R}^{sl\times ((p+s)r+pl)}$ are defined a
 This section clarifies the scope of this work by considering a typical receding horizon control problem. Such a problem is exemplified by %A predictor $\datavec{\hat{y}}{\hat{i}_p,f}$ is used that is based on \eqref{eq:Yf1} with a single column ($q=1$) from time index $k=\hat{i}$ and with $s=f\in\mathbb{Z}_{>0}$ as future prediction window length. The considered optimal control problem is
 \begin{subequations}
 \begin{alignat}{2}
-    \span\span\min_{\datavec{u}{\hat{i}_p,f}} ||\datavec{\hat{y}}{\hat{i}_p,f}-\datavec{r}{\hat{i}_p,f}||_Q^2 + ||\datavec{u}{\hat{i}_p,f}||_R^2 + ||\Delta\datavec{u}{\hat{i}_p,f}||_{R^\Delta}^2 \span\\
+    \span\span\min_{\datavec{u}{\hat{i}_p,f}} ||\datavec{\hat{y}}{\hat{i}_p,f}-\datavec{r}{\hat{i}_p,f}||_Q^2 + ||\datavec{u}{\hat{i}_p,f}||_R^2 + ||\Delta\datavec{u}{\hat{i}_p,f}||_{R^\Delta}^2 \span\label{eq:cost_fun}\\
     % \text{s.t.}\quad& &\datavec{\hat{y}}{\hat{i}_p,f}&=\datavec{\hat{y}}{\hat{i}_p,f}\left(\datavec{u}{\hat{i}_p,f};\datavec{u}{i,\bar{N}},\datavec{y}{i,\bar{N}},\datavec{u}{\hat{i},p},\datavec{y}{\hat{i},p}\right)\\
     \text{s.t.}\quad& &\datavec{\hat{y}}{\hat{i}_p,f}&=\Gamma_f x_{\hat{i}_p}+\mathcal{T}_f^\mathrm{u}\datavec{u}{\hat{i}_p,f},\label{eq:SS_iter}\\
    && x_{\hat{i}_p}&=x_\mathrm{ini},\label{eq:x_ini}\\

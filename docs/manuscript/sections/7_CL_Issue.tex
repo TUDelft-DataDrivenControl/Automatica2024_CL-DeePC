@@ -1,31 +1,7 @@
 \section{Closed-loop issue with regular \ac{DeePC}}\label{sec:CL_ID_issue}
-To demonstrate and compare the performance of \ac{DeePC} and \ac{CL-DeePC} under the influence of feedback, different simulation studies are performed. The simulated plant is a marginally stable 5th-order 
 
-\begin{align}\label{eq:SysFavoreel}
-\scriptsize
-\begin{array}{lll}
-    A = \begin{bmatrix}
-        4.40 & 1 & 0 & 0 & 0\\
-       -8.09 & 0 & 1 & 0 & 0\\
-        7.83 & 0 & 0 & 1 & 0\\
-       -4.00 & 0 & 0 & 0 & 1\\
-        0.86 & 0 & 0 & 0 & 0
-    \end{bmatrix}\!,&
-    B = \begin{bmatrix}
-        0.00098\\
-        0.01299\\
-        0.01859\\
-        0.0033\\
-       -0.00002
-    \end{bmatrix}\!,&C = \begin{bmatrix}
-        1 \\ 0 \\ 0\\ 0\\ 0
-    \end{bmatrix}^\top\mkern-7mu,\\
-    K = \begin{bmatrix}
-        2.3 & -6.64 & 7.515 & -4.0146 & 0.86336
-    \end{bmatrix}^\top\mkern-7mu,\span
-    &D=0,
-\end{array}
-\end{align}
+
+
 
 % ------------------------- Figure --------------------------
 \begin{figure}
