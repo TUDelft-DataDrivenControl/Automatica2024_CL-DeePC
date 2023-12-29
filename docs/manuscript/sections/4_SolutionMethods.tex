@@ -3,7 +3,7 @@ Having demonstrated the consistency of \ac{CL-DeePC} in the previous section, th
 
 The use of such an efficient method can be understood by comparing the number of independent optimization variables (in red) in respectively Fig.~\ref{fig:CL-DeePC} and Fig.~\ref{fig:regular-DeePC}. Both with and without \ac{IVs}, the number of such independent optimization variables used in \ac{CL-DeePC} scales worse with $f$ than is the case for \ac{DeePC}. This is inherent to the formulation depicted by Fig.~\ref{fig:CL-DeePC} whereby multiple vectors $g_{(\cdot)}$ are used.
 
-Alternatively, one may exploit the sequential nature of \ac{CL-DeePC} as shown by the columns of \eqref{eq:Yfhat_1}. For $k\in[\hat{i}_p,\hat{i}_p+f)$ this obtains
+Alternatively, one may exploit the sequential nature of \ac{CL-DeePC} as shown by the columns of \eqref{eq:Yfhat_1}. For columns indexed by $k\in[\hat{i}_p,\hat{i}_p+f)$ this obtains
 \begin{align}\label{eq:yhat_k}
     \hat{y}_{k} = \begin{bmatrix} \tilde{\beta}_1 & \cdots & \tilde{\beta}_{p+1} \end{bmatrix} \datavec{u}{k-p,p+1} + \begin{bmatrix} \tilde{\theta}_1 & \cdots & \tilde{\theta}_{p} \end{bmatrix} \datavec{\overline{y}}{k-p,p},% \qquad \forall k\in[\hat{i}_p,\hat{i}_p+f)
 \end{align}
