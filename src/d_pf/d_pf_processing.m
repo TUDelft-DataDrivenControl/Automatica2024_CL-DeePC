@@ -70,7 +70,12 @@ parfor kn = 1:num_n
 end
 %%
 color = {[220,50,32]/256,[0,90,181]/256,[0.4660, 0.6740, 0.1880]};%{'#DC3220','#005AB5'};
-figure('Units', 'pixels', 'pos', [80 80 680 680],'color','white','Visible', 'on');
+fig3 = figure('Units', 'pixels', 'pos', [80 80 680 680],'color','white','Visible', 'on');
+set(fig3,'Units','centimeters');
+pos3 = get(fig3,'Position');
+width3 = 8.4*1.5;
+scale3 = width3/pos3(3);
+set(fig3,'Position',[pos3(1:2),width3,scale3*pos3(4)])
 [ff0,ff1,ff2] = deal(cell(1,idx_median-1));
 FaceAlpha = 0.6/(idx_median-1);
 for idx = 1:idx_median-1
