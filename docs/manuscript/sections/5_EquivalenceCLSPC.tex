@@ -2,7 +2,7 @@
 This section demonstrates an equivalence between the developed \ac{CL-DeePC} framework and \ac{CL-SPC} as developed in~\cite{Dong2008}. The \ac{CL-SPC} methodology is briefly explained first, based upon which the equivalence is demonstrated thereafter.
 
 \subsection{Closed-loop \ac{SPC}}
-To understand this equivalence, consider the data equations \eqref{eq:DataEq1} and \eqref{eq:DataEq2}. Just like \ac{CL-DeePC}, \ac{CL-SPC} uses $s=1$ to avoid closed-loop correlation between inputs and noise\footnote{Treatment of the detrimental effects thereof is reserved for the subsequent section.}, estimating the dynamic matrix $\widetilde{L}_1$ by least squares regression on past data:
+To understand this equivalence, consider the data equations \eqref{eq:DataEq1} and \eqref{eq:DataEq2}. Just like \ac{CL-DeePC}, \ac{CL-SPC} uses $s=1$ to avoid closed-loop correlation between inputs and noise\footnote{Treatment of the detrimental effects thereof is reserved for a subsequent section.}, estimating the dynamic matrix $\widetilde{L}_1$ by least squares regression on past data:
 \begin{align}\label{eq:CL-SPC-PredMarkov}
 \hat{\widetilde{L}}_1 = \left[ \widehat{C\tKp{u}} \; \widehat{D} \; \widehat{C\tKp{y}} \right]=Y_{i_p,1,N}\mathcal{Z}^\top (\Psi_{i,1,N}\mathcal{Z}^\top)\inv,
 \end{align}
@@ -58,7 +58,7 @@ By comparing \eqref{eq:Sequential1} to \eqref{eq:CL-SPC-pred1} for $f=1$ it can 
         \label{eq:EquivMarkovOutputs}.
 	\end{align}
 \end{subequations}
-As a result there is an equivalence between the constructed matrices in \ac{CL-SPC} and \ac{CL-DeePC} that is succinctly described by
+As a result there is an equivalence between the constructed matrices in \ac{CL-SPC} and the efficient sequential \ac{CL-DeePC} method that is succinctly described by
 \begin{align}\label{eq:EquivPredictorMatrices}
 	\mkern-3mu\begin{bmatrix}
 		\widetilde{\mathcal{L}}^\mathrm{u}_f & \widetilde{\mathcal{G}}^\mathrm{u}_f & \widetilde{\mathcal{L}}^\mathrm{y}_f & \left(I_{fl}-\widetilde{\mathcal{G}}^\mathrm{y}_f\right)
