@@ -35,25 +35,25 @@ Cmap = [interp1([0,0.5,1],[c1(1),c2(1),c3(1)],linspace(0,1,num_colors));...
 for k_e = 1:num_e
 % ---------------------------- load results -------------------------------
 % inputs and outputs
-u_OL = results.u_OL{k_e,1}(:,end-Nbar+1:end);
+% u_OL = results.u_OL{k_e,1}(:,end-Nbar+1:end);
 u_CL = results.u_CL(k_e,:);
-y_OL  = results.y_OL{1,1}(:,end-Nbar+1:end);
+% y_OL  = results.y_OL{1,1}(:,end-Nbar+1:end);
 y_CL = results.y_CL(k_e,:);
-[y_all, u_all] = deal(cell(1,3));
+[y_all, u_all] = deal(cell(1,2));
 for k_c = 1:2 % loop over controllers
-    u_all{k_c} = [u_OL u_CL{k_c}];
-    y_all{k_c} = [y_OL y_CL{k_c}];
+    u_all{k_c} = u_CL{k_c};%[u_OL u_CL{k_c}];
+    y_all{k_c} = y_CL{k_c};%[y_OL y_CL{k_c}];
 end
 % innovation noise
-e_OL  = results.noise{k_e}(:,end-(CL_sim_steps+Nbar)+1:end-CL_sim_steps);
+% e_OL  = results.noise{k_e}(:,end-(CL_sim_steps+Nbar)+1:end-CL_sim_steps);
 e_CL  = results.noise{k_e}(:,end-CL_sim_steps+1:end);
-e_all = [e_OL e_CL];
+e_all = e_CL;%[e_OL e_CL];
 
 % ------------------------ loop over controllers ---------------------------
 [EUcorr_avg_run,EYcorr_avg_run,Upfid,Efid,Yp,EYcorr,EUcorr] = deal(cell(1,2));
 parfor k_c = 1:2
 % ------------------------ loop over time steps ---------------------------
-for k1 = Nbar+1:Nbar+CL_sim_steps
+for k1 = Nbar+1:CL_sim_steps
     k2 = k1-Nbar;
     if k2 == 1
         % get initial block-hankel matrices
@@ -137,8 +137,13 @@ end % of loop over k_e
 %% plotting correlations
 maxval1=max(cellfun(@(x) max(abs(x),[],'all'),EUcorr_avg_all),[],'all');
 % maxval2=max(cellfun(@(x) max(abs(x),[],'all'),EYcorr_avg_all),[],'all');
-fig5=figure('Units', 'pixels', 'pos', [80 80 1080 480],'color','white','Visible', 'on');
-TL = tiledlayout(fig5,1,2,'TileSpacing','tight');
+fig5=figure('Units', 'pixels', 'pos', [80 80 1080 800],'color','white','Visible', 'on');
+set(fig5,'Units','centimeters');
+pos5 = get(fig5,'Position');
+width5 = 8.4*1.5;
+scale5 = width5/pos5(3);
+set(fig5,'Position',[pos5(1:2),width5,scale5*pos5(4)])
+TL = tiledlayout(fig5,1,2,'TileSpacing','compact');
 ax = cell(1,2);
 for k_c = 1:2
     if k_c == 1
@@ -147,17 +152,17 @@ for k_c = 1:2
         method_str = 'CL-DeePC: $f_\mathrm{ID}=1$';
     end
     ax{k_c}=nexttile;
-    imagesc(EUcorr_avg_all{k_c}); set(gca, 'YDir','reverse'); colormap(gca,Cmap); caxis(gca,[-maxval1 maxval1]); colorbar(gca);
+    imagesc(EUcorr_avg_all{k_c}); set(gca, 'YDir','reverse'); colormap(gca,Cmap); caxis(gca,[-maxval1 maxval1]); if k_c==2; colorbar(gca);end
     title(method_str,'Interpreter','latex','FontSize',12);
     ylabel('Row index','Interpreter','latex','FontSize',12); xlabel('Column index','Interpreter','latex','FontSize',12);
-    grid on;
+    grid on; if k_c==2; yticks(1); end
     xline(ax{k_c},p*nu+0.5,'LineWidth',1.5);
 %     subplot(1,2,2)
 %     imagesc(EYcorr_avg_all{k_c}); set(gca, 'YDir','reverse'); colormap(gca,Cmap); caxis(gca,[-maxval2 maxval2]); colorbar(gca);
 %     title({'Correlation matrix', append('$E_{i_p,',f_str,',N}Y_{i,p,N}^\top/N$')},'Interpreter','latex','FontSize',12);
 %     ylabel('Row index','Interpreter','latex','FontSize',12); xlabel('Column index','Interpreter','latex','FontSize',12);
 end
-sgtitle(fig5,{'Average noise-input correlation matrix',append('$E_{i_p,f_\mathrm{ID},N}\left[U_{i,p,N}^\top\;\Big| U_{i_p,f_\mathrm{ID},N}^\top\right]/N$, $p=f=',num2str(p),'$, $\bar{N}=',num2str(Nbar),'$')},'Interpreter','latex','FontSize',14);
+sgtitle(fig5,{'Average noise-input correlation matrix',append('$E_{i_p,f_\mathrm{ID},N}\left[U_{i,p,N}^\top\;\Big| U_{i_p,f_\mathrm{ID},N}^\top\right]/N$, $p=f=',num2str(p),'$, $\bar{N}=',num2str(Nbar),'$')},'Interpreter','latex','FontSize',12);
 %% helper functions
 function [Efid,Upfid,Yp]=get_HankelMats(eCL,uCL,yCL,p,s,nu,ny) %s{k_c},N{k_c}
     Nbar = length(eCL);
