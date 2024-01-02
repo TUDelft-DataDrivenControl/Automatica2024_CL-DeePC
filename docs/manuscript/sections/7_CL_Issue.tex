@@ -14,13 +14,13 @@ To illustrate the resulting potential performance degradation of \ac{DeePC} in a
 % -----------------------------------------------------------
 
 \subsection{Correlation between inputs and noise}
-This section demonstrates the existence of correlation between inputs and preceding noise during closed-loop operation in an adaptive setting by means of simulations. Following the preceding consistency proof in \secref{sec:proof_IVs}, the correlation matrix of interest is given by $\frac{1}{N}E_{i_p,f_\mathrm{ID},N}\begin{bmatrix}U_{i,p,N}^\top & U_{i_p,f_\mathrm{ID},N}^\top\end{bmatrix}$, with $f_\mathrm{ID}=f$ for \ac{DeePC}, and $f_\mathrm{ID}=1$ for \ac{CL-DeePC}. An example of such a correlation matrix, averaged over 120 simulations with different noise realizations is shown by Fig.~\ref{}.
+This section demonstrates the existence of correlation between inputs and preceding noise during closed-loop operation in an adaptive setting by means of simulations. Following the preceding consistency proof in \secref{sec:proof_IVs}, the correlation matrix of interest is given by $\frac{1}{N}E_{i_p,f_\mathrm{ID},N}\begin{bmatrix}U_{i,p,N}^\top & U_{i_p,f_\mathrm{ID},N}^\top\end{bmatrix}$, with $f_\mathrm{ID}=f$ for \ac{DeePC}, and $f_\mathrm{ID}=1$ for \ac{CL-DeePC}. An example of such a correlation matrix, averaged over 120 simulations with different noise realizations is shown by Fig.~\ref{fig:EfUpf_correlation}.
 % ------------------------- Figure --------------------------
 \begin{figure}[b!]
 \begin{center}
 \includegraphics[width=\columnwidth]{results/figures/Correlation_Nbar_1039_p_20_f_20_Re_1_Ru_1_Rdu_0_Q_100_R_0_dR_10.pdf}    % The printed column  
-\caption{Reference tracking by adaptive \ac{DeePC} and \ac{CL-DeePC} using \ac{IVs}. After the vertical line at $\bar{N}$ all used data originates from operation in closed-loop. \ac{DeePC} displays worse reference tracking performance than \ac{CL-DeePC}, in part due to a closed-loop identification problem.}  % width is 8.4 cm.
-\label{fig:CL_Problem_Solution}                                 % Size the figures 
+\caption{Noise-input correlation matrix averaged over 120 noise realizations.}  % width is 8.4 cm.
+\label{fig:EfUpf_correlation}                                 % Size the figures 
 \end{center}                                 % accordingly.
 \end{figure}
 % -----------------------------------------------------------
