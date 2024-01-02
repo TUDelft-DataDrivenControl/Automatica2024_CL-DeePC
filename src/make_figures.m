@@ -76,8 +76,8 @@ title_str = append('$\bar{N}=',num2str(results.Nbar),'$, ',...
 title(title_str,'Interpreter','latex','FontSize',12);
 set(fig4,'Color','w');
 
-desc_str1 = regexp(fn,'(.*)\.mat$','match'); desc_str1 = desc_str1{1};
-desc_str2 = regexp(dirname,'Nbar_(.*)$','match'); desc_str2 = desc_str2{1};
+desc_str1 = regexp(fn,'(.*)\.mat$','tokens','once'); desc_str1 = desc_str1{1};
+desc_str2 = regexp(dirname,'Nbar_(.*)$','tokens','once'); desc_str2 = desc_str2{1};
 figname = append('DeePC_CL_ID_issue_',desc_str1,'_',desc_str2,'.pdf');
 cd(fullfile('results','figures'));
 exportgraphics(fig4,figname,'ContentType','vector');
