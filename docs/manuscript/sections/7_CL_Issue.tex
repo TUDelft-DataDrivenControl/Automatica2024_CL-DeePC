@@ -7,12 +7,12 @@ This section demonstrates that adaptive \ac{DeePC} implementations (unlike \ac{C
 To illustrate the resulting potential performance degradation of \ac{DeePC} in an adaptive setting, consider Fig.~\ref{fig:CL_Problem_Solution}. \ac{DeePC} clearly manages considerably worse reference tracking performance w.r.t. \ac{CL-DeePC}, which seems to perform comparably to the oracle. At first, all of the data that the data-driven controllers rely on derives from open-loop operation. Due to the adaptive nature of the controller implementation, after $\bar{N}$ time steps, all of the employed data derives from closed-loop operation. The reference tracking ability of \ac{DeePC} appears to decrease as the amount of employed closed-loop data increases. Thereafter, a cyclical behaviour may be observed for \ac{DeePC}: large reference tracking errors that result from, e.g., the closed-loop identification issue momentarily increase the effective signal to noise ratio and thereby temporarily improve the obtained reference tracking performance again.
 % ------------------------- Figure --------------------------
 \begin{figure}[b!]
-\begin{center}
-\includegraphics[width=\columnwidth]{results/figures/DeePC_CL_ID_issue_Re_1.mat_Nbar_239_p_20_f_20_Ru_1_Rdu_0_Q_100_R_0_dR_10.pdf}    % The printed column  
-\caption{Reference tracking by adaptive \ac{DeePC} and \ac{CL-DeePC} using \ac{IVs}. After the vertical line at $\bar{N}$ all used data originates from operation in closed-loop. \ac{DeePC} displays worse reference tracking performance than \ac{CL-DeePC}, in part due to a closed-loop identification problem.}  % width is 8.4 cm.
-\label{fig:CL_Problem_Solution}                                 % Size the figures 
-\end{center}                                 % accordingly.
-\end{figure}
+\begin{center}%
+\includegraphics[width=\columnwidth]{results/figures/DeePC_CL_ID_issue_Re_1_Nbar_239_p_20_f_20_Ru_1_Rdu_0_Q_100_R_0_dR_10.pdf}    % The printed column  
+\caption{Reference tracking by adaptive \ac{DeePC} and \ac{CL-DeePC} using \ac{IVs}. After the vertical line at $\bar{N}$ all used data originates from operation in closed-loop. \ac{DeePC} displays worse reference tracking performance than \ac{CL-DeePC}, in part due to a closed-loop identification problem.}% width is 8.4 cm.
+\label{fig:CL_Problem_Solution}%                                 % Size the figures 
+\end{center}%                                 % accordingly.
+\end{figure}%
 % -----------------------------------------------------------
 
 \subsection{Correlation between inputs and noise}
