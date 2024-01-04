@@ -1,5 +1,5 @@
 \section{Closed-loop Data-enabled Predictive Control}
-This section presents the main result of this article, providing contribution~(\ref{contribution:solves_CL_issue}) whereby we develop \ac{CL-DeePC}. An intuitive explanation is first offered before a proof of the underlying main result is provided.
+\noindent This section presents the main result of this article, providing contribution~(\ref{contribution:solves_CL_issue}) whereby we develop \ac{CL-DeePC}. An intuitive explanation is first offered before a proof of the underlying main result is provided.
 
 As a solution to the identification bias that arises in closed-loop due to correlation between inputs and noise %(a demonstration thereof is deferred to Section~\ref{sec:CL_ID_issue})
 it is possible to estimate a step-ahead predictor~\citep{Ljung1996}. A prediction horizon length ${f>1}$ is of more practical use in receding horizon optimal control settings, to which end step-ahead predictors can be applied sequentially. 
@@ -12,7 +12,7 @@ Fig.~\ref{fig:CL-DeePC} and \eqref{eq:CL_DeePC_no_IVs} illustrate how this idea 
 % 	\label{fig:intervals_DeePC}
 % \end{figure}
 \subsection{Main result}
-To ensure that \ac{CL-DeePC} employs a consistent output predictor the following main result of this article concerns a modification of \eqref{eq:CL_DeePC_no_IVs} that makes use of \ac{IVs}.
+\noindent To ensure that \ac{CL-DeePC} employs a consistent output predictor the following main result of this article concerns a modification of \eqref{eq:CL_DeePC_no_IVs} that makes use of \ac{IVs}.
 \begin{figure}[b!]
 \centering
 \input{tikzpictures/CL-DeePC}
@@ -81,7 +81,7 @@ To ensure that \ac{CL-DeePC} employs a consistent output predictor the following
 
 % ----------------------------------------------------------- Auxiliary results ---------------------------------------------------------------------------------------------
 \subsubsection{Auxiliary result}
-Proof of Theorem~\ref{theorem:main_result_IVs} is deferred till after the following important auxiliary result.
+\noindent Proof of Theorem~\ref{theorem:main_result_IVs} is deferred till after the following important auxiliary result.
 \setcounter{thm}{0}
 \begin{lem}\label{lem:relative_rates}\citep{Chiuso2006}
     For scalars $d,\alpha\in\mathbb{R}$, and ${\rho=\max|\emph{eig}(\tilde{A})|<1}$, if the past data window length ${p\rightarrow\infty}$, and the number of columns used to construct block-Hankel data matrices $N\rightarrow\infty$ such that%A necessary condition for consistent closed-loop subspace identification is that as $p\rightarrow\infty$, $N\rightarrow\infty$ such that
@@ -168,3 +168,6 @@ The proof of asymptotic unbiasedness is sequential. Note from Fig~\ref{fig:CL-De
 \begin{rem}
     The \ac{IV} used in this proof serves to reduce the number of decision variables as well as to handle noise in such a way as to guarantee the use of a consistent estimator. Without an \ac{IV}, as with \eqref{eq:CL_DeePC_no_IVs}, increasing $N$ both increases the number of decision variables and permits the optimal control problem to select noise in such a way that infeasible trajectories are predicted. As an alternative one may attempt to make the data matrix $\Psi_{i,1,N}$ square and invertible, but then \eqref{eq:relative_rates} is violated in the limit $p,N\rightarrow\infty$ such that the resulting predictor is asymptotically biased.
 \end{rem}
+% \begin{rem}
+%     To choose a practical, finite $p$ one may consider the instructive remarks in, e.g,~\citep{Breschi2022}
+% \end{rem}

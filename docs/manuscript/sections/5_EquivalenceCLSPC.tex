@@ -1,8 +1,9 @@
 \section{Equivalence to Closed-loop \acs{SPC}}
-This section demonstrates an equivalence between the developed \ac{CL-DeePC} framework and \ac{CL-SPC} as developed in~\cite{Dong2008}. The \ac{CL-SPC} methodology is briefly explained first, based upon which the equivalence is demonstrated thereafter.
+\noindent This section demonstrates an equivalence between the developed \ac{CL-DeePC} framework and \ac{CL-SPC} as developed in~\cite{Dong2008}. The \ac{CL-SPC} methodology is briefly explained first, based upon which the equivalence is demonstrated thereafter.
 
 \subsection{Closed-loop \ac{SPC}}
-To understand this equivalence, consider the data equations \eqref{eq:DataEq1} and \eqref{eq:DataEq2}. Just like \ac{CL-DeePC}, \ac{CL-SPC} uses $s=1$ to avoid closed-loop correlation between inputs and noise\footnote{Treatment of the detrimental effects thereof is reserved for a subsequent section.}, estimating the dynamic matrix $\widetilde{L}_1$ by least squares regression on past data:
+\noindent To understand this equivalence, consider the data equations \eqref{eq:DataEq1} and \eqref{eq:DataEq2}. Just like \ac{CL-DeePC}, \ac{CL-SPC} uses $s=1$ to avoid closed-loop correlation between inputs and noise, %\footnote{Treatment of the detrimental effects thereof is reserved for a subsequent section.},
+estimating the dynamic matrix $\widetilde{L}_1$ by least squares regression on past data:
 \begin{align}\label{eq:CL-SPC-PredMarkov}
 \hat{\widetilde{L}}_1 = \left[ \widehat{C\tKp{u}} \; \widehat{D} \; \widehat{C\tKp{y}} \right]=Y_{i_p,1,N}\mathcal{Z}^\top (\Psi_{i,1,N}\mathcal{Z}^\top)\inv,
 \end{align}
@@ -44,7 +45,7 @@ as is also visible from the combination of \eqref{eq:DataEq1} and \eqref{eq:Data
 which is in line with \eqref{eq:DataEq1} and can be used in a receding horizon optimal control framework.
 
 \subsection{Equivalence between \ac{CL-DeePC} and \ac{CL-SPC}}
-By comparing \eqref{eq:Sequential1} to \eqref{eq:CL-SPC-pred1} for $f=1$ it can be seen that the building blocks $\tilde{\beta}_j$ and $\tilde{\theta}_j$ in \ac{CL-DeePC} are equal to the estimated predictor Markov parameters from \eqref{eq:CL-SPC-PredMarkov} that are obtained using \ac{CL-SPC}:
+\noindent By comparing \eqref{eq:Sequential1} to \eqref{eq:CL-SPC-pred1} for $f=1$ it can be seen that the building blocks $\tilde{\beta}_j$ and $\tilde{\theta}_j$ in \ac{CL-DeePC} are equal to the estimated predictor Markov parameters from \eqref{eq:CL-SPC-PredMarkov} that are obtained using \ac{CL-SPC}:
 \begin{subequations}\label{eq:EquivMarkov}
 	\begin{align}
 		\tilde{\beta}_j &=
