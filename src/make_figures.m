@@ -71,14 +71,14 @@ xline(ax1,results.Nbar+0.5,HandleVisibility='off')
 xlabel(ax1,'Time index $k$','Interpreter','latex','FontSize',12);
 title_str = append('$\bar{N}=',num2str(results.Nbar),'$, ',...
       '$\sigma^2(e_k)=',num2str(results.Re),'$, ',...
-      '$\sigma^2(d^\mathrm{u}_k)=',num2str(results.Rdu),'$, ',...
+      ...'$\sigma^2(d^\mathrm{u}_k)=',num2str(results.Rdu),'$, ',...
       '$p=',num2str(results.p),'$, $f=',num2str(results.f),'$');
 title(title_str,'Interpreter','latex','FontSize',12);
 set(fig4,'Color','w');
 
 desc_str1 = regexp(fn,'(.*)\.mat$','tokens','once'); desc_str1 = desc_str1{1};
 desc_str2 = regexp(dirname,'Nbar_(.*)$','tokens','once'); desc_str2 = desc_str2{1};
-figname = append('DeePC_CL_ID_issue_',desc_str1,'_',desc_str2,'.pdf');
+figname = append('DeePC_CL_ID_issue_',desc_str1,'_Nbar_',desc_str2,'.pdf');
 cd(fullfile('results','figures'));
 exportgraphics(fig4,figname,'ContentType','vector');
 cd(main_dir);

@@ -118,8 +118,8 @@ xlabel('$f(=p)$','Interpreter','latex','FontSize',12);
 % ylabel('$\bar{J}$','Interpreter','latex','FontSize',12);
 ylabel('$\sqrt{\frac{\overline{(y_k-r_k)^2}}{\overline{r_k^2}}}$','Interpreter','latex','FontSize',14);
 title(append('$\bar{N}=',num2str(Nbar),'$, ',...
-      '$\sigma^2(e_k)=',num2str(Re),'$, ',...
-      '$\sigma^2(d^\mathrm{u}_k)=',num2str(Rdu),'$'),'Interpreter','latex','FontSize',12);
+      ...'$\sigma^2(d^\mathrm{u}_k)=',num2str(Rdu),'$, ',...
+      '$\sigma^2(e_k)=',num2str(Re),'$'),'Interpreter','latex','FontSize',12);
 
 %% Helper functions
 
