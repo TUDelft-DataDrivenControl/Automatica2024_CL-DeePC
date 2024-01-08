@@ -1,16 +1,12 @@
 \section{Closed-loop Data-enabled Predictive Control}
-\noindent This section presents the main result of this article, providing contribution~(\ref{contribution:solves_CL_issue}) whereby we develop \ac{CL-DeePC}. An intuitive explanation is first offered before a proof of the underlying main result is provided.
+\noindent This section presents the \ac{CL-DeePC} algorithm, being the main result of this article and providing contribution~(\ref{contribution:develop_CL_DeePC}). An intuitive explanation is first offered before a proof of the underlying main result is provided.
 
-As a solution to the identification bias that arises in closed-loop due to correlation between inputs and noise %(a demonstration thereof is deferred to Section~\ref{sec:CL_ID_issue})
-it is possible to estimate a step-ahead predictor~\citep{Ljung1996}. A prediction horizon length ${f>1}$ is of more practical use in receding horizon optimal control settings, to which end step-ahead predictors can be applied sequentially. 
+A solution to the identification bias that arises in closed-loop due to correlation between inputs and noise %(a demonstration thereof is deferred to Section~\ref{sec:CL_ID_issue})
+is the synthesis of a one step-ahead predictor~\citep{Ljung1996}. For receding horizon optimal control settings with a typically more useful, larger prediction horizon ($f>1$), the previously described one step-ahead predictor can be applied sequentially.
 
-Fig.~\ref{fig:CL-DeePC} and \eqref{eq:CL_DeePC_no_IVs} illustrate how this idea is employed in \ac{CL-DeePC}. A step-ahead predictor can be obtained from \ac{DeePC} (see Fig.~\ref{fig:regular-DeePC} and \eqref{eq:regular_DeePC_no_IVs}) with $f=1$. In \ac{CL-DeePC} the successive columns of $G$ (from left to right) and their corresponding columns on the right-hand side correspond to sequential applications of \ac{DeePC} with $f=1$ to the same matrix of sufficiently persistently exciting past input-output data on the left-hand side as well as time-shifted windows of input-output data on the right-hand side that encode information on successive initial states.
-% \begin{figure}[b!]
-% 	\centering
-% 	\includegraphics[trim={0.0cm 0.1cm 0.0cm 0.0cm},clip,width=8.4cm]{docs/manuscript/figures/intervals_DeePC.pdf}%[trim={0.0cm 0.0cm 0.0cm 0.0cm},clip,scale=1.0][trim={0.5cm 0.8cm 0.8cm 0.3cm},clip,width=8.4cm]
-% 	\caption{Past data from the green ($\datavec{u}{i,\bar{N}},\datavec{y}{i,\bar{N}}$) and blue ($\datavec{u}{\hat{i},p},\datavec{y}{\hat{i},p}$) intervals, shown overlapping as with fully adaptive implementations (for which $i+\bar{N}=\hat{i}_p$), is used to form an output predictor for the black, dashed future prediction window of length $f$. \ac{CL-DeePC} can employ more sample trajectories $N$ of the green window than \ac{DeePC} because its sample trajectories are shorter (due to a shorter prediction window length $f_\mathrm{ID}$ that is used implicitly for identification).}
-% 	\label{fig:intervals_DeePC}
-% \end{figure}
+To explain how sequential application of a one step-ahead predictor is used in \ac{CL-DeePC} consider Fig.~\ref{fig:CL-DeePC} and Fig.~\ref{fig:regular-DeePC}, which respectively illustrate \ac{CL-DeePC} and \ac{DeePC} formulations without \ac{IVs}. Colors differentiate between known data (black) and unknown optimization variables (red). Each dot represents either an input ${u_k\in\mathbb{R}^r}$, output ${y_k\in\mathbb{R}^l}$, or element of the matrix $G$ (in \ac{CL-DeePC}) or vector $g$ (in \ac{DeePC}). A one-step ahead predictor can be obtained from \ac{DeePC} with $f=1$ in \eqref{eq:regular_DeePC_no_IVs}. In \ac{CL-DeePC} the successive columns of $G$ ($g_1$ to $g_f$ in \eqref{eq:CL_DeePC_no_IVs}) and their corresponding columns on the right-hand side correspond to sequential applications of \ac{DeePC} with $f=1$ to the same matrix of known sufficiently persistently exciting past input-output data on the left-hand side. On the right hand side, each successive column in \ac{CL-DeePC} (from left to right) contains inputs and outputs from a time window that is shifted a single sample further into the future. This results in a composition of block-Hankel matrices with the dashed block-anti-diagonals containing the same input or output (prediction). As the window of data represented by consecutive columns shifts further into the future the proportion of known past data in black naturally decreases.
+%
+%Fig.~\ref{fig:CL-DeePC} and \eqref{eq:CL_DeePC_no_IVs} illustrate how this idea is employed in \ac{CL-DeePC}. A one step-ahead predictor can be obtained from \ac{DeePC} (see Fig.~\ref{fig:regular-DeePC} and \eqref{eq:regular_DeePC_no_IVs}) with $f=1$. In \ac{CL-DeePC} the successive columns of $G$ (from left to right) and their corresponding columns on the right-hand side correspond to sequential applications of \ac{DeePC} with $f=1$ to the same matrix of sufficiently persistently exciting past input-output data on the left-hands side. Time-shifted windows of input-output data on the right-hand side encode information on successive initial states.
 \subsection{Main result}
 \noindent To ensure that \ac{CL-DeePC} employs a consistent output predictor the following main result of this article concerns a modification of \eqref{eq:CL_DeePC_no_IVs} that makes use of \ac{IVs}.
 \begin{figure}[b!]
@@ -22,7 +18,7 @@ Fig.~\ref{fig:CL-DeePC} and \eqref{eq:CL_DeePC_no_IVs} illustrate how this idea 
 \begin{figure}[b!]
 \centering
 \input{tikzpictures/regular_DeePC}
-\caption{Visualization of known (black) and unknown (red) variables in \ac{DeePC} without \ac{IVs}. Each dot represents an input $u_k\in\mathbb{R}^r$, output $y_k\in\mathbb{R}^l$, or element of the matrix $G$. A multi-step ahead predictor of prediction length $f$ is formed directly by taking a linear combination of past input and output data.\\\vspace{0.75mm}}
+\caption{Visualization of known (black) and unknown (red) variables in \ac{DeePC} without \ac{IVs}. Each dot represents an input $u_k\in\mathbb{R}^r$, output $y_k\in\mathbb{R}^l$, or element of the vector $g$. A multi-step ahead predictor of prediction length $f$ is formed directly by taking a linear combination of past input and output data.\\\vspace{0.75mm}}
 \label{fig:regular-DeePC}
 \end{figure}
 %

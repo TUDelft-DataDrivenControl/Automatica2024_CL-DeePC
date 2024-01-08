@@ -23,7 +23,7 @@
     
     % grid lines for guidance
     % \draw[gray,step=0.5] (-0,-3) grid (8,3);
-
+    % ==========================================================================================================================================
     % ======================= drawing data matrix =======================
     \path (0,-\onelen) coordinate (M1A);
     \path ([xshift=\Nlen]M1A) coordinate (M1B);
@@ -100,6 +100,7 @@
     % dividers
     \foreach \x in {1,...,7}{\draw[line width=0.1pt] ([xshift=\x*\onelen]M2A) -- ([xshift=\x*\onelen]M2D);}
 
+    % ------------------------------------------------------------------
     % drawing middle brace and matrix
     \coordinate (Brace2L) at ([xshift=-0.5\BrIn]M2A |- Brace1L);
     \coordinate (Brace2R) at ([xshift=0.5\BrIn]M2B |- Brace1L);
@@ -249,8 +250,9 @@
     % % Zf
     % \node (Zf) at ($(Brace3T)!0.2!(Brace3B) + (3pt,-1.5pt)$) {};
     % \node[right,text=gray!100] at ([yshift=-0.18cm]Zf.center) {\scriptsize{\shortstack{$=$\\$\Psi_{\hat{i},1,f}$}}};
-    
-    % ======================= length indicators ======================= 
+
+    % ==========================================================================================================================================
+    % ======================= length indicators ================================================================================================
     \draw[|-|] ([yshift=\onelen]M1D) -- node[above] {\scriptsize$N$} ([yshift=\onelen]M1C);
     \draw[|-|] ([yshift=\onelen]M2D) -- node[above] {\scriptsize$f$} ([yshift=\onelen]M2C);
     \draw[|-|] ([yshift=\onelen]M3D) -- node[above] {\scriptsize$f$} ([yshift=\onelen]M3C);
