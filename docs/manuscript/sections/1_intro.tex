@@ -1,4 +1,4 @@
-\section{Introduction}
+\section{Introduction}\label{sec:introduction}
 \noindent Trends of increasing data availability as well as increasing system complexity provide opportunities for data driven-driven control%make a compelling case for data-driven control methods as an alternative to model-based approaches
 ~\citep{Hou2013}. In sharp contrast to the use of data in %Whilst data can be used with
 indirect data-driven approaches to synthesise a model by means of system identification, direct data-driven control approaches are promising because of their ability to derive a control law directly from data without having to realize an explicit system model as an often expensive intermediate step~\citep{Hjalmarsson2005}.
@@ -24,9 +24,9 @@ To this end, the main contributions of this article are:
 \begin{enumerate}%
 \item to formally establish \acf{CL-DeePC} as a new behavioural data-driven predictive control method, \label{contribution:develop_CL_DeePC}
 % \item the evaluation of different possible \ac{CL-DeePC} implementations,
+\item to incorporate \ac{IVs} in \ac{CL-DeePC} as a systematic noise-mitigation technique, \label{contribution:incorporate_IVs}
 \item to show that \ac{CL-DeePC} solves the closed-loop identification problem that arises in the presence of feedback and noise by the sequential application of a step-ahead predictor, \label{contribution:solves_CL_issue}
-\item to incorporate \ac{IVs} in \ac{CL-DeePC} as a systematic noise-mitigation technique,
-\item to establish an equivalence between the developed \ac{CL-DeePC} algorithm and \ac{CL-SPC},
+\item to present a computationally efficient \ac{CL-DeePC} implementation that reveals an equivalence between \ac{CL-DeePC} and \ac{CL-SPC},
 \item to show the superior performance of \ac{CL-DeePC} compared to \ac{DeePC} in a simulation example.
 \end{enumerate}
 % 
