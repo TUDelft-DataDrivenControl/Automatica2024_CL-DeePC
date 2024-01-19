@@ -111,7 +111,7 @@ fig6=gcf;
 set(fig6,'Color','w');
 cd(fullfile('..','..','..','results','figures'))
 matches = regexp(dirname,'Varying_Nbar_(\d+-\d+-\d+)_p_(.*)','tokens','once');
-figname = append('Consistency_Nbar_',num2str(Nbar),'_p_',matches{2},'.pdf');
+figname = append('Consistency_Nbar_',matches{1},'_p_',matches{2},'.pdf');
 exportgraphics(fig6,figname,'ContentType','vector');
 cd(main_dir);
 
