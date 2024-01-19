@@ -70,7 +70,7 @@ parfor kn = 1:num_n
 end
 %%
 color = {[220,50,32]/256,[0,90,181]/256,[0.4660, 0.6740, 0.1880]};%{'#DC3220','#005AB5'};
-fig2 = figure('Units', 'pixels', 'pos', [80 80 680 680],'color','white','Visible', 'on');
+fig2 = figure('Units', 'pixels', 'pos', [80 80 680 450],'color','white','Visible', 'on');
 set(fig2,'Units','centimeters');
 pos2 = get(fig2,'Position');
 width2 = 8.4*1.5;
@@ -118,12 +118,12 @@ ytickformat('%.0e');
 change_yticks(gca);
 % h = gca; h.YScale = 'log';
 
-xlabel('$\bar{N}$','Interpreter','latex','FontSize',12);
+xlabel('$\bar{N}$','Interpreter','latex','FontSize',13);
 % ylabel('$\bar{J}$','Interpreter','latex','FontSize',12);
-ylabel('$\sqrt{\frac{\overline{(y_k-r_k)^2}}{\overline{r_k^2}}}$','Interpreter','latex','FontSize',14);
-title(append('$\sigma^2(e_k)=',num2str(Re),'$, ',...
-      ...'$\sigma^2(d^\mathrm{u}_k)=',num2str(Rdu),'$, ',...
-      '$p=',num2str(p),'$, $f=',num2str(f),'$'),'Interpreter','latex','FontSize',12);
+ylabel('$J_\mathrm{rms}$','Interpreter','latex','FontSize',13);
+title(append('$\Sigma(e_k)=',num2str(Re),'$, ',...
+      ...'$\Sigma(d^\mathrm{u}_k)=',num2str(Rdu),'$, ',...
+      '$p=',num2str(p),'$, $f=',num2str(f),'$'),'Interpreter','latex','FontSize',13);
 
 %% Helper functions
 

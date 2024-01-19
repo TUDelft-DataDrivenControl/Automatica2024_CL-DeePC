@@ -55,25 +55,31 @@ max_costs = cellfun(@max,results.Cost(:,1));
 [~,idx_sorted] = sort(max_costs,'descend');
 k_e = idx_sorted(1);
 % analysis_plots;
+color = {[220,50,32]/256,[0,90,181]/256,[0.4660, 0.6740, 0.1880]};
 
-fig4 = figure();
+fig4 = figure('Units', 'pixels', 'pos', [80 80 680 450],'color','white','Visible', 'on');
 ax1 = axes(fig4);
-plot(ax1,results.y_CL{k_e,1}.'); hold on;
-plot(ax1,results.y_CL{k_e,2}.');
-plot(ax1,results.y_CL{k_e,3}.');
-plot(ax1,results.ref);
-legend(ax1,'DeePC','CL-DeePC','oracle','reference','Interpreter','latex');
-ylabel(ax1,'$y_k$','Interpreter','latex','FontSize',12);
+set(fig4,'Units','centimeters');
+pos4 = get(fig4,'Position');
+width4 = 8.4*1.5;
+scale4 = width4/pos4(3);
+set(fig4,'Position',[pos4(1:2),width4,scale4*pos4(4)])
+plot(ax1,results.y_CL{k_e,1}.','color',color{1}); hold on;
+plot(ax1,results.y_CL{k_e,2}.','color',color{2});
+plot(ax1,results.y_CL{k_e,3}.','color',color{3});
+plot(ax1,results.ref,'k');
+legend(ax1,'DeePC','CL-DeePC','oracle','reference','Interpreter','latex','FontSize',10);
+ylabel(ax1,'$y_k$','Interpreter','latex','FontSize',13);
 grid on;
 xlim(ax1,[0 length(results.ref)]);
 ylim(ax1,[-70 450]);
 xline(ax1,results.Nbar+0.5,HandleVisibility='off')
-xlabel(ax1,'Time index $k$','Interpreter','latex','FontSize',12);
+xlabel(ax1,'Time index $k$','Interpreter','latex','FontSize',13);
 title_str = append('$\bar{N}=',num2str(results.Nbar),'$, ',...
-      '$\sigma^2(e_k)=',num2str(results.Re),'$, ',...
-      ...'$\sigma^2(d^\mathrm{u}_k)=',num2str(results.Rdu),'$, ',...
+      '$\Sigma(e_k)=',num2str(results.Re),'$, ',...
+      ...'$\Sigma(d^\mathrm{u}_k)=',num2str(results.Rdu),'$, ',...
       '$p=',num2str(results.p),'$, $f=',num2str(results.f),'$');
-title(title_str,'Interpreter','latex','FontSize',12);
+title(title_str,'Interpreter','latex','FontSize',13);
 set(fig4,'Color','w');
 
 desc_str1 = regexp(fn,'(.*)\.mat$','tokens','once'); desc_str1 = desc_str1{1};

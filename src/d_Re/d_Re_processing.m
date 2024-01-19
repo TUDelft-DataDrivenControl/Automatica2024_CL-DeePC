@@ -74,7 +74,7 @@ parfor kn = 1:num_n
 end
 %%
 color = {[220,50,32]/256,[0,90,181]/256,[0.4660, 0.6740, 0.1880]};
-fig1 = figure('Units', 'pixels', 'pos', [80 80 680 680],'color','white','Visible', 'on');
+fig1 = figure('Units', 'pixels', 'pos', [80 80 680 450],'color','white','Visible', 'on');
 set(fig1,'Units','centimeters');
 pos1 = get(fig1,'Position');
 width1 = 8.4*1.5;
@@ -118,12 +118,12 @@ grid on; box on;
 % ytickformat('%.0e');
 % change_yticks(gca);
 
-xlabel('$\sigma^2(e_k)$','Interpreter','latex','FontSize',12);
+xlabel('$\Sigma(e_k)$','Interpreter','latex','FontSize',13);
 % ylabel('$\bar{J}$','Interpreter','latex','FontSize',12);
-ylabel('$\sqrt{\frac{\overline{(y_k-r_k)^2}}{\overline{r_k^2}}}$','Interpreter','latex','FontSize',14);
+ylabel('$J_\mathrm{rms}$','Interpreter','latex','FontSize',13);
 title(append('$\bar{N}=',num2str(Nbar),'$, ',...
       ...'$\sigma^2(d^\mathrm{u}_k)=',num2str(Rdu),'$, ',...
-      '$p=',num2str(p),'$, $f=',num2str(f),'$'),'Interpreter','latex','FontSize',12);
+      '$p=',num2str(p),'$, $f=',num2str(f),'$'),'Interpreter','latex','FontSize',13);
 
 %% Helper functions
 

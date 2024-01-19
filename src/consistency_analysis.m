@@ -86,7 +86,13 @@ end
 %% Plotting
 
 color = {[220,50,32]/256,[0,90,181]/256,[0.4660, 0.6740, 0.1880]};%{'#DC3220','#005AB5'};
-figure('color','white','Visible','on');
+fig6 = figure('Units', 'pixels', 'pos', [80 80 680 450],'color','white','Visible', 'on');
+set(fig6,'Units','centimeters');
+pos6 = get(fig6,'Position');
+width6 = 8.4*1.5;
+scale6 = width6/pos6(3);
+set(fig6,'Position',[pos6(1:2),width6,scale6*pos6(4)])
+% figure('color','white','Visible','on');
 % figure('Units', 'pixels', 'pos', [80 80 680 680],'color','white','Visible', 'on');
 % TL = tiledlayout(fig6,1,1,'TileSpacing','tight');
 % ax = cell(1,3);
@@ -127,10 +133,10 @@ for k_et = 3%1:3 % error type
     plot(Nbar_all,eLGq_CL2(:,idx_median), Color=color{2},LineWidth=1.5);
     plot(Nbar_all,eLGm_CL2,Color=color{2},  LineStyle='--',LineWidth=1.5);
     grid on;
-    xlabel('$\bar{N}$','Interpreter','latex','FontSize',12);
-    ylabel(ylab,'Interpreter','latex','FontSize',12);
+    xlabel('$\bar{N}$','Interpreter','latex','FontSize',13);
+    ylabel(ylab,'Interpreter','latex','FontSize',13);
     xlim([50 ceil(Nbar_all(end)/50)*50]);
 %     title(title_str,'Interpreter','latex','FontSize',14);
-    legend({'DeePC (median)','DeePC (mean)','CL-DeePC (median)','CL-DeePC (mean)'},'Interpreter','latex','FontSize',12);
+    legend({'DeePC (median)','DeePC (mean)','CL-DeePC (median)','CL-DeePC (mean)'},'Interpreter','latex','FontSize',10);
     h = gca; h.YScale = 'log';
 end

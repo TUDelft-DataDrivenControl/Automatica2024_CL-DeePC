@@ -137,7 +137,7 @@ end % of loop over k_e
 %% plotting correlations
 maxval1=max(cellfun(@(x) max(abs(x),[],'all'),EUcorr_avg_all),[],'all');
 % maxval2=max(cellfun(@(x) max(abs(x),[],'all'),EYcorr_avg_all),[],'all');
-fig5=figure('Units', 'pixels', 'pos', [80 80 1080 800],'color','white','Visible', 'on');
+fig5=figure('Units', 'pixels', 'pos', [80 80 680 450],'color','white','Visible', 'on');%1080 800
 set(fig5,'Units','centimeters');
 pos5 = get(fig5,'Position');
 width5 = 8.4*1.5;
@@ -153,8 +153,8 @@ for k_c = 1:2
     end
     ax{k_c}=nexttile;
     imagesc(EUcorr_avg_all{k_c}); set(gca, 'YDir','reverse'); colormap(gca,Cmap); caxis(gca,[-maxval1 maxval1]); if k_c==2; colorbar(gca);end
-    title(method_str,'Interpreter','latex','FontSize',12);
-    ylabel('Row index','Interpreter','latex','FontSize',12); xlabel('Column index','Interpreter','latex','FontSize',12);
+    title(method_str,'Interpreter','latex','FontSize',13);
+    ylabel('Row index','Interpreter','latex','FontSize',13); xlabel('Column index','Interpreter','latex','FontSize',13);
     grid on; if k_c==2; yticks(1); end
     xline(ax{k_c},p*nu+0.5,'LineWidth',1.5);
 %     subplot(1,2,2)
@@ -162,7 +162,7 @@ for k_c = 1:2
 %     title({'Correlation matrix', append('$E_{i_p,',f_str,',N}Y_{i,p,N}^\top/N$')},'Interpreter','latex','FontSize',12);
 %     ylabel('Row index','Interpreter','latex','FontSize',12); xlabel('Column index','Interpreter','latex','FontSize',12);
 end
-sgtitle(fig5,{'Average noise-input correlation matrix',append('$E_{i_p,f_\mathrm{ID},N}\left[U_{i,p,N}^\top\;\Big| U_{i_p,f_\mathrm{ID},N}^\top\right]/N$, $p=f=',num2str(p),'$, $\bar{N}=',num2str(Nbar),'$')},'Interpreter','latex','FontSize',12);
+sgtitle(fig5,{'Average input-noise correlation matrix',append('$E_{i_p,f_\mathrm{ID},N}\left[U_{i,p,N}^\top\;\Big| U_{i_p,f_\mathrm{ID},N}^\top\right]$, $p=f=',num2str(p),'$, $\bar{N}=',num2str(Nbar),'$')},'Interpreter','latex','FontSize',13);
 %% helper functions
 function [Efid,Upfid,Yp]=get_HankelMats(eCL,uCL,yCL,p,s,nu,ny) %s{k_c},N{k_c}
     Nbar = length(eCL);

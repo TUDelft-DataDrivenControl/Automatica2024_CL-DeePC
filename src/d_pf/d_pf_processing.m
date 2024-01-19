@@ -70,7 +70,7 @@ parfor kn = 1:num_n
 end
 %%
 color = {[220,50,32]/256,[0,90,181]/256,[0.4660, 0.6740, 0.1880]};%{'#DC3220','#005AB5'};
-fig3 = figure('Units', 'pixels', 'pos', [80 80 680 680],'color','white','Visible', 'on');
+fig3 = figure('Units', 'pixels', 'pos', [80 80 680 450],'color','white','Visible', 'on');
 set(fig3,'Units','centimeters');
 pos3 = get(fig3,'Position');
 width3 = 8.4*1.5;
@@ -102,9 +102,9 @@ if num_c > 2
 else
     leg = legend('DeePC (median)','DeePC (mean)','CL-DeePC (median)','CL-DeePC (mean)');%,'ideal: $\sigma(e_k)/\sqrt{\overline{r_k^2}}$');
 end
-set(leg,'Interpreter','latex','Location','northwest','FontSize',10);
+set(leg,'Interpreter','latex','Location','northwest','ItemTokensize',13*ones(6,1),'FontSize',10); %use ItemTokensize to shorten legend lines
+legpos = leg.Position;set(leg,'Position',[legpos(1:2) legpos(3)-0.02 legpos(4)]); % moves figure to the left a bit
 grid on
-
 % setting ticks based on y limits
 % y_lim = ylim; 
 % tickmarks = get_ticks(y_lim);
@@ -114,12 +114,12 @@ grid on
 % change_yticks(gca);
 h =gca; h.YScale = 'log';
 
-xlabel('$f(=p)$','Interpreter','latex','FontSize',12);
+xlabel('$f(=p)$','Interpreter','latex','FontSize',13);
 % ylabel('$\bar{J}$','Interpreter','latex','FontSize',12);
-ylabel('$\sqrt{\frac{\overline{(y_k-r_k)^2}}{\overline{r_k^2}}}$','Interpreter','latex','FontSize',14);
+ylabel('$J_\mathrm{rms}$','Interpreter','latex','FontSize',13);
 title(append('$\bar{N}=',num2str(Nbar),'$, ',...
       ...'$\sigma^2(d^\mathrm{u}_k)=',num2str(Rdu),'$, ',...
-      '$\sigma^2(e_k)=',num2str(Re),'$'),'Interpreter','latex','FontSize',12);
+      '$\Sigma(e_k)=',num2str(Re),'$'),'Interpreter','latex','FontSize',13);
 
 %% Helper functions
 
