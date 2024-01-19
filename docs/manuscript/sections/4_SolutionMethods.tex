@@ -1,13 +1,21 @@
-\section{Efficient sequential \acs{CL-DeePC}}\label{sec:Sequential}
-\noindent Having demonstrated the consistency of \ac{CL-DeePC} theoretically in the previous section, this section presents an efficient implementation method w.r.t. the number of independent optimization variables.
+\section{Computationally efficient \acs{CL-DeePC}}\label{sec:Sequential}
+\noindent This section presents an implementation of~\eqref{eq:TheoremIV} that reduces the number of optimization variables to improve the computational efficiency of \ac{CL-DeePC}, thus providing part of contribution~4.
+%
+%Having demonstrated the consistency of \ac{CL-DeePC} theoretically in the previous section, this section presents an efficient implementation method w.r.t. the number of independent optimization variables.
 
-The use of such an efficient method can be understood by comparing the number of independent optimization variables (in red) in respectively Fig.~\ref{fig:CL-DeePC} and Fig.~\ref{fig:regular-DeePC}. Both with and without \ac{IVs}, the number of such independent optimization variables used in \ac{CL-DeePC} scales worse with $f$ than is the case for \ac{DeePC}. This is inherent to the formulation depicted by Fig.~\ref{fig:CL-DeePC} whereby multiple vectors $g_{(\cdot)}$ are used.
+The use of such an efficient method can be understood by comparing the number of (unequal) optimization variables (in red) in respectively Fig.~\ref{fig:CL-DeePC} and Fig.~\ref{fig:regular-DeePC}. Both with and without \ac{IVs}, the number of such independent optimization variables used in \ac{CL-DeePC} scales worse with $f$ than is the case for \ac{DeePC}. This is inherent to the formulation depicted by Fig.~\ref{fig:CL-DeePC} whereby multiple vectors $g_{(\cdot)}$ are used.
 
-Alternatively, one may exploit the sequential nature of \ac{CL-DeePC} as shown by the columns of \eqref{eq:Yfhat_1}. For columns indexed by $k\in[\hat{i}_p,\hat{i}_p+f)$ this obtains
+As a first step to reduce the number of optimization variables, in line with Remark~\ref{rem:square_min_opt_var}, consider only choices of $\mathcal{Z}$ that render $\Psi_{i,1,N}\mathcal{Z}^\top$ square and invertible. Using~\eqref{eq:G_sols}, the predictor of~\eqref{eq:TheoremIV} may then be written as
+\begin{align}\label{eq:Yfhat_1}
+\widehat{Y}_{\hat{i},1,f}^\mathrm{IV}=\hat{\Sigma}_{yz}\hat{\Sigma}_{\psi z}\inv\overline{\Psi}_{\hat{i},1,f},
+\end{align}
+with $\hat{\Sigma}_{yz}=Y_{i_p,1,f}\mathcal{Z}^\top$, $\hat{\Sigma}_{\psi z}=\Psi_{i,1,N}\mathcal{Z}^\top$.
+
+The sequential nature of \ac{CL-DeePC} can be exploited by the subsequent columns of $\overline{\Psi}_{\hat{i},1,f}$ in \eqref{eq:Yfhat_1}. For columns indexed by $k\in[\hat{i}_p,\hat{i}_p+f)$ this obtains
 \begin{align}\label{eq:yhat_k}
     \hat{y}_{k} = \begin{bmatrix} \tilde{\beta}_1 & \cdots & \tilde{\beta}_{p+1} \end{bmatrix} \datavec{u}{k-p,p+1} + \begin{bmatrix} \tilde{\theta}_1 & \cdots & \tilde{\theta}_{p} \end{bmatrix} \datavec{\overline{y}}{k-p,p},% \qquad \forall k\in[\hat{i}_p,\hat{i}_p+f)
 \end{align}
-in which $\tilde{\beta}_j\in\mathbb{R}^{l\times r}$, and $\tilde{\theta}_j\in\mathbb{R}^{l\times l}$ are determined from $Y_{i_p,1,f}\mathcal{Z}^\top\left(\Psi_{i,1,N}\mathcal{Z}^\top\right)\inv$ in \eqref{eq:Yfhat_1}. Sequential application of the step-ahead predictor \eqref{eq:yhat_k} leads to
+in which $\tilde{\beta}_j\in\mathbb{R}^{l\times r}$, and $\tilde{\theta}_j\in\mathbb{R}^{l\times l}$ are determined from $\hat{\Sigma}_{yz}\hat{\Sigma}_{\psi z}\inv$ in \eqref{eq:Yfhat_1}. Sequential application of the one-step-ahead predictor \eqref{eq:yhat_k} leads to
 \begin{align}\label{eq:Sequential1}
     \datavec{\hat{y}}{\hat{i}_p,f} &=
     \begin{bmatrix}
@@ -83,9 +91,9 @@ in which $\mathcal{L}^\mathrm{u}_f$, $\mathcal{G}^\mathrm{u}_f$, and $\mathcal{L
     \end{bmatrix}.
 \end{align}
 The lower-block-triangular structure of $\widetilde{\mathcal{G}}^\mathrm{y}_f$ guarantees the invertibility of ${I_{fl}-\widetilde{\mathcal{G}}^\mathrm{y}_f}$ such that, \eqref{eq:Sequential3} can be solved directly %for $\big[\mathcal{L}^\mathrm{u}_f \; \mathcal{G}^\mathrm{u}_f \; \mathcal{L}^\mathrm{y}_f\big]$ 
-to construct the predictor \eqref{eq:Sequential2}. Alternatively, an efficient sequential procedure is also possible to solve \eqref{eq:Sequential3} that exploits the structure of $I_{fl}-\widetilde{\mathcal{G}}^\mathrm{y}_f$.
+to construct the predictor \eqref{eq:Sequential2}.
 
-For this sequential procedure, define the $f$ block-rows of $\big[\widetilde{\mathcal{L}}^\mathrm{u}_f \; \widetilde{\mathcal{G}}^\mathrm{u}_f \; \widetilde{\mathcal{L}}^\mathrm{y}_f\big]$ and $\big[\mathcal{L}^\mathrm{u}_f \; \mathcal{G}^\mathrm{u}_f \; \mathcal{L}^\mathrm{y}_f\big]$ by respectively $\tilde{\alpha}_j$, ${\alpha_j\in\mathbb{R}^{l\times p(r+l)+fr}}$, with $j$ here representing the index of the block row: $j=0,1,\dots,f-1$. It is then straightforward to show from \eqref{eq:Sequential3} that the formulation
+However, an efficient sequential procedure is also possible to solve \eqref{eq:Sequential3} that exploits the structure of ${I_{fl}-\widetilde{\mathcal{G}}^\mathrm{y}_f}$. For this sequential solution procedure, define the $f$ block-rows of $\big[\widetilde{\mathcal{L}}^\mathrm{u}_f \; \widetilde{\mathcal{G}}^\mathrm{u}_f \; \widetilde{\mathcal{L}}^\mathrm{y}_f\big]$ and $\big[\mathcal{L}^\mathrm{u}_f \; \mathcal{G}^\mathrm{u}_f \; \mathcal{L}^\mathrm{y}_f\big]$ by respectively $\tilde{\alpha}_j$, ${\alpha_j\in\mathbb{R}^{l\times p(r+l)+fr}}$, with $j$ here representing the index of the block row: $j=0,1,\dots,f-1$. It is then straightforward to show from \eqref{eq:Sequential3} that the formulation
 \begin{align}\label{eq:Sequential4}
     \alpha_j=
     \left\{\begin{array}{ll}
