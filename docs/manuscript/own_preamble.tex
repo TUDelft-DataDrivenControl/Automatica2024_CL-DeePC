@@ -3,7 +3,9 @@
 \usepackage[nolist]{acronym}    % required for \acro
 \usepackage{amssymb} % for some math symbols like \because
 
-\usepackage{natbib} % for bibliography & references
+\usepackage[backend=bibtex,style=elsarticle-harv]{biblatex}
+\addbibresource{docs/manuscript/autosam.bib}
+% \usepackage{natbib} % for bibliography & references
 
 \usepackage{empheq} % for subequations of systems with bracket for system description
 
@@ -13,6 +15,7 @@
 
 \usepackage{subcaption} % for subfigures
 \usepackage{wrapfig}
+
 % \usepackage{placeins} % for \FloatBarrier to position floats
 
 \setlength\parindent{24pt}
