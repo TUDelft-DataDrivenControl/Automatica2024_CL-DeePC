@@ -102,9 +102,9 @@ Furthermore, the expectation of a variable with a stochastic component is denote
 
 In addition, the well-posedness of a closed-loop system is defined as follows.
 \begin{defn}\citep{VanOverschee1997a}
-    A closed-loop system composed of an \ac{LTI} plant and controller with respectively direct-feedthrough matrices $D$ and $D_\mathrm{c}$ is well-posed if $I_l+DD_\mathrm{c}$ is invertible.
+    A closed-loop system with \ac{LTI} plant and controller is well-posed if the output is uniquely determined by the states of the controller and the plant.
 \end{defn}
-
+A practical sufficient condition for well-posedness is that either the controller or plant lacks direct feedthrough.
 % 
 % ==============================================================================================================================================================
 % ==============================================================================================================================================================
