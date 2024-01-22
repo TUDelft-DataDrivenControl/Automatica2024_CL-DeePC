@@ -49,7 +49,7 @@ in which ${\hat{\Sigma}_{\psi z}=\Psi_{i,1,N}\mathcal{Z}^\top}$ and ${\hat{\Sigm
         \end{split}
     \end{align}
 \end{assum}
-For the system $\mathcal{S}$ from \secref{sec:sys_model} with $\rho=\max|\emph{eig}(\tilde{A})|<1$ this assumption ensures that errors due to mis-specification of the initial condition are $o_P(1/\sqrt{N})$ (and may therefore be neglected), and that sample correlations approach true correlations that are well-defined~\citep{Bauer2002,Chiuso2006}.
+For the system $\mathcal{S}$ from \secref{sec:sys_model} with $\rho<1$ this assumption ensures that errors due to mis-specification of the initial condition are $o_P(1/\sqrt{N})$ (and may therefore be neglected), and that sample correlations approach true correlations that are well-defined~\citep{Bauer2002,Chiuso2006}.
 
 \begin{assum}\label{assum:PE}
     The known past data matrix of the form $\Psi_{i,s,N}$, as defined by~\eqref{eq:Psi_def}, is full row rank.
@@ -93,7 +93,7 @@ where $\dagger$ indicates the Moore-Penrose pseudoinverse, ${\hat{\Pi}_{\psi z}^
 Lemma~\ref{lem:main_1} effectively indicates that the system of equations provided by~\eqref{eq:TheoremIV} is consistent provided that $\hat{\Sigma}_{\psi z}$ is full row rank. The following theorem concerns the consistency of the resulting output predictor when using data that has been collected in closed-loop.
 \setcounter{thm}{0}
 \begin{thm}\label{theorem:main_result_IVs}
-    Consider the minimal discrete \ac{LTI} system $\mathcal{S}$ from \secref{sec:sys_model} with $\rho=\max|\emph{eig}(\tilde{A})|<1$ to generate input-output data in a well-posed closed-loop configuration by means of a causal controller, known past data matrix $\Psi_{i,1,N}$ of full row rank by Assumption~\ref{assum:PE}, and partially-known data matrix $\overline{\Psi}_{\hat{i},1,f}$. Furthermore, let $p,N\rightarrow\infty$ as specified by Assumption~\ref{assum:relative-rates} and let ${\mathcal{Z}\in\mathbb{R}^{n_\mathrm{z}\times N}}$ satisfy Assumption~\ref{assum:IV_def}. Then the output predictor $\widehat{Y}_{\hat{i}_p,1,f}^\mathrm{IV}$ specified by~\eqref{eq:TheoremIV} is consistent:
+    Consider the minimal discrete \ac{LTI} system $\mathcal{S}$ from \secref{sec:sys_model} with $\rho<1$ to generate input-output data in a well-posed closed-loop configuration by means of a causal controller, known past data matrix $\Psi_{i,1,N}$ of full row rank by Assumption~\ref{assum:PE}, and partially-known data matrix $\overline{\Psi}_{\hat{i},1,f}$. Furthermore, let $p,N\rightarrow\infty$ as specified by Assumption~\ref{assum:relative-rates} and let ${\mathcal{Z}\in\mathbb{R}^{n_\mathrm{z}\times N}}$ satisfy Assumption~\ref{assum:IV_def}. Then the output predictor $\widehat{Y}_{\hat{i}_p,1,f}^\mathrm{IV}$ specified by~\eqref{eq:TheoremIV} is consistent:
     \begin{align}\label{eq:consistent}
     \lim_{\underset{\eqref{eq:relative_rates}}{p,N\rightarrow\infty}}\mathbb{E}\left[\widehat{Y}_{\hat{i}_p,1,f}^\mathrm{IV}-Y_{\hat{i}_p,1,f}\right]=0.
     \end{align}

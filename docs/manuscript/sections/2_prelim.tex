@@ -99,6 +99,12 @@ in which $k$ indicates the starting index, and $s$ and $q$ parameterize the dime
 %Moreover, the Moore-Penrose inverse is denoted by $(\cdot)^\dagger$. The specific cases in which it reduces to the left and right inverse are denoted by respectively $(\cdot)^{\dagger,\mathrm{l}}$ and $(\cdot)^{\dagger,\mathrm{r}}$.
 
 Furthermore, the expectation of a variable with a stochastic component is denoted by ${\mathbb{E}[\cdot]}$. For sequences of scalar random variables $a_N$ and $b_N$, ${a_N = o(b_N)}$ indicates that ${\lim_{N\rightarrow\infty}a_N/b_N=0}$. Likewise ${a_N=o_P(b_N)}$ stipulates that $\forall \delta > 0$, ${\lim_{N\rightarrow\infty}P[|a_N/b_N|>\delta]=0}$.
+
+In addition, the well-posedness of a closed-loop system is defined as follows.
+\begin{defn}\citep{VanOverschee1997a}
+    A closed-loop system composed of an \ac{LTI} plant and controller with respectively direct-feedthrough matrices $D$ and $D_\mathrm{c}$ is well-posed if $I_l+DD_\mathrm{c}$ is invertible.
+\end{defn}
+
 % 
 % ==============================================================================================================================================================
 % ==============================================================================================================================================================
