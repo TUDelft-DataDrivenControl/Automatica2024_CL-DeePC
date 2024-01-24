@@ -30,10 +30,10 @@ in which $\tilde{B}=B-KD$.
 %
 \subsection{Notation and definitions}\label{sec:notation}
 %Having described the different representations of the considered system,
-\noindent This section introduces some useful preliminary notation and definitions.
+\noindent This section introduces useful notation and definitions.
 %
 % To start, several strictly-positive integers are denoted by $s,q,p,f,N,\bar{N}\in\mathbb{Z}_{>0}$ and are frequently used to indicate window lengths. Throughout this article, time indices $i$, $\hat{i}$, $j$, and $k$, will be used together with the shorthand exemplified by $k_p=k+p$.
-Block-Toeplitz matrices are defined by
+Several block-Toeplitz matrices are defined by
 \begin{align}\label{eqn:blockToeplitz} 
 \mathcal{T}_s(\mathcal{A},\mathcal{B},\mathcal{C},\mathcal{D}) =\scriptsize{
 	\begingroup
@@ -101,10 +101,10 @@ in which $k$ indicates the starting index, and $s$ and $q$ parameterize the dime
 Furthermore, the expectation of a variable with a stochastic component is denoted by ${\mathbb{E}[\cdot]}$. For sequences of scalar random variables $a_N$ and $b_N$, ${a_N = o(b_N)}$ indicates that ${\lim_{N\rightarrow\infty}a_N/b_N=0}$. Likewise ${a_N=o_P(b_N)}$ stipulates that $\forall \delta > 0$, ${\lim_{N\rightarrow\infty}P[|a_N/b_N|>\delta]=0}$.
 
 In addition, the well-posedness of a closed-loop system is defined as follows.
-\begin{defn}\citep{VanOverschee1997a}
-    A closed-loop system with \ac{LTI} plant and controller is well-posed if the output is uniquely determined by the states of the controller and the plant.
+\begin{defn}\label{def:well-posedness}\citep{VanOverschee1997}
+    A closed-loop system composed of an \ac{LTI} plant and controller with respectively direct feedthrough matrices $D$ and $D_\mathrm{c}$ is well-posed if $I_l+DD_\mathrm{c}$ is invertible.
 \end{defn}
-A practical sufficient condition for well-posedness is that either the controller or plant lacks direct feedthrough.
+The outputs of a well-posed closed-loop system are uniquely defined by the reference and the states of the plant and controller. Note that a practical sufficient condition for well-posedness is that either $D=0$ or $D_\mathrm{c}=0$.
 % 
 % ==============================================================================================================================================================
 % ==============================================================================================================================================================

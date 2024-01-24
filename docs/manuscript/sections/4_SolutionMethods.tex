@@ -3,13 +3,27 @@
 %
 %Having demonstrated the consistency of \ac{CL-DeePC} theoretically in the previous section, this section presents an efficient implementation method w.r.t. the number of independent optimization variables.
 
-The use of such an efficient method can be understood by comparing the number of (unequal) optimization variables (in red) in respectively Fig.~\ref{fig:CL-DeePC} and Fig.~\ref{fig:regular-DeePC}. Both with and without \ac{IVs}, the number of such independent optimization variables used in \ac{CL-DeePC} scales worse with $f$ than is the case for \ac{DeePC}. This is inherent to the formulation depicted by Fig.~\ref{fig:CL-DeePC} whereby multiple vectors $g_{(\cdot)}$ are used.
+The use of such an efficient method can be understood by comparing the number of unknown, unequal optimization variables (in red) in Fig.~\ref{fig:CL-DeePC}, as summarized in Table~\ref{tab:unknowns} for the case with \ac{IVs}. Table~\ref{tab:unknowns} shows that for \ac{CL-DeePC} based on~\eqref{eq:TheoremIV} the influence of the number of unknowns in $G^\mathrm{IV}$ is quite large due to the relatively large minimum number of instruments $n_\mathrm{z}^\mathrm{min}$. To this end, this section will eliminate $G^\mathrm{IV}$ from the formulation provided by~\eqref{eq:TheoremIV}, considerably reducing the number of unknowns.
+% Both with and without \ac{IVs}, the number of such independent optimization variables used in \ac{CL-DeePC} scales worse with $f$ than is the case for \ac{DeePC}. This is inherent to the formulation depicted by Fig.~\ref{fig:CL-DeePC} whereby multiple vectors $g_{(\cdot)}$ are used.
 
-As a first step to reduce the number of optimization variables, in line with Remark~\ref{rem:square_min_opt_var}, consider only choices of $\mathcal{Z}$ that render $\Psi_{i,1,N}\mathcal{Z}^\top$ square and invertible. Using~\eqref{eq:G_sols}, the predictor of~\eqref{eq:TheoremIV} may then be written as
+\begin{table}[t!]
+    \centering
+    \begin{tabular}{rrrcc}
+        % Eq. &
+        $G^\mathrm{IV}$ & inputs & outputs & total & $n_\mathrm{z}^\mathrm{min}$\\\hline
+        % \eqref{eq:TheoremIV}  & 
+        $n_\mathrm{z}f$ & $fr$ & $fl$ & $f(r+l+n_\mathrm{z})$ & $p(r+l)+r$\\
+        % \eqref{eq:TheoremIV2} & $n_\mathrm{z}q$ & $qsr$ & $qsl$ & $q(s(r+l)+n_\mathrm{z})$ & $p(r+l)+sr$\\
+    \end{tabular}
+    \caption{Number of unequal unknowns in~\eqref{eq:TheoremIV} and their origin: $G^\mathrm{IV}$, inputs, and outputs. Full row rank of $\hat{\Sigma}_{\psi z}$ implies $n_\mathrm{z}\geq n_\mathrm{z}^\mathrm{min}$, which has a large influence on the total number of unknowns.}
+    \label{tab:unknowns}
+\end{table}
+
+In line with Remark~\ref{rem:square_min_opt_var}, we choose $\mathcal{Z}\in\mathbb{R}^{n_\mathrm{z}\times N}$ with $n_\mathrm{z}=n_\mathrm{z}^\mathrm{min}$ from Table~\ref{tab:unknowns} such that $\hat{\Sigma}_{\psi z}$ is square and invertible, and consequently,  ${G^\mathrm{IV} = \hat{\Sigma}_{\psi z}\inv\overline{\Psi}_{\hat{i},1,f}}$ by~\eqref{eq:G_sols}. Substituting this result for $G^\mathrm{IV}$ in~\eqref{eq:TheoremIV} yields
 \begin{align}\label{eq:Yfhat_1}
 \widehat{Y}_{\hat{i},1,f}^\mathrm{IV}=\hat{\Sigma}_{yz}\hat{\Sigma}_{\psi z}\inv\overline{\Psi}_{\hat{i},1,f},
 \end{align}
-with $\hat{\Sigma}_{yz}=Y_{i_p,1,f}\mathcal{Z}^\top$, $\hat{\Sigma}_{\psi z}=\Psi_{i,1,N}\mathcal{Z}^\top$.
+in which $\hat{\Sigma}_{yz}=Y_{i_p,1,f}\mathcal{Z}^\top$.
 
 The sequential nature of \ac{CL-DeePC} can be exploited by the subsequent columns of $\overline{\Psi}_{\hat{i},1,f}$ in \eqref{eq:Yfhat_1}. For columns indexed by $k\in[\hat{i}_p,\hat{i}_p+f)$ this obtains
 \begin{align}\label{eq:yhat_k}
@@ -90,10 +104,10 @@ in which $\mathcal{L}^\mathrm{u}_f$, $\mathcal{G}^\mathrm{u}_f$, and $\mathcal{L
         \widetilde{\mathcal{L}}^\mathrm{u}_f & \widetilde{\mathcal{G}}^\mathrm{u}_f & \widetilde{\mathcal{L}}^\mathrm{y}_f
     \end{bmatrix}.
 \end{align}
-The lower-block-triangular structure of $\widetilde{\mathcal{G}}^\mathrm{y}_f$ guarantees the invertibility of ${I_{fl}-\widetilde{\mathcal{G}}^\mathrm{y}_f}$ such that, \eqref{eq:Sequential3} can be solved directly %for $\big[\mathcal{L}^\mathrm{u}_f \; \mathcal{G}^\mathrm{u}_f \; \mathcal{L}^\mathrm{y}_f\big]$ 
+The block-lower-triangular structure of $\widetilde{\mathcal{G}}^\mathrm{y}_f$ guarantees the invertibility of ${I_{fl}-\widetilde{\mathcal{G}}^\mathrm{y}_f}$ such that, \eqref{eq:Sequential3} can be solved directly %for $\big[\mathcal{L}^\mathrm{u}_f \; \mathcal{G}^\mathrm{u}_f \; \mathcal{L}^\mathrm{y}_f\big]$ 
 to construct the predictor \eqref{eq:Sequential2}.
 
-However, an efficient sequential procedure is also possible to solve \eqref{eq:Sequential3} that exploits the structure of ${I_{fl}-\widetilde{\mathcal{G}}^\mathrm{y}_f}$. For this sequential solution procedure, define the $f$ block-rows of $\big[\widetilde{\mathcal{L}}^\mathrm{u}_f \; \widetilde{\mathcal{G}}^\mathrm{u}_f \; \widetilde{\mathcal{L}}^\mathrm{y}_f\big]$ and $\big[\mathcal{L}^\mathrm{u}_f \; \mathcal{G}^\mathrm{u}_f \; \mathcal{L}^\mathrm{y}_f\big]$ by respectively $\tilde{\alpha}_j$, ${\alpha_j\in\mathbb{R}^{l\times p(r+l)+fr}}$, with $j$ here representing the index of the block row: $j=0,1,\dots,f-1$. It is then straightforward to show from \eqref{eq:Sequential3} that the formulation
+An efficient sequential procedure is also possible to solve \eqref{eq:Sequential3} that exploits the structure of ${I_{fl}-\widetilde{\mathcal{G}}^\mathrm{y}_f}$. For this sequential solution procedure, define the $f$ block-rows of $\big[\widetilde{\mathcal{L}}^\mathrm{u}_f \; \widetilde{\mathcal{G}}^\mathrm{u}_f \; \widetilde{\mathcal{L}}^\mathrm{y}_f\big]$ and $\big[\mathcal{L}^\mathrm{u}_f \; \mathcal{G}^\mathrm{u}_f \; \mathcal{L}^\mathrm{y}_f\big]$ by respectively $\tilde{\alpha}_j$, ${\alpha_j\in\mathbb{R}^{l\times p(r+l)+fr}}$, with $j$ here representing the index of the block row: $j=0,1,\dots,f-1$. It is then straightforward to show from \eqref{eq:Sequential3} that the formulation
 \begin{align}\label{eq:Sequential4}
     \alpha_j=
     \left\{\begin{array}{ll}
@@ -102,4 +116,8 @@ However, an efficient sequential procedure is also possible to solve \eqref{eq:S
     \tilde{\alpha}_j + \sum\limits_{m=1}^{p}\tilde{\theta}_m\alpha_{m-p+j-1}, & \text{if } j \geq 1
     \end{array}\right.
 \end{align}
- allows efficient sequential construction of $\big[\mathcal{L}^\mathrm{u}_f \; \mathcal{G}^\mathrm{u}_f \; \mathcal{L}^\mathrm{y}_f\big]$ starting from $j=0$. From the subsequent section, it will become clear that $\mathcal{G}^\mathrm{u}_f$ is a causal block-Toeplitz matrix, meaning that the matrix is fully parameterized by its leftmost block column. As such one may choose to only solve this portion of $\mathcal{G}^\mathrm{u}_f$ in \eqref{eq:Sequential3} using \eqref{eq:Sequential4} and to complete the matrix $\mathcal{G}^\mathrm{u}_f$ thereafter.
+ allows efficient sequential construction of $\big[\mathcal{L}^\mathrm{u}_f \; \mathcal{G}^\mathrm{u}_f \; \mathcal{L}^\mathrm{y}_f\big]$ starting from $j=0$. 
+ 
+ With reference to~\eqref{eq:Sequential1} we note that $\widetilde{\mathcal{G}}^\mathrm{u}_f$ is block-lower-triangular, just like ${I_{fl}-\widetilde{\mathcal{G}}^\mathrm{y}_f}$. Hence, by~\eqref{eq:Sequential3}, $\mathcal{G}^\mathrm{u}_f$ will also be block-lower-triangular. This block-lower-triangular structure enforces causality of the predictor~\eqref{eq:Sequential2}. This is unlike \ac{DeePC}, as shown by the fact that equivalent \ac{SPC} methods do not enforce causality of the predictor.
+
+ In addition, from the subsequent section it will become clear that $\mathcal{G}^\mathrm{u}_f$ is not just block-lower-triangular, but also a block-Toeplitz matrix. This means that $\mathcal{G}^\mathrm{u}_f$ is fully parameterized by its leftmost block-column, allowing one to solve only for this part of $\mathcal{G}^\mathrm{u}_f$ in \eqref{eq:Sequential3} using \eqref{eq:Sequential4}. The complete matrix $\mathcal{G}^\mathrm{u}_f$ can then be constructed from its leftmost block-column thereafter.

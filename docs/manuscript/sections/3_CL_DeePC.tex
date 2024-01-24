@@ -1,5 +1,5 @@
 \section{Closed-loop Data-enabled Predictive Control}\label{sec:CL-DeePC}
-\noindent In this section, \ac{CL-DeePC} is developed, thereby providing contribution~1. After introducing the idea of sequential single-step-ahead predictors, \ac{IVs} are introduced to assure their consistency. Results are subsequently generalized to the sequential application of multi-step-ahead predictors, thereby providing contributions~2 and~3.
+\noindent In this section, \ac{CL-DeePC} is developed, thereby providing contribution~1. The fundamental idea of sequential single-step-ahead predictors is explained first before a rigorous exposition introduces \ac{IVs} to assure the consistency of these predictors. Results are subsequently generalized to the sequential application of multi-step-ahead predictors, thereby providing contributions~2 and~3.
 
 \subsection{Fundamental idea: sequential \ac{DeePC} with $f=1$}
 \begin{figure}[b!]
@@ -11,21 +11,25 @@
 \begin{figure}[b!]
 \centering
 \input{tikzpictures/regular_DeePC}
-\caption{Visualization of known (black) and unknown (red) variables in \ac{DeePC} without \ac{IVs}. Dots represent an input $u_k\in\mathbb{R}^r$, output $y_k\in\mathbb{R}^l$, or element of the vector $g$. An $f$-step-ahead predictor is formed directly by taking a linear combination of past input and output data.}%\\\vspace{0.75mm}}
+\caption{Visualization of known (black) and unknown (red) variables in \ac{DeePC} without \ac{IVs}. Dots represent an input $u_k\in\mathbb{R}^r$, output $y_k\in\mathbb{R}^l$, or element of the vector $g$. An $f$-step-ahead predictor is formed directly by taking a linear combination of past input and output data.}
 \label{fig:regular-DeePC}
 \end{figure}
 \noindent A solution to the identification bias that arises in closed-loop due to correlation between inputs and noise %(a demonstration thereof is deferred to Section~\ref{sec:CL_ID_issue})
-is the synthesis of a one-step-ahead predictor\footnote{This works for practical closed-loop systems with at least one sample delay~\citep{Ljung1996}, which are consequently also well-posed.}. For receding horizon optimal control settings with a typically more useful, larger prediction horizon ($f>1$), the described one-step-ahead predictor can be applied sequentially.
+is the synthesis of a one-step-ahead predictor\footnote{This works for practical closed-loop systems with at least one sample delay~\citep{Ljung1996}, which are consequently also well-posed by Definition~\ref{def:well-posedness}.}. For receding horizon optimal control settings with a typically more useful, larger prediction horizon ($f>1$), the described one-step-ahead predictor can be applied sequentially. \ac{CL-DeePC}, as visualized by Fig.~\ref{fig:CL-DeePC}, sequentially applies a single-step-ahead predictor that is based on \ac{DeePC}, which is shown by Fig.~\ref{fig:regular-DeePC}.
 
-To explain how sequential application of a one-step-ahead predictor may be used in \ac{CL-DeePC} consider Fig.~\ref{fig:CL-DeePC} and Fig.~\ref{fig:regular-DeePC}, which respectively illustrate \ac{CL-DeePC} and \ac{DeePC} formulations without \ac{IVs}. Colors differentiate between known data (black) and unknown optimization variables (red). Each dot represents either an input ${u_k\in\mathbb{R}^r}$, output ${y_k\in\mathbb{R}^l}$, or element of the matrix $G$ (in \ac{CL-DeePC}) or vector $g$ (in \ac{DeePC}). A one-step-ahead predictor can be obtained from \ac{DeePC} with $f=1$ in \eqref{eq:regular_DeePC_no_IVs}. In \ac{CL-DeePC} the successive columns of $G$ ($g_1$ to $g_f$ in \eqref{eq:CL_DeePC_no_IVs}) and their corresponding columns on the right-hand side correspond to sequential applications of \ac{DeePC} with $f=1$ to the same matrix of known sufficiently persistently exciting past input-output data on the left-hand side. On the right hand side, each successive column in \ac{CL-DeePC} contains inputs and outputs from a time window that is shifted a single sample further into the future. This results in a composition of block-Hankel matrices for which the dashed block-anti-diagonals contain the same input or output (prediction). As the window of data represented by consecutive columns shifts further into the future the amount of known past data (in black) naturally decreases and new unknown inputs and output predictions (in red) are introduced.
+To obtain a single-step-ahead predictor for sequential use, consider \ac{DeePC} as shown by Fig~\ref{fig:regular-DeePC} and~\eqref{eq:regular_DeePC_no_IVs}. Black dots represent known past inputs and outputs whilst red dots resemble unknown optimization variables, which are comprised of future inputs and output predictions and elements of the vector $g$. Known past data on the right hand side encodes information on an initial state, restricting the allowable set of vectors $g$ in~\eqref{eq:regular_DeePC_no_IVs}. Along the lines of Willems' Fundamental Lemma, future inputs and output predictions $\widehat{Y}_{\hat{i}_p,f,1}$ are parameterized by a linear combination $g$ of past input-output trajectories. As in~\eqref{eq:regular_DeePC_no_IVs} \ac{DeePC} thus provides a one-step-ahead predictor with $f=1$.
 
+\ac{CL-DeePC} and its sequential use of such one-step-ahead predictors is shown by Fig.~\ref{fig:CL-DeePC} and~\eqref{eq:CL_DeePC_no_IVs}. Successive vectors $g_k$ in $G$ take linear combinations of the same past data matrix on the left hand side, but parameterize input-output trajectories on the right hand side that are successively shifted by a single time step further into the future. The sequential application of a single-step-ahead predictor is apparent from the introduction by subsequent columns on the right hand side of a single unknown new input and output prediction. This results in the composition of block-Hankel matrices on the right hand side of~\eqref{eq:CL_DeePC_no_IVs}, as visualized by the dashed anti-diagonals.
+%
+%To explain how sequential application of a one-step-ahead predictor may be used in \ac{CL-DeePC} consider Fig.~\ref{fig:CL-DeePC} and Fig.~\ref{fig:regular-DeePC}, which respectively illustrate \ac{CL-DeePC} and \ac{DeePC} formulations without \ac{IVs}. Colors differentiate between known data (black) and unknown optimization variables (red). Each dot represents either an input ${u_k\in\mathbb{R}^r}$, output ${y_k\in\mathbb{R}^l}$, or element of the matrix $G$ (in \ac{CL-DeePC}) or vector $g$ (in \ac{DeePC}). A one-step-ahead predictor can be obtained from \ac{DeePC} with $f=1$ in \eqref{eq:regular_DeePC_no_IVs}. In \ac{CL-DeePC} the successive columns of $G$ ($g_1$ to $g_f$ in \eqref{eq:CL_DeePC_no_IVs}) and their corresponding columns on the right-hand side correspond to sequential applications of \ac{DeePC} with $f=1$ to the same matrix of known sufficiently persistently exciting past input-output data on the left-hand side. On the right hand side, each successive column in \ac{CL-DeePC} contains inputs and outputs from a time window that is shifted a single sample further into the future. This results in a composition of block-Hankel matrices for which the dashed block-anti-diagonals contain the same input or output (prediction). As the window of data represented by consecutive columns shifts further into the future the amount of known past data (in black) naturally decreases and new unknown inputs and output predictions (in red) are introduced.
+%
 %
 %Fig.~\ref{fig:CL-DeePC} and \eqref{eq:CL_DeePC_no_IVs} illustrate how this idea is employed in \ac{CL-DeePC}. A one-step-ahead predictor can be obtained from \ac{DeePC} (see Fig.~\ref{fig:regular-DeePC} and \eqref{eq:regular_DeePC_no_IVs}) with $f=1$. In \ac{CL-DeePC} the successive columns of $G$ (from left to right) and their corresponding columns on the right-hand side correspond to sequential applications of \ac{DeePC} with $f=1$ to the same matrix of sufficiently persistently exciting past input-output data on the left-hands side. Time-shifted windows of input-output data on the right-hand side encode information on successive initial states.
 \subsection{Noise mitigation using \acl{IVs}}
-\noindent The \ac{CL-DeePC} formulation that was introduced in the previous subsection mitigates the closed-loop identification issue that arises from correlation between inputs and noise. However, sampling of noise in the past data matrix by the columns of $G$ in~\eqref{eq:CL_DeePC_no_IVs} may, similarly to \ac{DeePC}, still lead to predictions of unattainable of input-output trajectories~\citep{Markovsky2023}. This necessitates further noise mitigation strategies. The strategy that is presented here incorporates \ac{IVs} in a similar fashion as in~\cite{vanWingerden2022}. 
+\noindent The \ac{CL-DeePC} formulation that was introduced in the previous subsection mitigates the closed-loop identification issue that arises from correlation between inputs and noise. However, sampling of noise in the past data matrix by the columns of $G$ in~\eqref{eq:CL_DeePC_no_IVs} may, similarly to \ac{DeePC}, still lead to predictions of unattainable of input-output trajectories~\citep{Markovsky2023}. This necessitates further noise mitigation strategies. The strategy that is presented here incorporates \ac{IVs} in a similar fashion as in~\citet{vanWingerden2022}. 
 
 \subsubsection{Desirable properties of \ac{IVs}}\label{sec:IV_props}
-\noindent As typically employed in estimation problems (like the one implicit to \ac{CL-DeePC}), \ac{IVs} are typically chosen so as to have two desirable properties that guarantee the consistency of the estimated quantity. In the context of this work, with sufficient persistently exciting data such that $\Psi_{i,1,N}$ is full row rank, these conditions on the \acs{IV} matrix $\mathcal{Z}\in\mathbb{R}^{n_\mathrm{z}\times N}$ are~\citep{Verhaegen2007a}
+\noindent As typically employed in estimation problems, \ac{IVs} are typically chosen to have two desirable properties that guarantee the consistency of the estimated quantity. Assuming sufficiently persistently exciting data such that $\Psi_{i,1,N}$ is full row rank, these conditions on the \acs{IV} matrix $\mathcal{Z}\in\mathbb{R}^{n_\mathrm{z}\times N}$ are~\citep{Verhaegen2007a}
 \begin{align}
 \text{rank}\Big(&\lim_{N\rightarrow\infty}\hat{\Sigma}_{\psi z}
 %\underbrace{\Psi_{i,1,N}\mathcal{Z}^\top}_{=\hat{\Sigma}_{\psi z}}
@@ -37,7 +41,7 @@ To explain how sequential application of a one-step-ahead predictor may be used 
 in which ${\hat{\Sigma}_{\psi z}=\Psi_{i,1,N}\mathcal{Z}^\top}$ and ${\hat{\Sigma}_{ez}=E_{i_p,1,N}\mathcal{Z}^\top}$ represent sample correlations that approach their respective true counterparts $\Sigma_{\psi z}$ and $\Sigma_{ez}$ in the limit $N\rightarrow\infty$. The former condition preserves the informativity of the employed data and the latter equation stipulates that the \acs{IV} is uncorrelated with noise.
 % ----------------------------------------------------------- Auxiliary results ---------------------------------------------------------------------------------------------
 \subsubsection{Assumptions}
-\noindent Before moving on to the main results of this work, three assumptions are presented.
+\noindent Before moving on to the main results of this work, three assumptions are presented. %The first assumption will be used to ensure consistent closed-loop estimation, thereby facilitating the synthesis of consistent predictors\footnote{With a consistent predictor we refer to a predictor that is asymptotically unbiased as $N\rightarrow\infty$.} that use such estimates.
 %\noindent Proof of Theorem~\ref{theorem:main_result_IVs} is deferred till after the following important auxiliary result.
 \setcounter{thm}{0}
 \begin{assum}\label{assum:relative-rates}
@@ -49,7 +53,7 @@ in which ${\hat{\Sigma}_{\psi z}=\Psi_{i,1,N}\mathcal{Z}^\top}$ and ${\hat{\Sigm
         \end{split}
     \end{align}
 \end{assum}
-For the system $\mathcal{S}$ from \secref{sec:sys_model} with $\rho<1$ this assumption ensures that errors due to mis-specification of the initial condition are $o_P(1/\sqrt{N})$ (and may therefore be neglected), and that sample correlations approach true correlations that are well-defined~\citep{Bauer2002,Chiuso2006}.
+For the system $\mathcal{S}$ from \secref{sec:sys_model} with $\rho<1$ this assumption is required for consistency of estimators that are based on closed-loop data because it ensures that errors due to mis-specification of the initial condition are $o_P(1/\sqrt{N})$ (and may therefore be neglected), and that sample correlations approach true correlations that are well-defined~\citep{Bauer2002,Chiuso2006}. This assumption will prove to be instrumental to demonstrate the closed-loop consistency of predictors\footnote{We shall refer to predictors as consistent if their bias (i.e. expected error) asymptotically goes to zero as $N\rightarrow\infty$.}.
 
 \begin{assum}\label{assum:PE}
     The known past data matrix of the form $\Psi_{i,s,N}$, as defined by~\eqref{eq:Psi_def}, is full row rank.
@@ -57,7 +61,7 @@ For the system $\mathcal{S}$ from \secref{sec:sys_model} with $\rho<1$ this assu
 This assumption entails that used past input-output data is sufficiently persistently exciting, which is an important requirement for many data-driven applications~\citep{vanWaarde2023}.
 
 \begin{assum}\label{assum:IV_def}
-    The \acs{IV} matrix $\mathcal{Z}\in\mathbb{R}^{n_\mathrm{z}\times N}$ is chosen such that it adheres to \eqref{eq:IV_preserve_info} and \eqref{eq:IV_noise_uncorr}.
+    The \acs{IV} matrix $\mathcal{Z}\in\mathbb{R}^{n_\mathrm{z}\times N}$ is chosen such that \eqref{eq:IV_preserve_info} and \eqref{eq:IV_noise_uncorr} hold.
 \end{assum}
 Under this assumption the chosen \acs{IV} matrix exhibits the desirable properties described in \secref{sec:IV_props}.
 
@@ -87,15 +91,15 @@ where $\dagger$ indicates the Moore-Penrose pseudoinverse, ${\hat{\Pi}_{\psi z}^
 
 \setcounter{thm}{0}
 \begin{rem}\label{rem:square_min_opt_var}
-    Choosing $\mathcal{Z}$ such that $\hat{\Sigma}_{\psi z}=\Psi_{i,1,N}\mathcal{Z}^\top$ is square and invertible ensures that, with reference to \eqref{eq:G_sols}, $G^\mathrm{IV}\in\mathbb{R}^{n_\mathrm{z}\times f}$ is uniquely determined by $\overline{\Psi}_{\hat{i},1,f}$. This minimizes the number of free optimization variables in \eqref{eq:TheoremIV}.
+    Choosing $\mathcal{Z}$ such that $\hat{\Sigma}_{\psi z}=\Psi_{i,1,N}\mathcal{Z}^\top$ is square and invertible ensures that, with reference to \eqref{eq:G_sols}, $G^\mathrm{IV}$ is uniquely determined by $\overline{\Psi}_{\hat{i},1,f}$. Moreover, by \eqref{eq:TheoremIV}, $\widehat{Y}_{\hat{i}_p,1,f}^\mathrm{IV}$ is then also uniquely determined by $\overline{\Psi}_{\hat{i},1,f}$.
 \end{rem}
 
 Lemma~\ref{lem:main_1} effectively indicates that the system of equations provided by~\eqref{eq:TheoremIV} is consistent provided that $\hat{\Sigma}_{\psi z}$ is full row rank. The following theorem concerns the consistency of the resulting output predictor when using data that has been collected in closed-loop.
 \setcounter{thm}{0}
 \begin{thm}\label{theorem:main_result_IVs}
-    Consider the minimal discrete \ac{LTI} system $\mathcal{S}$ from \secref{sec:sys_model} with $\rho<1$ to generate input-output data in a well-posed closed-loop configuration by means of a causal controller, known past data matrix $\Psi_{i,1,N}$ of full row rank by Assumption~\ref{assum:PE}, and partially-known data matrix $\overline{\Psi}_{\hat{i},1,f}$. Furthermore, let $p,N\rightarrow\infty$ as specified by Assumption~\ref{assum:relative-rates} and let ${\mathcal{Z}\in\mathbb{R}^{n_\mathrm{z}\times N}}$ satisfy Assumption~\ref{assum:IV_def}. Then the output predictor $\widehat{Y}_{\hat{i}_p,1,f}^\mathrm{IV}$ specified by~\eqref{eq:TheoremIV} is consistent:
+    Consider the minimal discrete \ac{LTI} system $\mathcal{S}$ from \secref{sec:sys_model} with $\rho<1$ to generate input-output data in a well-posed closed-loop configuration by means of a causal controller, known past data matrix $\Psi_{i,1,N}$ of full row rank by Assumption~\ref{assum:PE}, and partially-known data matrix $\overline{\Psi}_{\hat{i},1,f}$. Furthermore, let $p,N\rightarrow\infty$ as specified by Assumption~\ref{assum:relative-rates} and let ${\mathcal{Z}\in\mathbb{R}^{n_\mathrm{z}\times N}}$ satisfy Assumption~\ref{assum:IV_def}. Then the predictor $\widehat{Y}_{\hat{i}_p,1,f}^\mathrm{IV}$ specified by~\eqref{eq:TheoremIV} is consistent, i.e.:
     \begin{align}\label{eq:consistent}
-    \lim_{\underset{\eqref{eq:relative_rates}}{p,N\rightarrow\infty}}\mathbb{E}\left[\widehat{Y}_{\hat{i}_p,1,f}^\mathrm{IV}-Y_{\hat{i}_p,1,f}\right]=0.
+    \lim_{p,N\rightarrow\infty}\mathbb{E}\left[\widehat{Y}_{\hat{i}_p,1,f}^\mathrm{IV}-Y_{\hat{i}_p,1,f}\right]=0.
     \end{align}
 \end{thm}
 %
@@ -176,17 +180,16 @@ wherein $\hat{\Sigma}_{ez}$ is recognized from its definition and $\overline{\Ps
     Y_{\hat{i}_p,1,f} &= \widetilde{L}_1 \Psi_{\hat{i},1,f} + E_{\hat{i}_p,1,f} + \widetilde{\Gamma}_1 \tilde{A}^p X_{\hat{i},1,f}.
 \end{align}
 
-Under Assumption~\ref{assum:relative-rates}, as $p,N\rightarrow\infty$ the sample correlations go to well-defined true correlations and the contribution of the initial condition may be neglected~\citep{Bauer2002,Chiuso2006}. In addition, by Assumption~\ref{assum:IV_def}, $\mathcal{Z}$ adheres to \eqref{eq:IV_noise_uncorr} such that it is uncorrelated with noise. Hence, computing the bias of the output predictor from \eqref{eq:Yf_hatIV_1} and \eqref{eq:Yf_act} in the aforementioned limits yields
+Under Assumption~\ref{assum:relative-rates}, as $p,N\rightarrow\infty$ the sample correlations go to well-defined true correlations and the contribution of the initial condition may be neglected~\citep{Bauer2002,Chiuso2006}. In addition, by Assumption~\ref{assum:IV_def}, $\mathcal{Z}$ satisfies \eqref{eq:IV_noise_uncorr} such that it is uncorrelated with noise. Hence, computing the bias of the output predictor from \eqref{eq:Yf_hatIV_1} and \eqref{eq:Yf_act} in the aforementioned limits yields
 %By the foregoing analysis, with $\Sigma_{e\psi}=0$ and a vanished initial state contribution, the bias of the predicted output from \eqref{eq:Yfhat_2} w.r.t. the true output from \eqref{eq:DataEq2} is
 \begin{align}\label{eq:asym_bias_IV}
-    \lim_{\underset{\eqref{eq:relative_rates}}{p,N\rightarrow\infty}}\!\!\mathbb{E}\left[\widehat{Y}_{\hat{i}_p,1,f}^\mathrm{IV}-Y_{\hat{i}_p,1,f}\right]\!=\!\!\lim_{\underset{\eqref{eq:relative_rates}}{p,N\rightarrow\infty}}\!\!\widetilde{L}_1\mathbb{E}\left[\overline{\Psi}_{\hat{i},1,f}-\Psi_{\hat{i},1,f}\right]\!.
+    \lim_{p,N\rightarrow\infty}\!\!\mathbb{E}\left[\widehat{Y}_{\hat{i}_p,1,f}^\mathrm{IV}-Y_{\hat{i}_p,1,f}\right]\!=\!\!\lim_{p,N\rightarrow\infty}\!\!\widetilde{L}_1\mathbb{E}\left[\overline{\Psi}_{\hat{i},1,f}-\Psi_{\hat{i},1,f}\right]\!.
 \end{align}
-The remaining consistency proof for~\eqref{eq:consistent} is sequential. First, note the structure of $\overline{\Psi}_{\hat{i},1,f}$ and $\Psi_{\hat{i},1,f}$ as visualized by Fig~\ref{fig:CL-DeePC}. The leftmost columns of $\overline{\Psi}_{\hat{i},1,f}$ and $\Psi_{\hat{i},1,f}$ are equal because they contain no estimates. Therefore, the leftmost column of the output predictor $\widehat{Y}_{\hat{i}_p,1,f}^\mathrm{IV}$ is consistent. Moreover, \eqref{eq:asym_bias_IV} shows that for subsequent columns in the output predictor the asymptotic bias is a linear combination of the asymptotic bias of preceding columns. %This follows from the block-diagonal structure of the block-Hankel matrices of which $\overline{\Psi}_{\hat{i},1,f}$ and $\Psi_{\hat{i},1,f}$ are composed, as shown by Fig~\ref{fig:CL-DeePC}. 
-Hence, since the leftmost column of the output predictor is asymptotically unbiased, so are the other columns of the output predictor, resulting in~\eqref{eq:consistent}. $\hfill\qed$
+The remaining consistency proof for~\eqref{eq:consistent} is sequential. First, note the structure of $\overline{\Psi}_{\hat{i},1,f}$ and $\Psi_{\hat{i},1,f}$ as visualized by Fig~\ref{fig:CL-DeePC}. The leftmost columns of $\overline{\Psi}_{\hat{i},1,f}$ and $\Psi_{\hat{i},1,f}$ are equal because they contain no estimates. Therefore, the leftmost column of the predictor $\widehat{Y}_{\hat{i}_p,1,f}^\mathrm{IV}$ is consistent. Moreover, \eqref{eq:asym_bias_IV} shows that for subsequent columns in the output predictor the asymptotic bias is a linear combination of the asymptotic bias of preceding columns. Hence, since the leftmost column of the output predictor is consistent, so are the other columns of the output predictor, resulting in~\eqref{eq:consistent}. $\hfill\qed$
 
-This theorem demonstrates that a proper choice of the \acs{IV} matrix $\mathcal{Z}$ facilitates consistent output predictions by means of~\eqref{eq:TheoremIV} when using noisy closed-loop data. The subsequent section presents such a proper choice for $\mathcal{Z}$.
+This theorem demonstrates that a suitable choice of $\mathcal{Z}$ facilitates consistent output predictions by means of~\eqref{eq:TheoremIV} when using noisy closed-loop data. The subsequent section presents such a suitable choice for $\mathcal{Z}$.
 
-\subsubsection{Examplary \acs{IV} that begets a consistent predictor}\label{sec:example_IV}
+\subsubsection{Exemplary \acs{IV} that obtains a consistent predictor}\label{sec:example_IV}
 \noindent The following lemma suggests a specific suitable \acs{IV} matrix for Theorem~\ref{theorem:main_result_IVs} that satisfies Assumption~\ref{assum:IV_def}, thus enabling consistent output predictions with~\eqref{eq:TheoremIV}.
 \setcounter{thm}{1}
 \begin{lem}\label{lem:example_IV}
@@ -195,17 +198,17 @@ For Theorem~\ref{theorem:main_result_IVs}, if the data-generating controller emp
 \textit{Proof:} This proof requires it to be shown that the choice ${\mathcal{Z}=\Psi_{i,1,N}}$ satisfies conditions \eqref{eq:IV_preserve_info} and \eqref{eq:IV_noise_uncorr} from Assumption~\ref{assum:IV_def} when the controller lacks direct feedthrough. Upon inspection, the rank condition specified by \eqref{eq:IV_preserve_info} is indeed satisfied by this choice because $\Psi_{i,1,N}$ is (by Assumption~\ref{assum:PE} in Theorem~\ref{theorem:main_result_IVs}) full row rank. With regards to \eqref{eq:IV_noise_uncorr}, substituting the choice of \acs{IV} and applying Assumption~\ref{assum:relative-rates} from Theorem~\ref{theorem:main_result_IVs} obtains% $\hat{\Sigma}_{ez}=\hat{\Sigma}_{e\psi}$, $\Sigma_{ez}=\Sigma_{e\psi}$, and
 \begin{align}\label{eq:E_Phi_correlation}
     \!\!\!\!\begin{split}
-        \lim_{\underset{\eqref{eq:relative_rates}}{p,N\rightarrow\infty}}\!\!\hat{\Sigma}_{ez} &= \!\lim_{\underset{\eqref{eq:relative_rates}}{p,N\rightarrow\infty}}\frac{1}{N}\;\sum\limits_{k=i_p}^{\mathclap{i_p+N-1}} e_k\!\begin{bmatrix}\datavec{u}{k-p,p+1}^\top & \datavec{y}{k-p,p}^\top \end{bmatrix}\\
-        =\Sigma_{ez} &=\mathbb{E}\left[e_k\!\begin{bmatrix}\datavec{u}{k-p,p+1}^\top & \datavec{y}{k-p,p}^\top \end{bmatrix}\right]=0.
+        \lim_{p,N\rightarrow\infty}\!\!\hat{\Sigma}_{ez} &= \!\lim_{p,N\rightarrow\infty}\frac{1}{N}\;\sum\limits_{k=i_p}^{\mathclap{i_p+N-1}} e_k\!\begin{bmatrix}\datavec{u}{k-p,p+1}^\top & \datavec{y}{k-p,p}^\top \end{bmatrix}\\
+        =\Sigma_{ez} &=\mathbb{E}\bigg[e_k\!\begin{bmatrix}\datavec{u}{k-p,p+1}^\top & \datavec{y}{k-p,p}^\top \end{bmatrix}\bigg]=0.
     \end{split}
 \end{align}
 The last equality in \eqref{eq:E_Phi_correlation} holds due to the (assumed) lack of direct feedthrough of the employed causal controller, due to which inputs are correlated with preceding noise (${\mathbb{E}[e_k u_j^\top]\neq0,\; \forall j>k}$), but inputs are uncorrelated with concurrent and subsequent noise (${\mathbb{E}[e_k u_j^\top]=0,\; \forall j\leq k}$). Moreover, the innovation noise is also uncorrelated with preceding outputs (${\mathbb{E}[e_k y_j^\top]=0,\; \forall j<k}$). $\hfill \qed$
 \setcounter{thm}{1}
 \begin{rem}
-    For $G$ in \eqref{eq:CL_DeePC_no_IVs} consider the use of \ac{IVs} such that $G=\mathcal{Z}^\top G^\mathrm{IV}$ as in \eqref{eq:TheoremIV}. Based on~\eqref{eq:G_sols} the choice $\mathcal{Z}=\Psi_{i,1,N}$ (full row rank) induces a minimum norm least squares solution for $G$.
+    For $G$ in \eqref{eq:CL_DeePC_no_IVs} consider the use of \ac{IVs} such that $G=\mathcal{Z}^\top G^\mathrm{IV}$ as in \eqref{eq:TheoremIV}. Based on~\eqref{eq:G_sols}, with full row rank $\Psi_{i,1,N}$, the choice $\mathcal{Z}=\Psi_{i,1,N}$ induces a minimum norm least squares solution for $G$.
 \end{rem}
 
-Lemma~\ref{lem:example_IV} suggests a choice of \acs{IV} matrix $\mathcal{Z}$ that ensures a consistent output predictor by Theorem~\ref{theorem:main_result_IVs}. With the sequential application of one-step-ahead predictors as per~\eqref{eq:TheoremIV}, the choice $\mathcal{Z}=\Psi_{i,1,N}$ is useful because it relies only on past input-output data and keeps the number of optimization variables in \eqref{eq:TheoremIV} to a minimum (see Remark~\ref{rem:square_min_opt_var}).
+Lemma~\ref{lem:example_IV} suggests a choice of \acs{IV} matrix $\mathcal{Z}$ that ensures a consistent output predictor by Theorem~\ref{theorem:main_result_IVs}. With the sequential application of one-step-ahead predictors as per~\eqref{eq:TheoremIV}, the choice $\mathcal{Z}=\Psi_{i,1,N}$ is useful because it relies only on past input-output data, keeps the number of optimization variables in \eqref{eq:TheoremIV} to a minimum (see Remark~\ref{rem:square_min_opt_var}), and enforces causality of the predictor at finite~$N$. This last point will become clear in \secref{sec:Sequential}.
 
 \subsection{Unified \ac{CL-DeePC} framework: incorporating \ac{IVs} and sequential multi-step-ahead predictors}
 \noindent This section generalizes Theorem~\ref{theorem:main_result_IVs} to incorporate the sequential use of multi-step-ahead predictors. The corresponding generalization of \eqref{eq:TheoremIV} obtains the unified \ac{CL-DeePC} formulation
@@ -217,12 +220,12 @@ Lemma~\ref{lem:example_IV} suggests a choice of \acs{IV} matrix $\mathcal{Z}$ th
         \overline{\Psi}_{\hat{i},s,q}^\mathrm{m}\\\widehat{Y}_{\hat{i}_p,s,q}^\mathrm{IV,m}
     \end{bmatrix},
 \end{align}
-where $s$ is the multi-step-ahead predictor length, and $q$ is the number of sequential applications thereof, thus obtaining a prediction length $f=sq$. The superscript $\mathrm{m}$ indicates that subsequent columns are shifted not by a single sample, as in Fig.~\ref{fig:CL-DeePC}, but by $s$ samples. Note that \ac{DeePC} with \ac{IVs} as in~\cite{vanWingerden2022} is obtained with $q=1$, $s=f$. For the unified formulation~\eqref{eq:TheoremIV2} we present the following theorem.
+where $s$ is the multi-step-ahead predictor length, and $q$ is the number of sequential applications thereof, thus obtaining a total prediction length $f=sq$. The superscript $\mathrm{m}$ indicates that subsequent columns are shifted not by a single sample, as in Fig.~\ref{fig:CL-DeePC}, but by $s$ samples. Note that \ac{DeePC} with \ac{IVs} as in~\cite{vanWingerden2022} is recovered from \eqref{eq:TheoremIV2} by the single application ($q=1$) of a multi-step-ahead predictor of length $s=f$. For the unified formulation~\eqref{eq:TheoremIV2}, we present the following theorem.
 \setcounter{thm}{1}
 \begin{thm}\label{theorem:general_IV}
-Consider the well-posed closed-loop system from Theorem~\ref{theorem:main_result_IVs} to generate input-output data, with $\Psi_{i,s,N}$ full row rank by Assumption~\ref{assum:PE} and partially-known data matrix $\overline{\Psi}_{i,s,q}^\mathrm{m}$. Furthermore, choose $\mathcal{Z}\in\mathbb{R}^{n_\mathrm{z}\times N}$ such that, with $p,N\rightarrow\infty$ as specified by Assumption~\ref{assum:relative-rates}, $\Psi_{i,s,N}\mathcal{Z}^\top$ is full row rank and $E_{i_p,s,N}\mathcal{Z}^\top\rightarrow0$. Then the output predictor $\widehat{Y}_{\hat{i}_p,s,q}^\mathrm{IV,m}$ specified by \eqref{eq:TheoremIV2} is consistent:
+Consider the well-posed closed-loop system from Theorem~\ref{theorem:main_result_IVs} to generate input-output data, with $\Psi_{i,s,N}$ full row rank by Assumption~\ref{assum:PE} and partially-known data matrix $\overline{\Psi}_{i,s,q}^\mathrm{m}$. Furthermore, choose $\mathcal{Z}\in\mathbb{R}^{n_\mathrm{z}\times N}$ such that, with $p,N\rightarrow\infty$ as specified by Assumption~\ref{assum:relative-rates}, $\Psi_{i,s,N}\mathcal{Z}^\top$ is full row rank and $E_{i_p,s,N}\mathcal{Z}^\top\rightarrow0$. Then the predictor $\widehat{Y}_{\hat{i}_p,s,q}^\mathrm{IV,m}$ specified by \eqref{eq:TheoremIV2} is consistent, i.e.:
 \begin{align*}%\label{eq:consistent2}
-    \lim_{\underset{\eqref{eq:relative_rates}}{p,N\rightarrow\infty}}\mathbb{E}\left[\widehat{Y}_{\hat{i}_p,s,q}^\mathrm{IV,m}-Y_{\hat{i}_p,s,q}\right]=0.
+    \lim_{p,N\rightarrow\infty}\mathbb{E}\left[\widehat{Y}_{\hat{i}_p,s,q}^\mathrm{IV,m}-Y_{\hat{i}_p,s,q}\right]=0.
 \end{align*}
 \end{thm}
 \textit{Proof:} %Note that the conditions imposed on $\Psi_{i,s,N}\mathcal{Z}^\top$ and $E_{i_p,s,N}\mathcal{Z}^\top$ generalize Assumption~\ref{assum:IV_def} beyond $s=1$ to $s\in\mathbb{Z}_{>0}$. 
@@ -230,12 +233,14 @@ Proof of this result follows the proof of Theorem~\ref{theorem:main_result_IVs},
 % - small matrix to invert
 % - generally: consistency of predictions
 % - computationally efficient sequential implementation exists
+
+Theorem~\ref{theorem:general_IV} presents the consistency of predictors obtained by the unified \ac{CL-DeePC} formulation~\eqref{eq:TheoremIV2}. %
+
+Suitable choices of the \ac{IV} matrix $\mathcal{Z}$ retain data informativity and are uncorrelated with noise as stipulated by Theorem~\ref{theorem:general_IV}. Note that with the choice $\mathcal{Z}=\Psi_{i,m,N}$, the condition $E_{i_p,s,N}\mathcal{Z}^\top\rightarrow0$ is violated for $m>1$, resulting in an inconsistent output predictor. Moreover, since $\Psi_{i,s,N}\mathcal{Z}^\top\in\mathbb{R}^{((p+s)r+pl)\times n_\mathrm{z}}$ must also be full row rank such that ${n_\mathrm{z}\geq(p+s)r+pl}$, this implies that for $s>1$ the \ac{IV} matrix $\mathcal{Z}$ must consist of more instruments than the past inputs and outputs contained by $\Psi_{i,1,N}$.
+
 \setcounter{thm}{2}
 \begin{rem}
-    With the choice of \acs{IV} matrix $\mathcal{Z}=\Psi_{i,m,N}$, the condition $E_{i_p,s,N}\mathcal{Z}^\top\rightarrow0$ is violated for $m>1$, resulting in an inconsistent output predictor. Since $\Psi_{i,s,N}\mathcal{Z}^\top\in\mathbb{R}^{((p+s)r+pl)\times n_\mathrm{z}}$ must also be full row rank such that ${n_\mathrm{z}\geq(p+s)r+pl}$, this implies that for $s>1$ more instruments must be used than only past inputs and outputs.
-\end{rem}
-\begin{rem}
-    Without \ac{IVs} (i.e. $\mathcal{Z}=I_N$), the use of a square and invertible data matrix ${\Psi_{i,s,N}\in\mathbb{R}^{((p+s)r+pl)\times N}}$ may seem appealing based on Remark~\ref{rem:square_min_opt_var}. However, the dimensions of a square data matrix $\Psi_{i,s,N}$ violate Assumption~\ref{assum:relative-rates}.
+Without \ac{IVs} (i.e. $\mathcal{Z}=I_N$), the use of a square and invertible data matrix ${\Psi_{i,s,N}\in\mathbb{R}^{((p+s)r+pl)\times N}}$ may seem appealing based on Remark~\ref{rem:square_min_opt_var}. However, the dimensions of a square data matrix $\Psi_{i,s,N}$ violate Assumption~\ref{assum:relative-rates}, which implies inconsistency of the predictor based on Theorem~\ref{theorem:general_IV}. This highlights the use of \ac{IVs} to obtain consistent output predictors.
 \end{rem}
 
-Theorem~\ref{theorem:general_IV} presents the consistency of predictors obtained by the unified \ac{CL-DeePC} formulation~\eqref{eq:TheoremIV2}. Suitable \ac{IVs} retain data informativity and are uncorrelated with noise as stipulated by Theorem~\ref{theorem:general_IV}. The special case $s=1$, $q=f$ reduces~\eqref{eq:TheoremIV2} to~\eqref{eq:TheoremIV}, for which a computationally efficient implementation is presented next.
+The special case with $q=f$ sequential applications of a one-step-ahead predictor ($s=1$) reduces~\eqref{eq:TheoremIV2} to~\eqref{eq:TheoremIV}, for which a computationally efficient implementation is presented in the subsequent section.
