@@ -54,7 +54,6 @@ load(fullfile('data','raw',dirname,fn),'results');
 max_costs = cellfun(@max,results.Cost(:,1));
 [~,idx_sorted] = sort(max_costs,'descend');
 k_e = idx_sorted(1);
-% analysis_plots;
 color = {[220,50,32]/256,[0,90,181]/256,[0.4660, 0.6740, 0.1880]};
 
 fig4 = figure('Units', 'pixels', 'pos', [80 80 680 450],'color','white','Visible', 'on');
