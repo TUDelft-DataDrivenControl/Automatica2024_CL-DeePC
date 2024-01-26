@@ -175,15 +175,16 @@ for i = 1:numel(data)
     % Check if the first number is 10
     if first_number == 10
         exponent = exponent + 1;
-        modified_data{i} = sprintf('10^{%d}', exponent);
+        modified_data{i} = sprintf('$10^{%d}$', exponent);
     elseif first_number == 5
-        modified_data{i} = sprintf('%d\\times10^{%d}', first_number, exponent);
+        modified_data{i} = sprintf('$%d\\times10^{%d}$', first_number, exponent);
     elseif first_number == 1
-        modified_data{i} = sprintf('10^{%d}', exponent);
+        modified_data{i} = sprintf('$10^{%d}$', exponent);
     else
         modified_data{i} = "";
     end
     
 end
+ax.TickLabelInterpreter='latex';
 ax.YTickLabels = modified_data;
 end
