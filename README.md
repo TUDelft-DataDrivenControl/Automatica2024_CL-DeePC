@@ -34,7 +34,7 @@ The functions to generate the relevant data and a sample script for submission o
 
 The data that is used in the article can be obtained in one of two ways:
 1. Download it from [link to Zenodo] and place it in the data\raw directory.
-2. Generate it data. To do this follow the below steps:
+2. Generate the data from this GitHub repository: [![DOI](https://zenodo.org/badge/748709881.svg)](https://zenodo.org/doi/10.5281/zenodo.10573259). To do this follow the below steps:
     Step 1: Generate the the necessary data using the Slurm submission script (or make a similar Matlab script) to run different simulation cases with the functions 'varying_{...}.m' found in the relevant aformentioned directory.
     Step 2: The generated data should automatically be placed in a descriptively named folder in the data/raw directory. Go to this new folder with the new data and run 'src/dirs2res.m'.
 
