@@ -1,6 +1,8 @@
 # CL-DeePC and its equivalence with CL-SPC
 This repository contains the necessary components of the Automatica article titled "Closed-loop Data-Enabled Predictive Control and its equivalence with Closed-loop Subspace Predictive Control".
 
+N.B.: Supplied MATLAB classes are still subject to further development. Classes are currently only meant to function with the implemented settings, as supplied.
+
 ## Project organization
 - PG = project-generated
 - HW = human-writable
