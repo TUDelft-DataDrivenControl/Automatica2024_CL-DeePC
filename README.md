@@ -18,8 +18,6 @@ This repository contains the necessary components of the Automatica article titl
 │   ├── processed               <- The final, canonical data sets for modeling. (PG)
 │   ├── raw                     <- The original, immutable data dump. (RO)
 │   └── temp                    <- Intermediate data that has been transformed. (PG)
-├── docs                        <- Documentation notebook for users (HW)
-│   └── manuscript              <- Overleaf code (HW)
 ├── results         
 │   └── figures                 <- Figures for the manuscript or reports (PG)
 └── src                         <- Source code for this project (HW)
