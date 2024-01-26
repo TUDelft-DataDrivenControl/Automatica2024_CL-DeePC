@@ -1,5 +1,5 @@
 \section{Introduction}\label{sec:introduction}
-\noindent Trends of increasing data availability as well as increasing system complexity provide opportunities for data driven-driven control%make a compelling case for data-driven control methods as an alternative to model-based approaches
+\noindent Trends of increasing data availability and system complexity provide opportunities for data driven-driven control%make a compelling case for data-driven control methods as an alternative to model-based approaches
 ~\citep{Hou2013}. %~\citep{Markovsky2023}. %
 In sharp contrast to the use of data in %Whilst data can be used with
 indirect data-driven approaches to synthesise a model by means of system identification, direct data-driven control approaches are promising because of their ability to derive a control law directly from data without having to realize an explicit system model as an often expensive intermediate step~\citep{Hjalmarsson2005}.
@@ -22,7 +22,7 @@ The correlation between inputs and noise that arises from feedback results in cl
 
 Although data-driven control algorithms have seen considerable development, to date, optimal noise mitigation under feedback is not completely addressed.
 %The few existing efforts have focused on using either \ac{IVs} or a sequential step-ahead predictor. 
-The aim of this paper is to rigorously develop \ac{CL-DeePC}, thereby providing a unifying framework of different solution strategies that addresses closed-loop identification bias. %A concerted effort that unifies these approaches in a rigorously developed behavioural \ac{DDPC} framework is currently lacking. %
+The aim of this paper is to rigorously establish \ac{CL-DeePC}, thereby providing a unifying framework of different solution strategies that addresses closed-loop identification bias. %A concerted effort that unifies these approaches in a rigorously developed behavioural \ac{DDPC} framework is currently lacking. %
 %Two suggestions of~\cite{Dinkla2023} to tackle the closed-loop identification issue concern the use of \ac{IVs} and the use of sequential step-ahead predictions. The former suggestion motivates the parallel work of~\cite{Wang2023}, wherein the authors rely on knowledge of a non-adaptive controller to address this issue. The latter suggestion features in the concurrent work of~\cite{Shi2023} and is rigorously developed here using \ac{IVs} to mitigate noise. %
 %
 %In \citet{Wang2023} a \ac{CL-DeePC} algorithm is therefore developed that makes use of \ac{IVs} to solve this issue. Another solution to this problem is to avoid correlation between inputs and noise by using a one-step-ahead predictor~\citep{Ljung1996}. This idea is employed in~\cite{Dong2008} to develop \ac{CL-SPC}, which does not suffer from this closed-loop identification issue.
@@ -39,8 +39,8 @@ The main contributions of this paper are:
 % \item the evaluation of different possible \ac{CL-DeePC} implementations,
 \item[2.] to incorporate \ac{IVs} in \ac{CL-DeePC} as a systematic noise-mitigation technique to provide consistent and causal single-step-ahead predictors or consistent multiple-step-ahead predictors, \label{contribution:incorporate_IVs}
 \item[3.] to present a unified \ac{CL-DeePC} framework that solves the closed-loop identification problem that arises in the presence of feedback and noise by sequential application of such consistent predictors,\label{contribution:solves_CL_issue}
-\item[4.] to present a computationally efficient \ac{CL-DeePC} implementation that reveals an equivalence between \ac{CL-DeePC} and \ac{CL-SPC},
-\item[5.] to show the superior performance of \ac{CL-DeePC} compared to \ac{DeePC} in a simulation example.
+\item[4.] to present a computationally efficient \ac{CL-DeePC} technique that reveals an equivalence between \ac{CL-DeePC} and \ac{CL-SPC},
+\item[5.] to show the superior performance of \ac{CL-DeePC} compared to \ac{DeePC} in simulation.
 \end{enumerate}
 %
 %This paper builds on the authors' previous work.
