@@ -19,8 +19,6 @@ submit_job_array() {
 #SBATCH --account=research-3me-dcsc
 #SBATCH --output=./Job${index}/d_Nbar.%A_%a.out
 #SBATCH --error=./Job${index}/d_Nbar.%A_%a.err
-#SBATCH --mail-user=r.t.o.dinkla@tudelft.nl
-#SBATCH --mail-type=BEGIN,END,FAIL
 #SBATCH --array=1-120
 
 # Load any necessary modules or set environment variables
