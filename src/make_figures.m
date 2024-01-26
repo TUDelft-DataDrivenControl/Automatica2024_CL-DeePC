@@ -114,10 +114,3 @@ matches = regexp(dirname,'Varying_Nbar_(\d+-\d+-\d+)_p_(.*)','tokens','once');
 figname = append('Consistency_Nbar_',matches{1},'_p_',matches{2},'.pdf');
 exportgraphics(fig6,figname,'ContentType','vector');
 cd(main_dir);
-
-%% Fig 7: collinearity analysis
-clearvars -except main_dir dec_pat
-dirname = 'Varying_pf_20-100-41_Nbar_1199_Re_0.25_Ru_1_Rdu_0_Q_100_R_0_dR_10';
-cd(fullfile('data','raw',dirname));
-load('p_100_f_100.mat');
-collinearity_analysis
