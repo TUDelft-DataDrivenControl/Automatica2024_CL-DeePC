@@ -80,6 +80,7 @@ title_str = append('$\bar{N}=',num2str(results.Nbar),'$, ',...
       ...'$\Sigma(d^\mathrm{u}_k)=',num2str(results.Rdu),'$, ',...
       '$p=',num2str(results.p),'$, $f=',num2str(results.f),'$');
 title(title_str,'Interpreter','latex','FontSize',13);
+hAxes = gca;hAxes.TickLabelInterpreter = 'latex';
 set(fig4,'Color','w');
 
 desc_str1 = regexp(fn,'(.*)\.mat$','tokens','once'); desc_str1 = desc_str1{1};
@@ -114,7 +115,6 @@ matches = regexp(dirname,'Varying_Nbar_(\d+-\d+-\d+)_p_(.*)','tokens','once');
 figname = append('Consistency_Nbar_',matches{1},'_p_',matches{2},'.pdf');
 exportgraphics(fig6,figname,'ContentType','vector');
 cd(main_dir);
-
 
 %% Fig 7: collinearity analysis
 clearvars -except main_dir dec_pat

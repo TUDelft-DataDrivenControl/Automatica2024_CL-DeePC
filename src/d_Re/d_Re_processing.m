@@ -124,6 +124,7 @@ ylabel('$J_\mathrm{rms}$','Interpreter','latex','FontSize',13);
 title(append('$\bar{N}=',num2str(Nbar),'$, ',...
       ...'$\sigma^2(d^\mathrm{u}_k)=',num2str(Rdu),'$, ',...
       '$p=',num2str(p),'$, $f=',num2str(f),'$'),'Interpreter','latex','FontSize',13);
+hAxes = gca;hAxes.TickLabelInterpreter = 'latex';
 
 %% Helper functions
 

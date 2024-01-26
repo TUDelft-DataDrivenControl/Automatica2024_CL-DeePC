@@ -152,7 +152,7 @@ for k_c = 1:2
         method_str = 'CL-DeePC: $f_\mathrm{ID}=1$';
     end
     ax{k_c}=nexttile;
-    imagesc(EUcorr_avg_all{k_c}); set(gca, 'YDir','reverse'); colormap(gca,Cmap); caxis(gca,[-maxval1 maxval1]); if k_c==2; colorbar(gca);end
+    imagesc(EUcorr_avg_all{k_c}); set(gca, 'YDir','reverse'); colormap(gca,Cmap); caxis(gca,[-maxval1 maxval1]); if k_c==2; cb=colorbar(gca); cb.TickLabelInterpreter='latex';end
     title(method_str,'Interpreter','latex','FontSize',13);
     ylabel('Row index','Interpreter','latex','FontSize',13); xlabel('Column index','Interpreter','latex','FontSize',13);
     grid on; if k_c==2; yticks(1); end
@@ -161,8 +161,10 @@ for k_c = 1:2
 %     imagesc(EYcorr_avg_all{k_c}); set(gca, 'YDir','reverse'); colormap(gca,Cmap); caxis(gca,[-maxval2 maxval2]); colorbar(gca);
 %     title({'Correlation matrix', append('$E_{i_p,',f_str,',N}Y_{i,p,N}^\top/N$')},'Interpreter','latex','FontSize',12);
 %     ylabel('Row index','Interpreter','latex','FontSize',12); xlabel('Column index','Interpreter','latex','FontSize',12);
+    hAxes = gca;hAxes.TickLabelInterpreter = 'latex';
 end
 sgtitle(fig5,{'Average input-noise correlation matrix',append('$E_{i_p,f_\mathrm{ID},N}\left[U_{i,p,N}^\top\;\Big| U_{i_p,f_\mathrm{ID},N}^\top\right]$, $p=f=',num2str(p),'$, $\bar{N}=',num2str(Nbar),'$')},'Interpreter','latex','FontSize',13);
+
 %% helper functions
 function [Efid,Upfid,Yp]=get_HankelMats(eCL,uCL,yCL,p,s,nu,ny) %s{k_c},N{k_c}
     Nbar = length(eCL);

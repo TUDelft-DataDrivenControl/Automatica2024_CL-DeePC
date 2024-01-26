@@ -140,3 +140,4 @@ for k_et = 3%1:3 % error type
     legend({'DeePC (median)','DeePC (mean)','CL-DeePC (median)','CL-DeePC (mean)'},'Interpreter','latex','FontSize',10);
     h = gca; h.YScale = 'log';
 end
+hAxes = gca;hAxes.TickLabelInterpreter = 'latex';
