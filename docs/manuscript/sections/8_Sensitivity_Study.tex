@@ -30,10 +30,6 @@ Fig.~\ref{fig:varying_Nbar} demonstrates that compared to \ac{DeePC}, in general
 % -----------------------------------------------------------
 
 \subsubsection{Data window lengths: $p=f$}
-\noindent This section investigates the effect of the window lengths with $p=f$. The choice $p=f$ is made for the sake of simplicity is further motivated by its frequent use in the closely related field of subspace identification~\citep{vanderVeen2013}. We discern two competing mechanisms to explain the results shown in Fig.~\ref{fig:varying_pf} for \ac{CL-DeePC} and an additional detrimental effect on performance for \ac{DeePC}. Increasing $p$ is beneficial in terms of reducing the bias of the predictor. However, as with increasing $f_\mathrm{ID}$, increasing $p$ entails implicitly estimating more parameters of the predictor, thereby increasing its variance. This is more pronounced for \ac{DeePC} since $f_\mathrm{ID}=f$ when compared to \ac{CL-DeePC} for which $f_\mathrm{ID}=1$. The shorter future window length used for identification $f_\mathrm{ID}$ is also beneficial for \ac{CL-DeePC} because a higher degree of collinearity may be expected for larger $f_\mathrm{ID}$, potentially leading to ill-conditioning of the identification task~\citep{Chiuso2004}. Together with the aforementioned closed-loop identification issue these effects induce up to a 49\% lower reference tracking cost at $p=f=100$ for \ac{CL-DeePC} compared to \ac{DeePC}. Moreover, note that the performance of \ac{DeePC} deteriorates rapidly with increasing $p=f$, whereas the impact on the performance of \ac{CL-DeePC} is far less pronounced.
-% 1) period of 200 time samples\\
-% 2) increase p -> smaller bias, but larger variance (increase number of estimated parameters)\\
-% 3) increasing collinearity \& ill conditioning\\
 % ------------------------- Figure --------------------------
 \begin{figure}[t!]
 \begin{center}
@@ -43,3 +39,7 @@ Fig.~\ref{fig:varying_Nbar} demonstrates that compared to \ac{DeePC}, in general
 \end{center}                                 % accordingly.
 \end{figure}
 % -----------------------------------------------------------
+\noindent This section investigates the effect of the window lengths with $p=f$. The choice $p=f$ is made for the sake of simplicity is further motivated by its frequent use in the closely related field of subspace identification~\citep{vanderVeen2013}. We discern two competing mechanisms to explain the results shown in Fig.~\ref{fig:varying_pf} for \ac{CL-DeePC} and an additional detrimental effect on performance for \ac{DeePC}. Increasing $p$ is beneficial in terms of reducing the bias of the predictor. However, as with increasing $f_\mathrm{ID}$, increasing $p$ entails implicitly estimating more parameters of the predictor, thereby increasing its variance. This is more pronounced for \ac{DeePC} since $f_\mathrm{ID}=f$ when compared to \ac{CL-DeePC} for which $f_\mathrm{ID}=1$. The shorter future window length used for identification $f_\mathrm{ID}$ is also beneficial for \ac{CL-DeePC} because a higher degree of collinearity may be expected for larger $f_\mathrm{ID}$, potentially leading to ill-conditioning of the identification task~\citep{Chiuso2004}. Together with the aforementioned closed-loop identification issue these effects induce up to a 49\% lower reference tracking cost at $p=f=100$ for \ac{CL-DeePC} compared to \ac{DeePC}. Moreover, note that the performance of \ac{DeePC} deteriorates rapidly with increasing $p=f$, whereas the impact on the performance of \ac{CL-DeePC} is far less pronounced.
+% 1) period of 200 time samples\\
+% 2) increase p -> smaller bias, but larger variance (increase number of estimated parameters)\\
+% 3) increasing collinearity \& ill conditioning\\
