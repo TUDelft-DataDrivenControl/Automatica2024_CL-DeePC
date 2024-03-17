@@ -48,6 +48,7 @@ for k = 1:13
         if isempty(usr_con.(fn_usr)) && ~strcmpi(fn_usr,'Opti') % 'Opti' field can be empty
             % empty field -> delete
             usr_con = rmfield(usr_con,fn_usr);
+            fns = fields(usr_con);
         else
             value = usr_con.(fn_usr);
 
@@ -261,7 +262,7 @@ end
 if isfield(usr_con,'y0')
     obj.Prob.yp_ = [obj.make_par(obj.ny,obj.p-1,'yp_endmin1'),usr_con.y0];
 else
-    obj.Prob.yp_ = obj.make_par(obj.nu,obj.p,'yp');
+    obj.Prob.yp_ = obj.make_par(obj.ny,obj.p,'yp');
 end
 if isfield(usr_con,'rf')
     obj.Prob.rf_ = usr_con.rf;
