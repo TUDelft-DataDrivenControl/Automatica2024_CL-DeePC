@@ -70,6 +70,7 @@ classdef Generalized_DeePC < handle
                 options.ExplicitPredictor logical = true
                 options.Framework double = []
                 options.UseOptimizer logical = true
+                options.RunMakeSolver logical = true % false -> postphone making the solver (useful for use in subclasses)
                 options.opts = []
                 con_user.constr  = [] %struct = struct('expr',[],'u0',[],'uf',[],'y0',[],'yf',[]);
             end
@@ -143,21 +144,23 @@ classdef Generalized_DeePC < handle
             %==============================================================
             %-------------- make optimization problem ---------------------
             %==============================================================
-            if ~isempty(con_user.constr) || ~obj.options.useAnalytic
-                obj.make_solver(con_user.constr)
-            else
-                % no user-defined constraints -> use analytical solution
-                col1 = zeros(1,obj.f*obj.nu); col1(1) = 1; col1(obj.nu+1) = -1;
-                row1 = zeros(1,obj.nu*obj.f); row1(1) = 1;
-                Sdel = toeplitz(col1,row1);
+            if options.RunMakeSolver
+                if ~isempty(con_user.constr) || ~obj.options.useAnalytic
+                    obj.make_solver(con_user.constr)
+                else
+                    % no user-defined constraints -> use analytical solution
+                    col1 = zeros(1,obj.f*obj.nu); col1(1) = 1; col1(obj.nu+1) = -1;
+                    row1 = zeros(1,obj.nu*obj.f); row1(1) = 1;
+                    Sdel = toeplitz(col1,row1);
 
-                % cost function: J = 0.5 uf.'*H*uf + c.'*uf
-                % c = c_u0*u0 + Gu.'*Q*(Lu*up+Ly*yp-rf)
-                obj.Prob.c_u0 = -Sdel.'*R(:,1:obj.nu);
-                % H = H_const + Gu.'*Q*Gu
-                obj.Prob.H_const = R + Sdel.'*dR*Sdel;
+                    % cost function: J = 0.5 uf.'*H*uf + c.'*uf
+                    % c = c_u0*u0 + Gu.'*Q*(Lu*up+Ly*yp-rf)
+                    obj.Prob.c_u0 = -Sdel.'*R(:,1:obj.nu);
+                    % H = H_const + Gu.'*Q*Gu
+                    obj.Prob.H_const = R + Sdel.'*dR*Sdel;
 
-                obj.solve = @obj.analytical_solve;
+                    obj.solve = @obj.analytical_solve;
+                end
             end
 
             % adaptive or non-adaptive -> determines method to update data
