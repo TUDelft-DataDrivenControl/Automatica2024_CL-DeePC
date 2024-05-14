@@ -6,6 +6,7 @@ data/temp/
 bin/external/
 docs/manuscript/feedback/
 docs/manuscript/unused/
+docs/review/
 *.asv
 *.err
 *.out
